@@ -1,0 +1,17 @@
+# secrets / local env
+.env
+.env.*
+
+# foundry build artifacts
+out/
+cache/
+broadcast/
+
+# generated qwen prompt payloads (regenerable via pm/build_prompt.py)
+pm/prompts/
+
+# logs
+pm/*.log
+
+# os
+.DS_Store
