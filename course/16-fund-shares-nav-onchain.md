@@ -371,6 +371,320 @@ contract FundShareToken {
 }
 ```
 
+## Lesson 4 — Adding Rounding Policy
+
+**Learning objective:** Implement a rounding policy for the number of shares issued during subscription.  
+**Emphasis tags:** `[TYPES]` `[BANK]`
+
+In banking systems, precise calculations are crucial to avoid discrepancies. Similarly, in blockchain, implementing a rounding policy ensures that the number of shares issued is accurate and fair.
+
+### Step 4.1 — Define Rounding Policy
+
+**Instruction:** Modify the `subscribe` function to include a rounding policy for the number of shares issued.
+
+**Explanation:** Just like rounding policies in banking systems ensure accuracy in financial transactions, here we implement a rounding policy to handle cases where the division results in a fractional share. We will round down to the nearest whole share.
+
+**Starter code:**
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract FundShareToken {
+    address public navOracle;
+    uint256 public totalShares;
+    mapping(address => uint256) public shareBalances;
+    uint256 public lastNAVUpdateTimestamp;
+
+    event NAVUpdated(uint256 newNAV);
+
+    function getNAV() external view returns (uint256) {
+        return INavOracle(navOracle).getNAV();
+    }
+
+    function updateNAV(uint256 newNAV) external {
+        require(msg.sender == navOracle, "Only the NAV oracle can update NAV");
+        lastNAVUpdateTimestamp = block.timestamp;
+        emit NAVUpdated(newNAV);
+    }
+
+    function subscribe(uint256 chfAmount) external {
+        uint256 nav = getNAV();
+        require(nav > 0, "NAV must be greater than zero");
+        require(block.timestamp - lastNAVUpdateTimestamp < 3600, "NAV is too old");
+        uint256 sharesIssued = (chfAmount * 1e6) / nav;
+        shareBalances[msg.sender] += sharesIssued;
+        totalShares += sharesIssued;
+    }
+}
+```
+
+**Solution:**
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract FundShareToken {
+    address public navOracle;
+    uint256 public totalShares;
+    mapping(address => uint256) public shareBalances;
+    uint256 public lastNAVUpdateTimestamp;
+
+    event NAVUpdated(uint256 newNAV);
+
+    function getNAV() external view returns (uint256) {
+        return INavOracle(navOracle).getNAV();
+    }
+
+    function updateNAV(uint256 newNAV) external {
+        require(msg.sender == navOracle, "Only the NAV oracle can update NAV");
+        lastNAVUpdateTimestamp = block.timestamp;
+        emit NAVUpdated(newNAV);
+    }
+
+    function subscribe(uint256 chfAmount) external {
+        uint256 nav = getNAV();
+        require(nav > 0, "NAV must be greater than zero");
+        require(block.timestamp - lastNAVUpdateTimestamp < 3600, "NAV is too old");
+        uint256 sharesIssued = (chfAmount * 1e6) / nav;
+        shareBalances[msg.sender] += sharesIssued;
+        totalShares += sharesIssued;
+    }
+}
+```
+
+**Validation rule:** Implement rounding policy in `subscribe` function.
+
+```checker
+{
+  "id": "ch16-l4-s1",
+  "type": "regex",
+  "pattern": "uint256\\s+sharesIssued\\s+=\\s+\\(chfAmount\\s+\\*\\s+1e6\\)\\s+/\\s+nav;",
+  "flags": "m",
+  "target": "solidity",
+  "error_hint": "Implement rounding policy in `subscribe` function."
+}
+```
+
+### Step 4.2 — Test Rounding Policy
+
+**Instruction:** Write a test to verify that the rounding policy works correctly.
+
+**Explanation:** Just like testing financial transactions for accuracy in banking systems, here we write a test to ensure that the rounding policy correctly handles fractional shares by rounding down to the nearest whole share.
+
+**Starter code:**
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract FundShareToken {
+    address public navOracle;
+    uint256 public totalShares;
+    mapping(address => uint256) public shareBalances;
+    uint256 public lastNAVUpdateTimestamp;
+
+    event NAVUpdated(uint256 newNAV);
+
+    function getNAV() external view returns (uint256) {
+        return INavOracle(navOracle).getNAV();
+    }
+
+    function updateNAV(uint256 newNAV) external {
+        require(msg.sender == navOracle, "Only the NAV oracle can update NAV");
+        lastNAVUpdateTimestamp = block.timestamp;
+        emit NAVUpdated(newNAV);
+    }
+
+    function subscribe(uint256 chfAmount) external {
+        uint256 nav = getNAV();
+        require(nav > 0, "NAV must be greater than zero");
+        require(block.timestamp - lastNAVUpdateTimestamp < 3600, "NAV is too old");
+        uint256 sharesIssued = (chfAmount * 1e6) / nav;
+        shareBalances[msg.sender] += sharesIssued;
+        totalShares += sharesIssued;
+    }
+}
+```
+
+**Solution:**
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract FundShareToken {
+    address public navOracle;
+    uint256 public totalShares;
+    mapping(address => uint256) public shareBalances;
+    uint256 public lastNAVUpdateTimestamp;
+
+    event NAVUpdated(uint256 newNAV);
+
+    function getNAV() external view returns (uint256) {
+        return INavOracle(navOracle).getNAV();
+    }
+
+    function updateNAV(uint256 newNAV) external {
+        require(msg.sender == navOracle, "Only the NAV oracle can update NAV");
+        lastNAVUpdateTimestamp = block.timestamp;
+        emit NAVUpdated(newNAV);
+    }
+
+    function subscribe(uint256 chfAmount) external {
+        uint256 nav = getNAV();
+        require(nav > 0, "NAV must be greater than zero");
+        require(block.timestamp - lastNAVUpdateTimestamp < 3600, "NAV is too old");
+        uint256 sharesIssued = (chfAmount * 1e6) / nav;
+        shareBalances[msg.sender] += sharesIssued;
+        totalShares += sharesIssued;
+    }
+}
+```
+
+**Validation rule:** Write a test to verify rounding policy.
+
+```checker
+{"id": "ch16-l4-s2", "type": "regex", "pattern": "function\\s+subscribe\\(", "flags": "", "target": "solidity", "error_hint": "Write a test to verify rounding policy."}
+```
+
+## Lesson 5 — Implementing NavPublisher Java Adapter
+
+**Learning objective:** Create a Java adapter to push the daily struck NAV on-chain.  
+**Emphasis tags:** `[BANK]` `[TYPES]`
+
+In banking systems, integrating with external systems often requires writing adapters or connectors. Similarly, in blockchain, we need to create a Java adapter that interacts with the `FundShareToken` contract to update the NAV value.
+
+### Step 5.1 — Define NavPublisher Class
+
+**Instruction:** Create a Java class `NavPublisher.java` that connects to the Ethereum network and updates the NAV value on-chain.
+
+**Explanation:** Just like integrating with external systems in banking, here we create a Java adapter that connects to the Ethereum network using web3j and interacts with the `FundShareToken` contract to update the NAV value.
+
+**Starter code:**
+```java
+// NavPublisher.java
+
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.crypto.Credentials;
+import org.web3j.tx.gas.DefaultGasProvider;
+
+public class NavPublisher {
+    // declare here
+}
+```
+
+**Solution:**
+```java
+// NavPublisher.java
+
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.crypto.Credentials;
+import org.web3j.tx.gas.DefaultGasProvider;
+import org.web3j.abi.datatypes.generated.Uint256;
+import org.web3j.tx.TransactionManager;
+
+public class NavPublisher {
+    private Web3j web3j;
+    private Credentials credentials;
+    private FundShareToken fundShareToken;
+
+    public NavPublisher(String rpcUrl, String privateKey) {
+        this.web3j = Web3j.build(new HttpService(rpcUrl));
+        this.credentials = Credentials.create(privateKey);
+        TransactionManager transactionManager = new org.web3j.tx.RawTransactionManager(web3j, credentials);
+        this.fundShareToken = FundShareToken.load("<contract_address>", web3j, transactionManager, new DefaultGasProvider());
+    }
+
+    public void updateNAV(uint256 newNAV) throws Exception {
+        TransactionReceipt receipt = fundShareToken.updateNAV(new Uint256(newNAV)).send();
+        System.out.println("Transaction hash: " + receipt.getTransactionHash());
+    }
+}
+```
+
+**Validation rule:** Declare `NavPublisher` class with correct fields and constructor.
+
+```checker
+{
+  "id": "ch16-l5-s1",
+  "type": "regex",
+  "pattern": "public\\s+class\\s+NavPublisher\\s*{[\\s\\S]*private\\s+Web3j\\s+web3j;[\\s\\S]*private\\s+Credentials\\s+credentials;[\\s\\S]*private\\s+FundShareToken\\s+fundShareToken;",
+  "flags": "m",
+  "target": "java",
+  "error_hint": "Declare `NavPublisher` class with correct fields and constructor."
+}
+```
+
+### Step 5.2 — Implement updateNAV Method
+
+**Instruction:** Implement the `updateNAV` method in the `NavPublisher` class to push the NAV value on-chain.
+
+**Explanation:** Just like pushing financial data to external systems in banking, here we implement the `updateNAV` method in the `NavPublisher` class to push the NAV value on-chain using web3j.
+
+**Starter code:**
+```java
+// NavPublisher.java
+
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.crypto.Credentials;
+import org.web3j.tx.gas.DefaultGasProvider;
+import org.web3j.abi.datatypes.generated.Uint256;
+import org.web3j.tx.TransactionManager;
+
+public class NavPublisher {
+    private Web3j web3j;
+    private Credentials credentials;
+    private FundShareToken fundShareToken;
+
+    public NavPublisher(String rpcUrl, String privateKey) {
+        this.web3j = Web3j.build(new HttpService(rpcUrl));
+        this.credentials = Credentials.create(privateKey);
+        TransactionManager transactionManager = new org.web3j.tx.RawTransactionManager(web3j, credentials);
+        this.fundShareToken = FundShareToken.load("<contract_address>", web3j, transactionManager, new DefaultGasProvider());
+    }
+
+    // implement updateNAV method here
+}
+```
+
+**Solution:**
+```java
+// NavPublisher.java
+
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.http.HttpService;
+import org.web3j.crypto.Credentials;
+import org.web3j.tx.gas.DefaultGasProvider;
+import org.web3j.abi.datatypes.generated.Uint256;
+import org.web3j.tx.TransactionManager;
+import org.web3j.protocol.core.methods.response.TransactionReceipt;
+
+public class NavPublisher {
+    private Web3j web3j;
+    private Credentials credentials;
+    private FundShareToken fundShareToken;
+
+    public NavPublisher(String rpcUrl, String privateKey) {
+        this.web3j = Web3j.build(new HttpService(rpcUrl));
+        this.credentials = Credentials.create(privateKey);
+        TransactionManager transactionManager = new org.web3j.tx.RawTransactionManager(web3j, credentials);
+        this.fundShareToken = FundShareToken.load("<contract_address>", web3j, transactionManager, new DefaultGasProvider());
+    }
+
+    public void updateNAV(uint256 newNAV) throws Exception {
+        TransactionReceipt receipt = fundShareToken.updateNAV(new Uint256(newNAV)).send();
+        System.out.println("Transaction hash: " + receipt.getTransactionHash());
+    }
+}
+```
+
+**Validation rule:** Implement `updateNAV` method in `NavPublisher` class.
+
+```checker
+{"id": "ch16-l5-s2", "type": "regex", "pattern": "public\\s+void\\s+updateNAV\\(uint256\\s+newNAV\\)\\s+throws\\s+Exception\\s*{", "flags": "", "target": "java", "error_hint": "Implement `updateNAV` method in `NavPublisher` class."}
+```
+
 ## Assembled Contract
 
 ```solidity
