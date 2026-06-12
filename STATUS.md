@@ -6,8 +6,8 @@
 - [x] Track A (bond): ch 10, 11, 12
 - [x] Track B (equity): ch 13, 14, 15
 - [x] Track C (mmf): ch 16, 17, 18
-- [x] 18 chapters + map · 78 lessons · 175 steps · 145 machine-readable checkers
-- [x] Depth pass: ch06/10/13/16 expanded to peer depth (all instrument chapters 20k+)
+- [x] 18 chapters + map · 78 lessons · 181 steps · 151 machine-readable checkers
+- [x] Depth pass: ch06/08/10/13/16 expanded; ALL 18 chapters now 22k+ (consistent depth)
 
 ## Contracts (assembled, forge build)
 - [x] contracts/shared/*.sol (8)
