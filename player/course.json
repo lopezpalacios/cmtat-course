@@ -1485,14 +1485,7 @@
        "explanation": "This is the foundational mental-model shift. Pre-2021, transferring a token did not by itself transfer the legal right \u2014 you needed a written assignment (like emailing a PDF of a contract while the signed original stays in a vault). Post-973d, registration and transfer *in the ledger* effect the transfer of the right itself: the on-chain `Transfer` event is not a notification about a settlement that happened elsewhere \u2014 it **is** the settlement of the securities leg. For a core-banking engineer: the difference between a reporting copy of the register and the master table itself.",
        "starter": "Before the DLT Act: a token was ...\nAfter OR Art. 973d: the token entry in the securities ledger ...\nand transfer of the token ...",
        "solution": "Before the DLT Act: a token was at most evidence of a right held elsewhere;\nmoving the token did not legally move the right (a written assignment was needed).\nAfter OR Art. 973d: the token entry in the securities ledger IS the security,\nand transfer of the token in the ledger IS the legally effective transfer of\nthe right \u2014 the on-chain Transfer event is the settlement of the securities leg.",
-       "checker": {
-        "id": "ch09-l1-s1",
-        "type": "regex",
-        "pattern": "moving\\s+the\\s+token\\s+did\\s+not\\s+legally\\s+move\\s+the\\s+right\\s+\\(a\\s+written\\s+assignment\\s+was\\s+needed\\)\\.",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "1.1",
        "title": "Identify what changed legally in 2021"
       },
@@ -1501,14 +1494,7 @@
        "explanation": "You will be asked this in every design review. The four requirements are the acceptance criteria for \"is this system legally a securities ledger at all\": (1) holder power of disposal by technical means, (2) integrity protected against unauthorised modification (joint management by several independent participants), (3) content of rights and functioning of the ledger recorded in the ledger or linked accompanying data, (4) holders can view their entries and verify integrity without a third party. Memorize them as **dispose / integrity / disclose / verify**. Note what is *not* on the list: the law is technology-neutral \u2014 it never says \"blockchain\", it describes properties. A sufficiently replicated, jointly-operated permissioned ledger can qualify; a single-operator SQL database cannot satisfy requirement 2.",
        "starter": "1. Holders can ...\n2. The ledger's ...\n3. The content of the rights and ...\n4. Holders can ... without ...",
        "solution": "1. Holders can dispose of their rights by technical means (power of disposal).\n2. The ledger's integrity is protected against unauthorised modification \u2014\n   adequate technical/organisational measures, e.g. joint management by\n   several independent participants.\n3. The content of the rights and the functioning of the ledger are recorded\n   in the ledger or in linked accompanying data (registration agreement).\n4. Holders can view their own entries and verify ledger integrity relating\n   to themselves without the intervention of a third party.",
-       "checker": {
-        "id": "ch09-l1-s2",
-        "type": "regex",
-        "pattern": "1\\.\\s+Holders\\s+can\\s+dispose\\s+of\\s+their\\s+rights\\s+by\\s+technical\\s+means\\s+\\(power\\s+of\\s+disposal\\)\\.",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "1.2",
        "title": "Extract the four ledger requirements"
       },
@@ -1517,14 +1503,7 @@
        "explanation": "This mapping is the core deliverable of Lesson 1 \u2014 it is literally a slide your compliance team will ask you to produce. The discipline matters: every CMTAT module you deploy should trace to a legal or operational requirement (and vice versa). Requirement 1 is satisfied by the most basic ERC-20 mechanics \u2014 only the keyholder's signature moves the keyholder's balance. Requirement 2 is *not* satisfied by your contract at all \u2014 it is a property of the **chain you deploy to**, which is why the choice of network (public mainnet vs bank consortium chain) is a legal question, not just an infrastructure one. Requirements 3 and 4 are satisfied by CMTAT's BaseModule/DocumentModule and the EVM's public-read nature respectively.",
        "starter": "Power of disposal        -> ?\nLedger integrity         -> ?\nLinked accompanying data -> ?\nThird-party-free verify  -> ?",
        "solution": "Power of disposal        -> ERC20BaseModule transfer + private-key control:\n                            only msg.sender can move msg.sender's balance.\nLedger integrity         -> the chain itself: consensus across several\n                            independent node operators; append-only blocks.\n                            (A property of the network, NOT of the contract.)\nLinked accompanying data -> BaseModule terms field + DocumentModule:\n                            URI + hash of the registration agreement.\nThird-party-free verify  -> public view functions (balanceOf, totalSupply)\n                            and public event logs, readable from any node.",
-       "checker": {
-        "id": "ch09-l1-s3",
-        "type": "regex",
-        "pattern": "Power\\s+of\\s+disposal\\s+\\->\\s+ERC20BaseModule\\s+transfer\\s+\\+\\s+private\\-key\\s+control:",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "1.3",
        "title": "Map law clause to CMTAT feature"
       },
@@ -1533,14 +1512,7 @@
        "explanation": "In a pure-crypto world, lost keys mean lost assets, full stop. For a ledger-based security that outcome is legally unacceptable \u2014 the *right* (the share, the bond claim) survives the key. OR Art. 973h provides court cancellation of the ledger-based security, after which it can be re-registered to the rightful holder. The technical execution of that judgment is EnforcementModule's forced transfer (or burn-then-mint): a registrar role, after the legal process completes, moves or reissues the position. This is why Chapter 07 insisted forced transfer is **not a backdoor** \u2014 it is the implementation of a statutory remedy, gated by roles (Chapter 05) and fully evented for audit.",
        "starter": "Legal step: ...\nTechnical step: ... (module: ...)\nWhy this is not a backdoor: ...",
        "solution": "Legal step: the holder obtains cancellation of the ledger-based security by\nthe court under OR Art. 973h, establishing their entitlement.\nTechnical step: the registrar executes a forced transfer (or burn + re-mint)\nvia the EnforcementModule, moving the position to the holder's new address.\nWhy this is not a backdoor: it is the on-chain implementation of a statutory\nremedy, restricted to an authorised role and fully logged via events.",
-       "checker": {
-        "id": "ch09-l1-s4",
-        "type": "regex",
-        "pattern": "Technical\\s+step:\\s+the\\s+registrar\\s+executes\\s+a\\s+forced\\s+transfer\\s+\\(or\\s+burn\\s+\\+\\s+re\\-mint\\)",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "1.4",
        "title": "Lost keys are a legal scenario, not just an ops incident"
       },
@@ -1564,14 +1536,7 @@
        "explanation": "Classification is the first gate of every tokenization project \u2014 it decides which legal regime, hence which CMTAT modules and adapter duties, apply. The test is functional: (a) embodies a claim against an issuer (interest + principal) \u2192 asset token \u2192 security; (b) grants access to a working digital service \u2192 utility token; (c) is a pure means of payment with no counterparty claim \u2192 payment token. If (b)'s network were *not yet live* at issuance, FINMA would treat the sale as investment-like \u2014 functionality at issuance matters.",
        "starter": "(a) bond-coupon token: ...\n(b) storage-compute token: ...\n(c) fee-payment token: ...",
        "solution": "(a) bond-coupon token: ASSET token \u2014 claim on the issuer (interest,\n    principal) => treated as a security.\n(b) storage-compute token: UTILITY token \u2014 access to a functioning\n    digital service; not a security if usable at issuance.\n(c) fee-payment token: PAYMENT token \u2014 means of payment, no issuer\n    claim; AML regime applies, not securities law.",
-       "checker": {
-        "id": "ch09-l2-s1",
-        "type": "regex",
-        "pattern": "\\(a\\)\\s+bond\\-coupon\\s+token:\\s+ASSET\\s+token\\s+\u2014\\s+claim\\s+on\\s+the\\s+issuer\\s+\\(interest,",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "2.1",
        "title": "Classify three tokens"
       },
@@ -1580,14 +1545,7 @@
        "explanation": "\"It's a security\" is not a label, it is a cascade: securities-law treatment means (i) it should be issued as a **ledger-based security** under OR 973d (Lesson 1) to get clean transferability, and (ii) offering documents/terms duties (FinSA prospectus rules, when applicable \u2014 counsel decides applicability; you provide the plumbing). Engineering-side, the two recurring duties are: **terms/document availability on-chain** (DocumentModule, BaseModule terms) and **controlled transferability** (ValidationModule + RuleEngine, because securities distribution is restricted by investor eligibility). Notice both already exist in CMTAT \u2014 that is the point of using the standard.",
        "starter": "Regime: ...\nEngineering duty 1: ...\nEngineering duty 2: ...",
        "solution": "Regime: securities law \u2014 issue as a ledger-based security (OR 973d) and\nrespect offering/prospectus duties under FinSA where applicable.\nEngineering duty 1: terms and offering documents discoverable from the\ntoken (BaseModule terms + DocumentModule with URI and hash).\nEngineering duty 2: transfer restriction enforcement \u2014 ValidationModule\ndelegating to a RuleEngine that encodes investor-eligibility rules.",
-       "checker": {
-        "id": "ch09-l2-s2",
-        "type": "regex",
-        "pattern": "Regime:\\s+securities\\s+law\\s+\u2014\\s+issue\\s+as\\s+a\\s+ledger\\-based\\s+security\\s+\\(OR\\s+973d\\)\\s+and",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "2.2",
        "title": "State the consequence of \"asset token = security\""
       },
@@ -1596,14 +1554,7 @@
        "explanation": "This determines system boundaries: each licensed function usually lives in a separate legal entity with its own systems, and your adapters cross those boundaries. (1) is the textbook **DLT trading facility** under FMIA Art. 73a ff. \u2014 the DLT Act created it precisely so one entity may combine trading + settlement + custody and admit retail directly, which no traditional Swiss exchange may do. (2) holding client cash is deposit-taking \u2192 **banking licence** (or the Art. 1b fintech licence within its limits). (3) professional token custody triggers at minimum **AMLA financial-intermediary** status, and depending on structure banking/FinIA rules.",
        "starter": "(1) retail venue + settlement + custody -> ?\n(2) client CHF cash                     -> ?\n(3) professional token safekeeping      -> ?",
        "solution": "(1) retail venue + settlement + custody -> DLT trading facility licence\n    (FMIA Art. 73a ff.) \u2014 may combine trading, settlement, custody and\n    admit retail participants directly.\n(2) client CHF cash                     -> banking licence (BankA), or the\n    Art. 1b fintech licence within its CHF 100m / no-lending limits.\n(3) professional token safekeeping      -> AMLA financial-intermediary\n    status at minimum; banking rules can apply depending on structure.",
-       "checker": {
-        "id": "ch09-l2-s3",
-        "type": "regex",
-        "pattern": "\\(2\\)\\s+client\\s+CHF\\s+cash\\s+\\->\\s+banking\\s+licence\\s+\\(BankA\\),\\s+or\\s+the",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "2.3",
        "title": "Pick the licence for the function"
       },
@@ -1612,14 +1563,7 @@
        "explanation": "Technology neutrality cuts both ways: regulation does not get lighter on-chain, and your *control architecture* should not be reinvented on-chain either. The bank's KYC system already satisfies AMLA process requirements (audited, four-eyes, case management); the chain's job is **enforcement at the transfer boundary**, not decision-making. Correct shape: KYC decision off-chain \u2192 adapter writes a boolean/whitelist entry on-chain \u2192 RuleEngine consults it on transfer (Chapter 07). On-chain scoring would duplicate a regulated process in an environment where every input is public and every fix is a migration.",
        "starter": "Decision should live: ...\nChain's role: ...\nBecause (same risks, same rules): ...",
        "solution": "Decision should live: in the bank's existing KYC/compliance systems, which\nalready meet AMLA process requirements.\nChain's role: enforcement point only \u2014 the RuleEngine checks a whitelist\nflag the adapter maintains from the KYC system of record.\nBecause (same risks, same rules): the regulatory duty is unchanged by the\ntechnology, so the audited off-chain process remains the decision-maker;\nduplicating it on-chain adds public data exposure and migration risk\nwithout discharging any duty.",
-       "checker": {
-        "id": "ch09-l2-s4",
-        "type": "regex",
-        "pattern": "Decision\\s+should\\s+live:\\s+in\\s+the\\s+bank's\\s+existing\\s+KYC/compliance\\s+systems,\\s+which",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "2.4",
        "title": "Apply \"same risks, same rules\" to an architecture decision"
       },
@@ -1643,14 +1587,7 @@
        "explanation": "This single sentence drives the wallet architecture decision. The structure is: *kept available for the client at all times* AND (*individually allocated* OR *allocated to a community with the client's share clearly determined*). Engineers tend to remember the omnibus alternative and forget the umbrella condition \u2014 \"available at all times\" is what rules out lending out client tokens or commingling them with the bank's proprietary trading positions.",
        "starter": "Client crypto-assets are segregated from the custodian's bankruptcy estate\nif the custodian keeps them ... at all times, AND they are either\n(a) ... , or\n(b) ... and the client's share ...",
        "solution": "Client crypto-assets are segregated from the custodian's bankruptcy estate\nif the custodian keeps them available for the client at all times, AND they\nare either\n(a) individually allocated to the client, or\n(b) allocated to a community (omnibus pool) and the client's share of that\n    community is clearly determined.",
-       "checker": {
-        "id": "ch09-l3-s1",
-        "type": "regex",
-        "pattern": "if\\s+the\\s+custodian\\s+keeps\\s+them\\s+available\\s+for\\s+the\\s+client\\s+at\\s+all\\s+times,\\s+AND\\s+they",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "3.1",
        "title": "State the two segregation conditions"
       },
@@ -1659,14 +1596,7 @@
        "explanation": "There is no universally right answer, but the scenario's parameters point omnibus: 40,000 whitelist entries would make the RuleEngine a gas-expensive mirror of the client database, and high *internal* turnover (client A sells to client B at the same bank) settles in the sub-ledger without any chain transaction at all \u2014 exactly how your existing custody book nets internal transfers today. The price is that bankruptcy remoteness now rests entirely on sub-ledger quality, so the `sum == balanceOf` invariant becomes a regulatory control, not a nice-to-have. A segregated answer is acceptable if argued (client-level on-chain transparency, simpler 242a(a) path) \u2014 what matters is reasoning from the table's trade-offs.",
        "starter": "Recommendation: ...\nReason 1 (whitelist): ...\nReason 2 (reconciliation/settlement): ...\nAccepted cost: ...",
        "solution": "Recommendation: omnibus wallet with a core-banking sub-ledger.\nReason 1 (whitelist): only the omnibus address needs whitelisting in the\nRuleEngine \u2014 40,000 retail addresses would bloat on-chain state and make\nevery KYC status change a chain transaction.\nReason 2 (reconciliation/settlement): client-to-client trades at the same\nbank settle in the sub-ledger with no on-chain transfer, cutting gas and\nlatency; the chain only sees net external movements.\nAccepted cost: bankruptcy remoteness now depends on Art. 242a(b)'s \"share\nclearly determined\" \u2014 the sum(sub-ledger) == balanceOf(omnibus) invariant\nmust be continuously reconciled and historically evidenced.",
-       "checker": {
-        "id": "ch09-l3-s2",
-        "type": "regex",
-        "pattern": "Reason\\s+2\\s+\\(reconciliation/settlement\\):\\s+client\\-to\\-client\\s+trades\\s+at\\s+the\\s+same",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "3.2",
        "title": "Choose a wallet model for a scenario"
       },
@@ -1675,14 +1605,7 @@
        "explanation": "Turning \"share clearly determined\" into an executable check is the lesson's central move: law \u2192 invariant \u2192 scheduled job \u2192 audit record. The invariant compares two systems of record across a trust boundary, so it runs in the bank-side adapter (it can read both), on a schedule plus on every settlement event, and its results are themselves persisted append-only \u2014 in a dispute, the *history* of green checks is the evidence.",
        "starter": "Invariant: ...\nChecked by: ...",
        "solution": "Invariant: sum(subLedger.balances[clientId] for all clients)\n           == token.balanceOf(omnibusAddress)\nChecked by: the bank-side ReconciliationJob (Chapter 08), scheduled and\nevent-triggered, writing each result to the append-only audit trail.",
-       "checker": {
-        "id": "ch09-l3-s3",
-        "type": "regex",
-        "pattern": "Checked\\s+by:\\s+the\\s+bank\\-side\\s+ReconciliationJob\\s+\\(Chapter\\s+08\\),\\s+scheduled\\s+and",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "3.3",
        "title": "Write the omnibus invariant"
       },
@@ -1691,14 +1614,7 @@
        "explanation": "You will face this question verbatim. The rebuttal structure mirrors the chapter's recurring triad: (1) **legal basis** \u2014 the powers implement statutory and contractual obligations (court attachment, sanctions, OR 973h reissue) and are disclosed in the registration agreement the client accepted (Lesson 1, requirement 3 \u2014 no hidden powers); (2) **technical gating** \u2014 only the ENFORCER/registrar role can call them (Chapter 05), held by a regulated entity, ideally behind multi-sig quorum; (3) **audit trail** \u2014 every invocation emits events with case references, verifiable by the client from their own node (Lesson 1, requirement 4). Then flip it: a token *without* these powers could not satisfy a Swiss court order or recover a fat-fingered transfer \u2014 *that* would be the unsafe custody.",
        "starter": "Legal basis: ...\nTechnical gating: ...\nAudit trail: ...\nFlip: a token WITHOUT these powers ...",
        "solution": "Legal basis: forced transfer implements statutory duties \u2014 court-ordered\nattachment, sanctions freezes, OR 973h lost-key cancellation/reissue \u2014 and\nthe powers are disclosed in the registration agreement you accepted.\nTechnical gating: only the registrar's ENFORCER role can invoke it, held by\na regulated entity under multi-party (quorum) key control.\nAudit trail: every freeze and forced transfer emits an event with a case\nreference; you can verify all uses from your own node, third-party-free.\nFlip: a token WITHOUT these powers could not execute a court order or\nrecover a mis-sent position \u2014 that token is the one no Swiss custodian\nshould hold for you.",
-       "checker": {
-        "id": "ch09-l3-s4",
-        "type": "regex",
-        "pattern": "Technical\\s+gating:\\s+only\\s+the\\s+registrar's\\s+ENFORCER\\s+role\\s+can\\s+invoke\\s+it,\\s+held\\s+by",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "3.4",
        "title": "Defend freeze/forced-transfer to a skeptical client"
       },
@@ -1722,14 +1638,7 @@
        "explanation": "Most AMLA duties are pure process (identification, beneficial-owner establishment, clarification, MROS reporting) \u2014 they live in bank systems and produce *data* the chain consumes. Exactly two reach the chain as enforcement: the duty to ensure you only deal with identified parties materializes as the **ValidationModule + RuleEngine whitelist** (no transfer to/from unresolved addresses), and the duty to freeze assets in connection with reporting materializes as the **EnforcementModule address freeze**. Knowing which duties stay off-chain is as important as knowing which go on \u2014 it keeps you from gold-plating the contract.",
        "starter": "Duties: 1. ...  2. ...  3. ...  4. ...  5. ...\nOn-chain hook A: duty ... -> module ...\nOn-chain hook B: duty ... -> module ...",
        "solution": "Duties: 1. verify customer identity  2. establish the beneficial owner\n3. monitor transactions for unusual patterns  4. clarify anomalies\n5. report suspicions to MROS  6. freeze assets connected to a report\nOn-chain hook A: dealing only with identified counterparties\n  -> ValidationModule + RuleEngine whitelist gate on every transfer.\nOn-chain hook B: asset freezing\n  -> EnforcementModule address freeze (and unfreeze on release).",
-       "checker": {
-        "id": "ch09-l4-s1",
-        "type": "regex",
-        "pattern": "Duties:\\s+1\\.\\s+verify\\s+customer\\s+identity\\s+2\\.\\s+establish\\s+the\\s+beneficial\\s+owner",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "4.1",
        "title": "List the AMLA duties and find the two with on-chain hooks"
       },
@@ -1738,14 +1647,7 @@
        "explanation": "Three facts to retain. First, originator and beneficiary information must accompany VASP transfers \u2014 exchanged off-chain between the institutions, like MT103 fields travel with a wire. Second, FINMA applies this **without a de-minimis threshold** \u2014 stricter than many jurisdictions; do not design tiered logic that skips Travel-Rule handling for small amounts. Third, for unhosted wallets, FINMA expects supervised institutions to transact only where the **customer's ownership of the external wallet is proven by technical means** (signed message, verification transaction). Your whitelist trichotomy (VASP / proven customer wallet / blocked) encodes all three.",
        "starter": "Must accompany the transfer: ...\nSwiss threshold: ...\nUnhosted wallets: allowed only if ...",
        "solution": "Must accompany the transfer: identifying information on the originator and\nthe beneficiary, exchanged off-chain between the VASPs (never on-chain).\nSwiss threshold: none \u2014 FINMA applies the Travel Rule without a de-minimis\nthreshold, so it covers transfers of any amount.\nUnhosted wallets: allowed only if the institution's own customer's ownership\nof the external wallet has been proven by technical means (e.g. a message\nsigned with the wallet's key or a verification micro-transaction).",
-       "checker": {
-        "id": "ch09-l4-s2",
-        "type": "regex",
-        "pattern": "Unhosted\\s+wallets:\\s+allowed\\s+only\\s+if\\s+the\\s+institution's\\s+own\\s+customer's\\s+ownership",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "4.2",
        "title": "State FINMA's Travel-Rule position"
       },
@@ -1754,14 +1656,7 @@
        "explanation": "This step converts Lesson 4's law into the Chapter 07 contract you already built. The RuleEngine itself stays simple \u2014 `isWhitelisted(address)` \u2014 but *what whitelisting means* is now precise: (i) **identified VASP** \u2014 Travel-Rule messaging channel established with that institution, its receiving address registered; (ii) **proven customer wallet** \u2014 ownership-proof artifact (signed challenge) stored against the KYC file; (iii) **blocked** \u2014 everything else, which is simply *absence* from the whitelist (deny-by-default, Chapter 07). The compliance semantics live in the adapter's process; the chain enforces the result.",
        "starter": "Category 1: ... -> adapter precondition: ...\nCategory 2: ... -> adapter precondition: ...\nCategory 3: ... -> on-chain representation: ...",
        "solution": "Category 1: identified VASP counterparty -> adapter precondition: Travel-\nRule data-exchange channel established with that institution and the\naddress registered as belonging to it.\nCategory 2: customer's own external wallet -> adapter precondition:\nownership proven by technical means (signed challenge / verification tx),\nartifact stored in the KYC case file before the whitelist mutation.\nCategory 3: everything else (blocked) -> on-chain representation: absence\nfrom the whitelist \u2014 the RuleEngine denies by default, so unresolved\naddresses simply cannot receive or send the token.",
-       "checker": {
-        "id": "ch09-l4-s3",
-        "type": "regex",
-        "pattern": "Category\\s+1:\\s+identified\\s+VASP\\s+counterparty\\s+\\->\\s+adapter\\s+precondition:\\s+Travel\\-",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "4.3",
        "title": "Design the counterparty trichotomy into the RuleEngine"
       },
@@ -1770,14 +1665,7 @@
        "explanation": "The mapping discipline from Chapter 05 now gets its regulatory rationale: separation of duties on-chain must mirror the bank's *legally meaningful* separation off-chain, because supervisors audit the org chart and the role-grant events as one system. Freezes are compliance decisions \u2192 compliance holds ENFORCER. Register maintenance is the transfer agent's core function \u2192 registrar ops maintain the whitelist. Issuance follows the issuer's corporate decisions, executed by the registrar \u2192 MINTER sits with registrar ops under issuer instruction (ideally quorum-gated). Market-wide halts are an operations/market-control call \u2192 PAUSER with operations, with an incident runbook (Chapter 07).",
        "starter": "ENFORCER_ROLE       -> ...\nWhitelist maintainer -> ...\nMINTER_ROLE          -> ...\nPAUSER_ROLE          -> ...",
        "solution": "ENFORCER_ROLE        -> the bank's compliance function (freeze/forced\n                        transfer are compliance/legal decisions).\nWhitelist maintainer -> registrar/transfer-agent operations: keeping the\n                        register's eligibility list is their core function.\nMINTER_ROLE          -> registrar operations executing the issuer's\n                        instructions, behind a quorum (four-eyes) control.\nPAUSER_ROLE          -> operations/market control, per the incident and\n                        regulatory-action runbook.",
-       "checker": {
-        "id": "ch09-l4-s4",
-        "type": "regex",
-        "pattern": "Whitelist\\s+maintainer\\s+\\->\\s+registrar/transfer\\-agent\\s+operations:\\s+keeping\\s+the",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "4.4",
        "title": "Map registrar and transfer-agent functions to roles"
       },
@@ -1786,14 +1674,7 @@
        "explanation": "Precision here prevents two common errors in bank documentation: calling CMTAT \"the Swiss legal standard\" (it is not law) or dismissing it as \"just some open-source code\" (it is the market's reference blueprint, drafted by the association's bank/law-firm membership specifically to satisfy the OR 973d framework you studied in Lesson 1). The accurate framing: an industry-standard reference implementation that de-risks compliance review because the pattern is already known to Swiss counsel and supervisors.",
        "starter": "CMTA: ...\nCMTAT: ...\nLegal status: ...",
        "solution": "CMTA: the Capital Markets and Technology Association \u2014 a Geneva-based\nindustry association of Swiss banks, law firms, and technology firms.\nCMTAT: the CMTA Token \u2014 CMTA's open-source reference implementation for\ntokenizing Swiss securities (the modular contract set of Chapters 06-07).\nLegal status: not mandatory \u2014 no statute requires it; it is the market\nstandard blueprint designed to satisfy the OR 973d ledger-based-securities\nframework, which is why Swiss issuances converge on it.",
-       "checker": {
-        "id": "ch09-l4-s5",
-        "type": "regex",
-        "pattern": "standard\\s+blueprint\\s+designed\\s+to\\s+satisfy\\s+the\\s+OR\\s+973d\\s+ledger\\-based\\-securities",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "4.5",
        "title": "Place CMTA and CMTAT correctly"
       },
@@ -1802,14 +1683,7 @@
        "explanation": "Auditors love measurable control latencies. The freeze-latency metric (instruction timestamp \u2192 on-chain `Freeze` event timestamp) directly evidences the bank's ability to discharge its AMLA freezing duty *in practice*, not just on paper \u2014 it is the on-chain analogue of sanctions-screening response times that audit already tracks for payments.",
        "starter": "Metric: ...\nWhy audit cares: ...",
        "solution": "Metric: freeze latency \u2014 time from compliance's freeze instruction to the\non-chain Freeze event.\nWhy audit cares: it is direct, measurable evidence that the bank can\nactually discharge its AMLA asset-freezing duty in operation, equivalent\nto the sanctions-screening response times audit already tracks for\npayment systems.",
-       "checker": {
-        "id": "ch09-l4-s6",
-        "type": "regex",
-        "pattern": "Metric:\\s+freeze\\s+latency\\s+\u2014\\s+time\\s+from\\s+compliance's\\s+freeze\\s+instruction\\s+to\\s+the",
-        "flags": "m",
-        "target": "solidity",
-        "error_hint": "Your code should match the solution for this step."
-       },
+       "checker": null,
        "id": "4.6",
        "title": "Lesson 4 engineering checklist"
       }

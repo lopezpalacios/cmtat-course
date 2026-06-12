@@ -28,7 +28,30 @@ Regulatory grounding (FINMA, Swiss DLT Act, custody, KYC/AML) consolidated in Ch
 ## Compile
 
 ```sh
-forge build   # foundry.toml points src at contracts/
+forge build   # foundry.toml points src at contracts/  — 14 contracts, Solc 0.8.20, clean
 ```
+
+## Run the interactive player
+
+Each step carries a machine-readable `checker` (a regex over the learner's code) that
+gates progress, CryptoZombies-style. The zero-dependency static player runs these
+in-browser:
+
+```sh
+python3 pm/build_player.py          # (re)build player/course.json from the markdown
+python3 -m http.server -d player    # then open http://localhost:8000
+```
+
+The markdown under `course/` is the canonical source; the player is generated from it,
+so the course is fully usable as plain markdown too.
+
+## How this was built
+
+Content (every chapter, contract, and Java adapter) was authored by a **local LLM**
+(`qwen2.5-coder:14b` via Ollama). The `pm/` directory is the orchestration harness that
+prompted the model per chapter, chained each track's evolving contract, then **verified**
+the output — validating every checker regex against its own solution and compile-hardening
+contracts with `forge build` in a fix-and-retry loop. See `PROMPT_v2.md` and
+`CHECKER_SCHEMA.md` for the spec the model was held to.
 
 See `STATUS.md` for per-chapter progress and compile results, `ASSUMPTIONS.md` for decisions made autonomously.

@@ -64,12 +64,6 @@ the right — the on-chain Transfer event is the settlement of the securities le
 ```
 
 **Validation rule:** `(?is)transfer.*(right|security|securities)|(right|security).*transfer` — checks the answer connects token transfer to transfer of the legal right/security.
-
-
-
-```checker
-{"id": "ch09-l1-s1", "type": "regex", "pattern": "moving\\s+the\\s+token\\s+did\\s+not\\s+legally\\s+move\\s+the\\s+right\\s+\\(a\\s+written\\s+assignment\\s+was\\s+needed\\)\\.", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 1.2 — Extract the four ledger requirements
 
 **Instruction:** Without looking at the table above, list the four requirements OR Art. 973d para. 2 places on a securities ledger, one per line, each as a short noun phrase.
@@ -97,12 +91,6 @@ the right — the on-chain Transfer event is the settlement of the securities le
 ```
 
 **Validation rule:** `(?is)(disposal|dispose).*(integrity).*(accompanying|registration agreement|recorded).*(third party|verify)` — checks all four requirement keywords appear in order: disposal, integrity, registration agreement/recording, third-party-free verification.
-
-
-
-```checker
-{"id": "ch09-l1-s2", "type": "regex", "pattern": "1\\.\\s+Holders\\s+can\\s+dispose\\s+of\\s+their\\s+rights\\s+by\\s+technical\\s+means\\s+\\(power\\s+of\\s+disposal\\)\\.", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 1.3 — Map law clause to CMTAT feature
 
 **Instruction:** Fill the right-hand column: for each 973d requirement, name the CMTAT module or EVM property that satisfies it.
@@ -131,12 +119,6 @@ Third-party-free verify  -> public view functions (balanceOf, totalSupply)
 ```
 
 **Validation rule:** `(?is)(erc20|transfer|private.?key).*(consensus|chain|node|network).*(documentmodule|basemodule|terms).*(view|balanceof|event|node)` — checks each requirement is mapped to the correct feature family in order.
-
-
-
-```checker
-{"id": "ch09-l1-s3", "type": "regex", "pattern": "Power\\s+of\\s+disposal\\s+\\->\\s+ERC20BaseModule\\s+transfer\\s+\\+\\s+private\\-key\\s+control:", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 1.4 — Lost keys are a legal scenario, not just an ops incident
 
 **Instruction:** A shareholder loses their private key. In two or three sentences, describe the legally anchored recovery path and name the CMTAT module involved.
@@ -161,12 +143,6 @@ remedy, restricted to an authorised role and fully logged via events.
 ```
 
 **Validation rule:** `(?is)(973h|court|cancel).*(enforcement|forced.?transfer|burn)` — checks the answer links court cancellation (973h) to EnforcementModule / forced transfer.
-
-
-
-```checker
-{"id": "ch09-l1-s4", "type": "regex", "pattern": "Technical\\s+step:\\s+the\\s+registrar\\s+executes\\s+a\\s+forced\\s+transfer\\s+\\(or\\s+burn\\s+\\+\\s+re\\-mint\\)", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 1.5 — Lesson 1 engineering checklist
 
 **Instruction:** Read the checklist below, then write the single checklist item your team is most likely to forget and one sentence on why.
@@ -228,12 +204,6 @@ FINMA's governing principle is **technology neutrality**: *same risks, same rule
 *Assumption:* this course treats licensing at the "which entity / which adapter" level only; threshold details (e.g. when custody of payment tokens tips into deposit-taking) are counsel's call.
 
 > **Banking integration note:** "Same risks, same rules" has a direct architectural echo: your **existing** compliance systems remain the systems of record for *decisions* (KYC status, sanctions hits, suitability), and the chain becomes an *enforcement point* for those decisions. The Chapter 07 RuleEngine pattern is exactly this: the whitelist contract is a materialized view of the bank's KYC database, maintained by a Java adapter, consulted by ValidationModule on every transfer. Do not build a second compliance brain on-chain; project the existing one.
-
-
-
-```checker
-{"id": "ch09-l1-s5", "type": "regex", "pattern": "Most\\-forgotten\\s+item:\\s+keeping\\s+the\\s+registration\\s+agreement\\s+link\\s+alive\\s+\u2014\\s+terms", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 2.1 — Classify three tokens
 
 **Instruction:** Classify each as payment, utility, or asset token: (a) a token entitling the holder to coupon payments from a Zurich issuer's CHF bond; (b) a token redeemable for compute time on a live decentralized storage network; (c) a token with no issuer claim, used purely to pay transaction fees on a public chain.
@@ -258,12 +228,6 @@ FINMA's governing principle is **technology neutrality**: *same risks, same rule
 ```
 
 **Validation rule:** `(?is)\(?a\)?.{0,120}asset.*\(?b\)?.{0,120}utility.*\(?c\)?.{0,120}payment` — checks (a) is classified asset, (b) utility, (c) payment, in order.
-
-
-
-```checker
-{"id": "ch09-l2-s1", "type": "regex", "pattern": "\\(a\\)\\s+bond\\-coupon\\s+token:\\s+ASSET\\s+token\\s+\u2014\\s+claim\\s+on\\s+the\\s+issuer\\s+\\(interest,", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 2.2 — State the consequence of "asset token = security"
 
 **Instruction:** In two sentences: what regulatory regime attaches once a token is an asset token, and which two CMTAT-relevant duties follow for the engineering team?
@@ -288,12 +252,6 @@ delegating to a RuleEngine that encodes investor-eligibility rules.
 ```
 
 **Validation rule:** `(?is)(securit|973d|finsa).*(document|terms).*(validation|ruleengine|rule engine|transfer restrict|whitelist)` — checks the answer names the securities regime plus both document and transfer-restriction duties.
-
-
-
-```checker
-{"id": "ch09-l2-s2", "type": "regex", "pattern": "Regime:\\s+securities\\s+law\\s+\u2014\\s+issue\\s+as\\s+a\\s+ledger\\-based\\s+security\\s+\\(OR\\s+973d\\)\\s+and", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 2.3 — Pick the licence for the function
 
 **Instruction:** Match each function to the licence/status that covers it: (1) operating a venue where retail investors trade tokenized bonds AND the venue itself settles and custodies them; (2) holding clients' CHF cash for settlement; (3) professionally safekeeping clients' tokens.
@@ -319,12 +277,6 @@ delegating to a RuleEngine that encodes investor-eligibility rules.
 ```
 
 **Validation rule:** `(?is)(dlt trading|73a).*(bank|fintech|1b).*(amla|financial intermediary|gwg)` — checks the three functions map to DLT trading facility, banking/fintech licence, and AMLA status in order.
-
-
-
-```checker
-{"id": "ch09-l2-s3", "type": "regex", "pattern": "\\(2\\)\\s+client\\s+CHF\\s+cash\\s+\\->\\s+banking\\s+licence\\s+\\(BankA\\),\\s+or\\s+the", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 2.4 — Apply "same risks, same rules" to an architecture decision
 
 **Instruction:** A colleague proposes implementing KYC scoring logic *inside* the RuleEngine contract "since we're on blockchain now". In two or three sentences, use the technology-neutrality principle to argue the correct architecture.
@@ -351,12 +303,6 @@ without discharging any duty.
 ```
 
 **Validation rule:** `(?is)(off.?chain|kyc system|system of record|existing).*(enforce|whitelist|rule.?engine|transfer)` — checks the answer places the decision off-chain and the enforcement on-chain.
-
-
-
-```checker
-{"id": "ch09-l2-s4", "type": "regex", "pattern": "Decision\\s+should\\s+live:\\s+in\\s+the\\s+bank's\\s+existing\\s+KYC/compliance\\s+systems,\\s+which", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 2.5 — Lesson 2 engineering checklist
 
 **Instruction:** Read the checklist, then state which item forces a conversation with another team *before* you write any code, and name that team.
@@ -418,12 +364,6 @@ Neither is "the compliant one" — but note the omnibus model converts a legal r
 Finally, the apparent paradox: how can a token with a registrar **freeze** and **forced-transfer** capability (EnforcementModule) be safe custody? Answer: those powers *implement* custody obligations rather than undermine them. Court-ordered attachment of a client's securities, sanctions freezes, the 973h lost-key reissue from Lesson 1, and recovery of assets sent to a wrong address all require an authorised intervention path. The legal protection lies in *who* may act (role gating, Chapter 05), *on what basis* (the registration agreement discloses these powers — Lesson 1, requirement 3), and *with what trail* (events). A token with no intervention path cannot be custodied responsibly by a Swiss institution; the powers must exist, be disclosed, and be auditable.
 
 > **Banking integration note:** The omnibus invariant deserves first-class treatment in your adapter: a scheduled job reading `balanceOf(omnibusAddress)` (web3j: `Uint256` → `BigInteger`), summing the sub-ledger from core banking, and writing a signed reconciliation record to the append-only audit store (Chapter 08's `ReconciliationJob` pattern). On breach: page compliance, halt new client orders against the pool, and — if the cause might be an unauthorised on-chain movement — the runbook escalates toward `pause()` (Chapter 07). In a bankruptcy, the historical chain of these reconciliation records is the evidence that each client's share was "clearly determined".
-
-
-
-```checker
-{"id": "ch09-l2-s5", "type": "regex", "pattern": "Item\\s+forcing\\s+early\\s+cross\\-team\\s+work:\\s+the\\s+token\\s+classification\\s+memo\\s+\u2014", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 3.1 — State the two segregation conditions
 
 **Instruction:** From memory, write the condition that makes client crypto-assets bankruptcy-remote under Art. 242a DEBA, including both allocation alternatives.
@@ -449,12 +389,6 @@ are either
 ```
 
 **Validation rule:** `(?is)(available|at all times).*(individual|allocated).*(communit|omnibus|pool).*(clearly determined|share)` — checks the umbrella condition and both allocation alternatives appear.
-
-
-
-```checker
-{"id": "ch09-l3-s1", "type": "regex", "pattern": "if\\s+the\\s+custodian\\s+keeps\\s+them\\s+available\\s+for\\s+the\\s+client\\s+at\\s+all\\s+times,\\s+AND\\s+they", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 3.2 — Choose a wallet model for a scenario
 
 **Instruction:** Your bank will custody a tokenized bond for 40,000 retail clients who trade among themselves frequently. Recommend omnibus or segregated, and give two engineering reasons referencing whitelist burden and reconciliation.
@@ -484,12 +418,6 @@ must be continuously reconciled and historically evidenced.
 ```
 
 **Validation rule:** `(?is)(omnibus|segregated).*(whitelist|rule.?engine).*(reconcil|sub.?ledger|balanceof)` — checks a recommendation is made and both the whitelist and reconciliation dimensions are argued.
-
-
-
-```checker
-{"id": "ch09-l3-s2", "type": "regex", "pattern": "Reason\\s+2\\s+\\(reconciliation/settlement\\):\\s+client\\-to\\-client\\s+trades\\s+at\\s+the\\s+same", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 3.3 — Write the omnibus invariant
 
 **Instruction:** Express, in one line of pseudocode, the invariant a custodian running an omnibus wallet must continuously prove, and name the chapter-08 component that checks it.
@@ -511,12 +439,6 @@ event-triggered, writing each result to the append-only audit trail.
 ```
 
 **Validation rule:** `(?is)(sum|Σ|total).*(==|equal).*(balanceof|omnibus).*?(reconcil)` — checks the sum-equals-balanceOf invariant and the reconciliation job are both named.
-
-
-
-```checker
-{"id": "ch09-l3-s3", "type": "regex", "pattern": "Checked\\s+by:\\s+the\\s+bank\\-side\\s+ReconciliationJob\\s+\\(Chapter\\s+08\\),\\s+scheduled\\s+and", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 3.4 — Defend freeze/forced-transfer to a skeptical client
 
 **Instruction:** An institutional client objects: "your token has a forced-transfer function — so my custody isn't safe." Write a three-part rebuttal: legal basis, technical gating, audit trail.
@@ -546,12 +468,6 @@ should hold for you.
 ```
 
 **Validation rule:** `(?is)(court|973h|sanction|statut|registration agreement).*(role|enforcer|registrar|multi.?sig|quorum).*(event|audit|log)` — checks legal basis, role gating, and event-trail arguments all appear.
-
-
-
-```checker
-{"id": "ch09-l3-s4", "type": "regex", "pattern": "Technical\\s+gating:\\s+only\\s+the\\s+registrar's\\s+ENFORCER\\s+role\\s+can\\s+invoke\\s+it,\\s+held\\s+by", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 3.5 — Lesson 3 engineering checklist
 
 **Instruction:** Read the checklist, then answer: which item exists purely to produce *evidence for a future bankruptcy court*, and what does it record?
@@ -612,12 +528,6 @@ The register-maintenance function does not disappear with tokenization — it *b
 **CMTA and CMTAT.** The Capital Markets and Technology Association (CMTA) is a Geneva-based industry association of Swiss banks, law firms, and technology companies. It published **CMTAT** (CMTA Token) as an open-source reference implementation for tokenizing Swiss securities — the module set you have been building since Chapter 06 (Pause, Enforcement, Validation/RuleEngine, Snapshot, Document, Debt, Authorization) exists precisely because each module answers one of this chapter's regulatory requirements. CMTAT's status is **market standard, not law**: no statute mandates it, but it embodies the association's published blueprint for OR 973d-compliant tokenized shares and debt, which is why Swiss issuances converge on it and why this course teaches it. Using the standard means your compliance review starts from "this is the known-good pattern" instead of from zero.
 
 > **Banking integration note:** The whitelist-sync adapter is the highest-stakes Java component in the whole stack, because an error *blocks client settlements* (too strict) or *lets an unverified address receive securities* (too loose — an AMLA finding). Apply Chapter 08 patterns at full strength: idempotency keys on every whitelist mutation (KYC case ID as the key), event-log confirmation that the on-chain `AddressWhitelisted`/`AddressRemoved` event matches the intended mutation before marking the case synced, replay-from-block-N recovery, and an end-of-day full diff of `RuleEngine` state vs the KYC database. Freeze orders get a stricter SLA than whitelist additions: monitor the gap between compliance's freeze instruction timestamp and the on-chain `Freeze` event timestamp — that gap is itself a compliance metric.
-
-
-
-```checker
-{"id": "ch09-l3-s5", "type": "regex", "pattern": "Evidence\\s+item:\\s+the\\s+append\\-only,\\s+tamper\\-evident\\s+history\\s+of\\s+omnibus\\s+invariant", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 4.1 — List the AMLA duties and find the two with on-chain hooks
 
 **Instruction:** List at least five AMLA duties of a financial intermediary, then mark which **two** have direct on-chain enforcement hooks in CMTAT and name the module for each.
@@ -643,12 +553,6 @@ On-chain hook B: asset freezing
 ```
 
 **Validation rule:** `(?is)(identi|beneficial|monitor|mros|report).*(validation|rule.?engine|whitelist).*(enforcement|freeze)` — checks AMLA duties are listed and the two hooks map to ValidationModule/RuleEngine and EnforcementModule.
-
-
-
-```checker
-{"id": "ch09-l4-s1", "type": "regex", "pattern": "Duties:\\s+1\\.\\s+verify\\s+customer\\s+identity\\s+2\\.\\s+establish\\s+the\\s+beneficial\\s+owner", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 4.2 — State FINMA's Travel-Rule position
 
 **Instruction:** In two or three sentences: what must accompany a VASP-to-VASP token transfer under FINMA's expectations, what is the Swiss threshold, and what condition applies to external (unhosted) wallets?
@@ -674,12 +578,6 @@ signed with the wallet's key or a verification micro-transaction).
 ```
 
 **Validation rule:** `(?is)(originator).{0,80}(beneficiary).*(no|without|zero).{0,40}(threshold|de.?minimis).*(prov|signed|verif)` — checks originator/beneficiary data, the no-threshold rule, and the proven-ownership condition all appear.
-
-
-
-```checker
-{"id": "ch09-l4-s2", "type": "regex", "pattern": "Unhosted\\s+wallets:\\s+allowed\\s+only\\s+if\\s+the\\s+institution's\\s+own\\s+customer's\\s+ownership", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 4.3 — Design the counterparty trichotomy into the RuleEngine
 
 **Instruction:** Every destination address must resolve to one of three categories before a transfer may settle. Name the three categories and state, for each, what the bank-side adapter must have done before whitelisting the address.
@@ -707,12 +605,6 @@ addresses simply cannot receive or send the token.
 ```
 
 **Validation rule:** `(?is)(vasp).*(travel).*(own|custom).*(prov|signed|verif).*(deny|default|absen|block)` — checks the VASP/proven-wallet/deny-by-default trichotomy with each precondition.
-
-
-
-```checker
-{"id": "ch09-l4-s3", "type": "regex", "pattern": "Category\\s+1:\\s+identified\\s+VASP\\s+counterparty\\s+\\->\\s+adapter\\s+precondition:\\s+Travel\\-", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 4.4 — Map registrar and transfer-agent functions to roles
 
 **Instruction:** Your bank acts as registrar/transfer agent for an issuer's share token. Assign on-chain roles: who holds `ENFORCER_ROLE`, who maintains the RuleEngine whitelist, who holds `MINTER_ROLE`, and who holds `PAUSER_ROLE`? One line each, naming the bank function.
@@ -740,12 +632,6 @@ PAUSER_ROLE          -> operations/market control, per the incident and
 ```
 
 **Validation rule:** `(?is)enforcer.{0,120}(compliance).*(whitelist|rule).{0,160}(registrar|transfer.?agent).*minter.{0,160}(registrar|issuer).*pauser.{0,160}(operation|market|incident)` — checks each role lands on the correct bank function.
-
-
-
-```checker
-{"id": "ch09-l4-s4", "type": "regex", "pattern": "Whitelist\\s+maintainer\\s+\\->\\s+registrar/transfer\\-agent\\s+operations:\\s+keeping\\s+the", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 4.5 — Place CMTA and CMTAT correctly
 
 **Instruction:** One sentence each: what is CMTA, what is CMTAT, and what is CMTAT's legal status (mandatory or not)?
@@ -771,12 +657,6 @@ framework, which is why Swiss issuances converge on it.
 ```
 
 **Validation rule:** `(?is)(association|geneva).*(open.?source|reference|token|implementation).*(not (law|mandatory)|no statute|market standard|standard, not)` — checks CMTA is identified as an association, CMTAT as the reference implementation, and its non-mandatory market-standard status.
-
-
-
-```checker
-{"id": "ch09-l4-s5", "type": "regex", "pattern": "standard\\s+blueprint\\s+designed\\s+to\\s+satisfy\\s+the\\s+OR\\s+973d\\s+ledger\\-based\\-securities", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```
 ### Step 4.6 — Lesson 4 engineering checklist
 
 **Instruction:** Read the checklist, then answer: which metric in it would FINMA-facing internal audit care about most, and why?
@@ -896,8 +776,3 @@ d) CMTAT is only usable on permissioned bank-consortium chains.
 ---
 
 *Next:* with the regulatory map in hand, pick your track — Chapter 10 (Tokenized Bond), Chapter 13 (Equity), or Chapter 16 (Money-Market Fund Share). Every compliance feature those chapters wire in traces back to a row in this chapter's consolidated map.
-
-
-```checker
-{"id": "ch09-l4-s6", "type": "regex", "pattern": "Metric:\\s+freeze\\s+latency\\s+\u2014\\s+time\\s+from\\s+compliance's\\s+freeze\\s+instruction\\s+to\\s+the", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
-```

@@ -6,7 +6,7 @@
 - [x] Track A (bond): ch 10, 11, 12
 - [x] Track B (equity): ch 13, 14, 15
 - [x] Track C (mmf): ch 16, 17, 18
-- [x] 18 chapters + map · 73 lessons · 153 steps · 85 machine-readable checkers
+- [x] 18 chapters + map · 73 lessons · 153 steps · 123 machine-readable checkers
 
 ## Contracts (assembled, forge build)
 - [x] contracts/shared/*.sol (8)
@@ -27,8 +27,11 @@
 - [x] #4 STATUS protocol honored by harness
 
 ## Known follow-ups (non-blocking)
-- Chapters 01/03/04/09 (v1, pre-schema) have prose validation rules; not all steps
-  carry a ```checker block yet — player self-checks those against the solution.
+- Checkers added to all code chapters (incl. v1 chapters 01/03/04 via deterministic
+  augmentation). Ch09 is an intentionally code-free regulatory reference (no checkers).
+- Auto-derived checkers (chapters 01/03/04) gate on a distinctive solution line rather
+  than the specific construct each step teaches — functional but less targeted than the
+  model-authored checkers in chapters 02/05-08/10-18.
 - Compile-hardened .sol files (fix_contracts.py) may differ slightly from the
   teaching version printed at each chapter's end; contracts/ is canonical.
 
