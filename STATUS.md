@@ -6,7 +6,8 @@
 - [x] Track A (bond): ch 10, 11, 12
 - [x] Track B (equity): ch 13, 14, 15
 - [x] Track C (mmf): ch 16, 17, 18
-- [x] 18 chapters + map · 73 lessons · 153 steps · 123 machine-readable checkers
+- [x] 18 chapters + map · 78 lessons · 175 steps · 145 machine-readable checkers
+- [x] Depth pass: ch06/10/13/16 expanded to peer depth (all instrument chapters 20k+)
 
 ## Contracts (assembled, forge build)
 - [x] contracts/shared/*.sol (8)
@@ -17,6 +18,7 @@
 
 ## Verification
 - [x] All ```checker blocks valid JSON, regex compiles, matches its solution_code
+- [x] All checkers cross-validated under the player's JS RegExp (pm/verify_player.js)
 - [x] Per-track contract evolution chained (v1 -> v2 -> final) — gap fix #3
 - [x] player/course.json + player/index.html runtime — gap fix #2
 
