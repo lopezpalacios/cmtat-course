@@ -48,6 +48,11 @@ contract EventDrivenLedger {
 
 > **Datatype/parser note:** When your Java adapter calls the generated getter, web3j decodes the return: `address` → web3j `Address` → Java `String` (`"0x..."` hex, 20 bytes); `uint256` → web3j `Uint256` → Java `BigInteger`. Never decode a uint256 into `long` — uint256 max is ~1.16e77, and token amounts in smallest units routinely exceed 2^63.
 
+
+
+```checker
+{"id": "ch03-l1-s1", "type": "regex", "pattern": "address\\s+public\\s+admin;\\s+//\\s+public\\s+=>\\s+compiler\\s+generates\\s+admin\\(\\)\\s+view\\s+getter", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 1.2 — A `view` function with multiple returns: the free query API
 
 **Instruction:** Add an `external view` function `ledgerStatus()` that returns two named values: `uint256 count` and `address currentAdmin`, populated from the state variables.
@@ -86,6 +91,11 @@ contract EventDrivenLedger {
 > ```
 > No private key was involved. Reads are anonymous and free — design your monitoring around that.
 
+
+
+```checker
+{"id": "ch03-l1-s2", "type": "regex", "pattern": "function\\s+ledgerStatus\\(\\)\\s+external\\s+view\\s+returns\\s+\\(uint256\\s+count,\\s+address\\s+currentAdmin\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 1.3 — A `pure` function: deterministic helpers
 
 **Instruction:** Add a `public pure` function `toMinorUnits(uint256 major, uint8 tokenDecimals)` returning `uint256` — multiply `major` by `10 ** tokenDecimals`.
@@ -110,6 +120,11 @@ contract EventDrivenLedger {
 
 **Validation rule:** `function\s+toMinorUnits\s*\(\s*uint256\s+major\s*,\s*uint8\s+tokenDecimals\s*\)\s+public\s+pure\s+returns\s*\(\s*uint256\s*\)` — checks the `pure` keyword and exact parameter types.
 
+
+
+```checker
+{"id": "ch03-l1-s3", "type": "regex", "pattern": "function\\s+toMinorUnits\\(uint256\\s+major,\\s+uint8\\s+tokenDecimals\\)\\s+public\\s+pure\\s+returns\\s+\\(uint256\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 1.4 — Custom errors instead of require strings
 
 **Instruction:** Declare seven custom errors at contract level (above the functions): `LedgerNotAdmin(address caller)`, `LedgerNotOperator(address caller)`, `LedgerZeroRef()`, `LedgerZeroAccount()`, `LedgerZeroAmount()`, `LedgerInvalidEntryType(uint8 entryType)`, `LedgerDuplicateRef(bytes32 externalRef)`.
@@ -140,6 +155,11 @@ contract EventDrivenLedger {
 
 > **Banking integration note:** When a transaction reverts with a custom error, the revert reason surfaces in the `eth_call` simulation (and in `TransactionReceipt` debugging via trace APIs). web3j gives you the raw revert bytes; the first 4 bytes are `keccak256("LedgerDuplicateRef(bytes32)")[0..4]`. Match the selector, then ABI-decode the payload. Your adapter should treat `LedgerDuplicateRef` as **success-by-idempotency** (the booking already exists — do not retry, do not alert), while `LedgerNotOperator` is a configuration incident (wrong signing key / role not granted) that pages someone.
 
+
+
+```checker
+{"id": "ch03-l1-s4", "type": "regex", "pattern": "error\\s+LedgerInvalidEntryType\\(uint8\\s+entryType\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 1.5 — `internal` helpers: invisible in the ABI
 
 **Instruction:** Add an `internal pure` function `_isValidEntryType(uint8 entryType)` returning `bool` — true when `entryType` is `1` or `2`. (We will replace the magic numbers with named constants in Lesson 3.)
@@ -182,6 +202,11 @@ In your Java stack, authorization is declarative: `@PreAuthorize("hasRole('OPERA
 
 One profound difference: there is no session, no JWT, no `SecurityContextHolder`. The EVM gives you `msg.sender` — the address cryptographically recovered from the transaction signature. It cannot be spoofed without the private key. Authentication is free and absolute; *authorization* is what you build.
 
+
+
+```checker
+{"id": "ch03-l1-s5", "type": "regex", "pattern": "return\\s+entryType\\s+==\\s+1\\s+\\|\\|\\s+entryType\\s+==\\s+2;\\s+//\\s+named\\s+constants\\s+replace\\s+these\\s+in\\s+Lesson\\s+3", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.1 — The constructor: who is the bootstrap principal?
 
 **Instruction:** Add a state variable `mapping(address => bool) public isOperator;` and a constructor that sets `admin = msg.sender;` and `isOperator[msg.sender] = true;`.
@@ -211,6 +236,11 @@ One profound difference: there is no session, no JWT, no `SecurityContextHolder`
 
 **Validation rule:** `constructor\s*\(\s*\)\s*\{[\s\S]*admin\s*=\s*msg\.sender\s*;[\s\S]*isOperator\[\s*msg\.sender\s*\]\s*=\s*true\s*;[\s\S]*\}` — checks both bootstrap assignments inside the constructor.
 
+
+
+```checker
+{"id": "ch03-l2-s1", "type": "regex", "pattern": "admin\\s+=\\s+msg\\.sender;\\s+//\\s+deployer\\s+=\\s+bootstrap\\s+principal\\s+\\(key\\s+ceremony\\s+artifact\\)", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.2 — Write `onlyAdmin` by hand
 
 **Instruction:** Write a modifier `onlyAdmin()` that reverts with `LedgerNotAdmin(msg.sender)` when `msg.sender != admin`, then runs the function body via `_;`.
@@ -237,6 +267,11 @@ One profound difference: there is no session, no JWT, no `SecurityContextHolder`
 
 **Validation rule:** `modifier\s+onlyAdmin\s*\(\s*\)\s*\{\s*if\s*\(\s*msg\.sender\s*!=\s*admin\s*\)\s*revert\s+LedgerNotAdmin\s*\(\s*msg\.sender\s*\)\s*;\s*_\s*;\s*\}` — checks guard-then-splice structure with the custom error.
 
+
+
+```checker
+{"id": "ch03-l2-s2", "type": "regex", "pattern": "if\\s+\\(msg\\.sender\\s+!=\\s+admin\\)\\s+revert\\s+LedgerNotAdmin\\(msg\\.sender\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.3 — Write `onlyOperator`
 
 **Instruction:** Write a modifier `onlyOperator()` that reverts with `LedgerNotOperator(msg.sender)` unless `isOperator[msg.sender]` is true.
@@ -260,6 +295,11 @@ One profound difference: there is no session, no JWT, no `SecurityContextHolder`
 
 **Validation rule:** `modifier\s+onlyOperator\s*\(\s*\)\s*\{\s*if\s*\(\s*!\s*isOperator\[\s*msg\.sender\s*\]\s*\)\s*revert\s+LedgerNotOperator\s*\(\s*msg\.sender\s*\)\s*;\s*_\s*;\s*\}` — checks negated mapping lookup guarding the splice.
 
+
+
+```checker
+{"id": "ch03-l2-s3", "type": "regex", "pattern": "if\\s+\\(!isOperator\\[msg\\.sender\\]\\)\\s+revert\\s+LedgerNotOperator\\(msg\\.sender\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.4 — Role administration: grant and revoke
 
 **Instruction:** Add `grantOperator(address account)` and `revokeOperator(address account)`, both `external` and gated by `onlyAdmin`. `grantOperator` must reject the zero address with `LedgerZeroAccount()`.
@@ -292,6 +332,11 @@ One profound difference: there is no session, no JWT, no `SecurityContextHolder`
 
 **Validation rule:** `function\s+grantOperator\s*\(\s*address\s+account\s*\)\s+external\s+onlyAdmin[\s\S]*function\s+revokeOperator\s*\(\s*address\s+account\s*\)\s+external\s+onlyAdmin` — checks both functions exist and carry the `onlyAdmin` modifier.
 
+
+
+```checker
+{"id": "ch03-l2-s4", "type": "regex", "pattern": "if\\s+\\(account\\s+==\\s+address\\(0\\)\\)\\s+revert\\s+LedgerZeroAccount\\(\\);\\s+//\\s+null\\-principal\\s+guard", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.5 — Map the gates to the bank's org chart
 
 **Instruction:** Above the modifiers, add a comment block documenting the role mapping: admin → issuer/security-officer function, operator → booking/settlement operations. Include the words `four-eyes` and `Chapter 05`.
@@ -376,6 +421,11 @@ Three facts to internalize:
 
 > **Datatype/parser note:** How web3j sees this log: `externalRef` arrives as `topics[1]`, decoded with `Bytes32` → Java `byte[32]` (right-padded ASCII per course convention — trim trailing zeros to recover the String). `account` is `topics[2]`, decoded with `Address` → `String`. The data section ABI-encodes `(uint256, uint8)` together: `Uint256` → `BigInteger`, `Uint8` → `BigInteger` (narrow with `intValueExact()`). Indexed and non-indexed fields are decoded by *different* web3j calls — `decodeIndexedValue` per topic vs `FunctionReturnDecoder.decode` for the whole data blob — you will write both in Lesson 4.
 
+
+
+```checker
+{"id": "ch03-l3-s1", "type": "regex", "pattern": "bytes32\\s+indexed\\s+externalRef,\\s+//\\s+idempotency\\s+key\\s+\u2014\\s+reconciliation\\s+lookups\\s+by\\s+topic", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.2 — Named entry-type codes
 
 **Instruction:** Add two public constants: `uint8 public constant ENTRY_DEBIT = 1;` and `uint8 public constant ENTRY_CREDIT = 2;`. Update `_isValidEntryType` to use them.
@@ -406,6 +456,11 @@ Three facts to internalize:
 
 **Validation rule:** `uint8\s+public\s+constant\s+ENTRY_DEBIT\s*=\s*1\s*;[\s\S]*uint8\s+public\s+constant\s+ENTRY_CREDIT\s*=\s*2\s*;[\s\S]*entryType\s*==\s*ENTRY_DEBIT\s*\|\|\s*entryType\s*==\s*ENTRY_CREDIT` — checks constants declared and used in the helper.
 
+
+
+```checker
+{"id": "ch03-l3-s2", "type": "regex", "pattern": "function\\s+_isValidEntryType\\(uint8\\s+entryType\\)\\s+internal\\s+pure\\s+returns\\s+\\(bool\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.3 — Audit events for role changes
 
 **Instruction:** Declare `event OperatorGranted(address indexed account, address indexed grantedBy);` and `event OperatorRevoked(address indexed account, address indexed revokedBy);`. Emit them at the end of `grantOperator` and `revokeOperator` respectively, passing `msg.sender` as the second argument.
@@ -449,6 +504,11 @@ Three facts to internalize:
 
 **Validation rule:** `emit\s+OperatorGranted\s*\(\s*account\s*,\s*msg\.sender\s*\)\s*;[\s\S]*emit\s+OperatorRevoked\s*\(\s*account\s*,\s*msg\.sender\s*\)\s*;` — checks both emits with the acting principal as second argument.
 
+
+
+```checker
+{"id": "ch03-l3-s3", "type": "regex", "pattern": "emit\\s+OperatorGranted\\(account,\\s+msg\\.sender\\);\\s+//\\s+acting\\s+principal\\s+in\\s+the\\s+record", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.4 — Emit the genesis grant from the constructor
 
 **Instruction:** Add `emit OperatorGranted(msg.sender, msg.sender);` as the last line of the constructor.
@@ -476,6 +536,11 @@ Three facts to internalize:
 
 **Validation rule:** `constructor\s*\(\s*\)\s*\{[\s\S]*emit\s+OperatorGranted\s*\(\s*msg\.sender\s*,\s*msg\.sender\s*\)\s*;[\s\S]*\}` — checks the constructor emits the bootstrap grant.
 
+
+
+```checker
+{"id": "ch03-l3-s4", "type": "regex", "pattern": "emit\\s+OperatorGranted\\(msg\\.sender,\\s+msg\\.sender\\);\\s+//\\s+genesis\\s+audit\\s+record:\\s+replay\\-from\\-0\\s+completeness", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.5 — Write the event-design rules into the contract header
 
 **Instruction:** Above the contract declaration, add a NatSpec comment block stating the three event-feed design rules: (1) every event carries an idempotency key (`externalRef`), (2) amounts are uint256 in smallest units, (3) indexed = query keys, non-indexed = payload.
@@ -506,6 +571,11 @@ contract EventDrivenLedger {
 
 **Validation rule:** `(?i)///[\s\S]*idempotency[\s\S]*smallest\s+units[\s\S]*indexed` — checks the header comment covers all three design rules.
 
+
+
+```checker
+{"id": "ch03-l3-s5", "type": "regex", "pattern": "contract\\s+EventDrivenLedger\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.6 — Compute topic0: the event's wire identity
 
 **Instruction:** Above the `BookingRecorded` declaration, add the comment: `// topic0 = keccak256("BookingRecorded(bytes32,address,uint256,uint8)")`.
@@ -538,6 +608,11 @@ contract EventDrivenLedger {
 
 Everything converges. On-chain: one write function that validates at the boundary, dedups on the bank's reference, and emits exactly one feed record per booking. Off-chain: a Java adapter that can rebuild the entire feed from any block — because logs, unlike Kafka topics with retention limits, never expire.
 
+
+
+```checker
+{"id": "ch03-l3-s6", "type": "regex", "pattern": "event\\s+BookingRecorded\\(", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.1 — The idempotency store
 
 **Instruction:** Add the state variable `mapping(bytes32 => bool) public processed;`.
@@ -559,6 +634,11 @@ Everything converges. On-chain: one write function that validates at the boundar
 
 **Validation rule:** `mapping\s*\(\s*bytes32\s*=>\s*bool\s*\)\s+public\s+processed\s*;` — checks the dedup mapping type and visibility.
 
+
+
+```checker
+{"id": "ch03-l4-s1", "type": "regex", "pattern": "mapping\\(bytes32\\s+=>\\s+bool\\)\\s+public\\s+processed;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.2 — `recordBooking`: validate at the boundary
 
 **Instruction:** Declare `function recordBooking(bytes32 externalRef, address account, uint256 amount, uint8 entryType) external onlyOperator` and write the five guard checks: zero ref → `LedgerZeroRef()`, zero account → `LedgerZeroAccount()`, zero amount → `LedgerZeroAmount()`, invalid type (use `_isValidEntryType`) → `LedgerInvalidEntryType(entryType)`, already processed → `LedgerDuplicateRef(externalRef)`.
@@ -597,6 +677,11 @@ Everything converges. On-chain: one write function that validates at the boundar
 
 **Validation rule:** `function\s+recordBooking\s*\([\s\S]*?\)\s+external\s+onlyOperator[\s\S]*LedgerZeroRef\(\)[\s\S]*LedgerZeroAccount\(\)[\s\S]*LedgerZeroAmount\(\)[\s\S]*LedgerInvalidEntryType\s*\(\s*entryType\s*\)[\s\S]*LedgerDuplicateRef\s*\(\s*externalRef\s*\)` — checks the modifier and all five typed-error guards in order.
 
+
+
+```checker
+{"id": "ch03-l4-s2", "type": "regex", "pattern": "if\\s+\\(processed\\[externalRef\\]\\)\\s+revert\\s+LedgerDuplicateRef\\(externalRef\\);\\s+//\\s+idempotency\\s+gate", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.3 — Effects, then emit
 
 **Instruction:** Complete `recordBooking`: set `processed[externalRef] = true;`, increment `bookingCount` inside an `unchecked` block, then `emit BookingRecorded(externalRef, account, amount, entryType);`.
@@ -632,6 +717,11 @@ Everything converges. On-chain: one write function that validates at the boundar
 
 The contract is complete — the full assembled source is at the end of this chapter and in `contracts/shared/EventDrivenLedger.sol`. The remaining steps build the bank side.
 
+
+
+```checker
+{"id": "ch03-l4-s3", "type": "regex", "pattern": "bookingCount\\s+\\+=\\s+1;\\s+//\\s+counter\\s+can't\\s+overflow\\s+uint256\\s+in\\s+any\\s+realistic\\s+timeline", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.4 — Java: mirror the event and derive topic0
 
 **Instruction:** In `EventLogParser.java`, declare the web3j `Event` mirror of `BookingRecorded` — `Bytes32` (indexed), `Address` (indexed), `Uint256`, `Uint8` — and compute its topic with `EventEncoder.encode(...)`.
@@ -671,6 +761,11 @@ The contract is complete — the full assembled source is at the end of this cha
 
 **Validation rule:** `new\s+TypeReference<Bytes32>\(true\)[\s\S]*new\s+TypeReference<Address>\(true\)[\s\S]*new\s+TypeReference<Uint256>\(false\)[\s\S]*new\s+TypeReference<Uint8>\(false\)[\s\S]*EventEncoder\.encode\(BOOKING_RECORDED\)` — checks indexed flags match the Solidity declaration and topic0 is derived, not hand-typed.
 
+
+
+```checker
+{"id": "ch03-l4-s4", "type": "regex", "pattern": "public\\s+static\\s+final\\s+String\\s+BOOKING_RECORDED_TOPIC\\s+=\\s+EventEncoder\\.encode\\(BOOKING_RECORDED\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.5 — Java: filter and fetch with `EthFilter`
 
 **Instruction:** Write `fetchRange(BigInteger fromBlock, BigInteger toBlock)`: build an `EthFilter` over the contract address, add `BOOKING_RECORDED_TOPIC` with `addSingleTopic`, call `web3j.ethGetLogs(filter).send()`, and skip any log where `isRemoved()` is true.
@@ -729,6 +824,11 @@ The contract is complete — the full assembled source is at the end of this cha
 
 **Validation rule:** `addSingleTopic\(BOOKING_RECORDED_TOPIC\)[\s\S]*ethGetLogs\(filter\)[\s\S]*isRemoved\(\)` — checks topic filtering, the getLogs call, and the removed-log guard.
 
+
+
+```checker
+{"id": "ch03-l4-s5", "type": "regex", "pattern": "private\\s+List<BookingEntry>\\s+fetchRange\\(BigInteger\\s+fromBlock,\\s+BigInteger\\s+toBlock\\)\\s+throws\\s+IOException\\s+\\{", "flags": "m", "target": "java", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.6 — Java: decode indexed vs non-indexed fields
 
 **Instruction:** Write `decode(Log log)`: extract `externalRef` from `topics[1]` and `account` from `topics[2]` via `FunctionReturnDecoder.decodeIndexedValue`, then decode `amount` and `entryType` together from `log.getData()` via `FunctionReturnDecoder.decode(...)` with `BOOKING_RECORDED.getNonIndexedParameters()`.
@@ -785,6 +885,11 @@ The contract is complete — the full assembled source is at the end of this cha
 > | `uint256 amount` | data, slot 0 | `Uint256` | `BigInteger` | never `long`; format only at display edge |
 > | `uint8 entryType` | data, slot 1 | `Uint8` | `BigInteger` → `int` | use `intValueExact()`, not `intValue()` |
 
+
+
+```checker
+{"id": "ch03-l4-s6", "type": "regex", "pattern": "int\\s+entryType\\s+=\\s+\\(\\(Uint8\\)\\s+data\\.get\\(1\\)\\)\\.getValue\\(\\)\\.intValueExact\\(\\);\\s+//\\s+throws\\s+if\\s+out\\s+of\\s+range", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.7 — Java: replay for backfill with a reorg-safe head
 
 **Instruction:** Write `safeHead()` (latest block minus `CONFIRMATION_DEPTH = 12`, floored at 0) and `replayFrom(BigInteger fromBlock)` — loop `fetchRange` in `CHUNK_SIZE = 5000`-block chunks up to the safe head.
@@ -1034,3 +1139,8 @@ a) `super.invoke()` in an overridden method b) `joinPoint.proceed()` in an `@Aro
 a) `eth_getLogs` cannot query the latest block b) The newest blocks may be replaced in a chain reorg, taking their logs with them — entries there are provisional, like pre-settlement payment messages c) Nodes only index logs after 12 blocks d) web3j caches block numbers for 12 blocks
 
 **Answer: b.** Logs in very recent blocks can disappear if the network reorganizes; booking them risks phantom entries the bank would have to reverse. Treating `head − CONFIRMATION_DEPTH` as the bookable frontier mirrors waiting for settlement finality before posting. Depth is a per-chain risk parameter (Chapter 08; legal finality in Chapter 09).
+
+
+```checker
+{"id": "ch03-l4-s7", "type": "regex", "pattern": "public\\s+List<BookingEntry>\\s+replayFrom\\(BigInteger\\s+fromBlock\\)\\s+throws\\s+IOException\\s+\\{", "flags": "m", "target": "java", "error_hint": "Your code should match the solution for this step."}
+```

@@ -18,7 +18,14 @@
        "explanation": "`address` is a built-in 20-byte (160-bit) value type \u2014 think of it as the EVM's IBAN, except it is *derived from a public key*, not issued by an institution. Declaring it `public` makes the compiler auto-generate a read-only accessor, the way Lombok's `@Getter` generates one on a Java field. In Java/web3j this value arrives as a `String` like `\"0x9f8e7d6c...\"` (hex, 40 chars after `0x`).",
        "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract HelloLedgerWarmup {\n    // Declare a public state variable `treasuryAccount` of type address here\n\n}",
        "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract HelloLedgerWarmup {\n    // 20-byte account identifier \u2014 the EVM's IBAN, derived from a key pair.\n    // `public` auto-generates a getter, like Lombok @Getter on a Java field.\n    address public treasuryAccount;\n}",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l1-s1",
+        "type": "regex",
+        "pattern": "address\\s+public\\s+treasuryAccount;",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.1",
        "title": "Declare your first address"
       },
@@ -27,7 +34,14 @@
        "explanation": "`msg.sender` is the address that called the current function \u2014 and it is **unforgeable**, because the EVM only executes a transaction after verifying its ECDSA signature against the sender's address. Compare with your world: a Java service trusts the `Principal` on the session because the *gateway* authenticated it; the EVM bakes authentication into the protocol itself, so every contract gets a verified caller identity for free. No session, no JWT, no mTLS \u2014 the signature *is* the authentication.",
        "starter": "contract HelloLedgerWarmup {\n    address public treasuryAccount;\n\n    // Write claimTreasury() here: external, sets treasuryAccount to the caller\n\n}",
        "solution": "contract HelloLedgerWarmup {\n    address public treasuryAccount;\n\n    function claimTreasury() external {\n        // msg.sender = signature-verified caller; the protocol-level\n        // equivalent of an authenticated Principal on a Java session.\n        treasuryAccount = msg.sender;\n    }\n}",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l1-s2",
+        "type": "regex",
+        "pattern": "function\\s+claimTreasury\\(\\)\\s+external\\s+\\{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.2",
        "title": "Capture the authenticated caller with `msg.sender`"
       },
@@ -36,7 +50,14 @@
        "explanation": "Every address has a `code` property: empty for EOAs, non-empty for deployed contracts. This matters operationally \u2014 a payment to an EOA just moves value; a payment to a contract *executes its code*. Bank analogy: transferring to a customer account vs posting to an account that has a **standing stored procedure** attached which runs on every credit. (Edge case worth knowing: during a contract's own constructor, its code is not yet stored, so this check returns `false` mid-construction \u2014 never use it as a security gate, only as a heuristic.)",
        "starter": "// Returns true if `account` is a contract account (has deployed code)\n    function isContractAccount(address account) external view returns (bool) {\n        // return whether the account's code is non-empty\n\n    }",
        "solution": "function isContractAccount(address account) external view returns (bool) {\n        // EOA: code.length == 0. Contract: deployed bytecode lives at the address.\n        return account.code.length > 0;\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l1-s3",
+        "type": "regex",
+        "pattern": "function\\s+isContractAccount\\(address\\s+account\\)\\s+external\\s+view\\s+returns\\s+\\(bool\\)\\s+\\{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.3",
        "title": "Distinguish EOA from contract account"
       },
@@ -45,7 +66,14 @@
        "explanation": "Every account \u2014 EOA or contract \u2014 carries a native-coin balance maintained by the protocol itself, denominated in **wei** (1 ether = 10^18 wei). This is the \"minor units\" pattern you already use: Swiss core systems store CHF in rappen (10^2), the EVM stores ether in wei (10^18) \u2014 always integers, never floats, so no rounding drift. `uint256` is an unsigned 256-bit integer; balances cannot go negative by construction, which deletes an entire class of ledger bugs.",
        "starter": "// Return the native (wei) balance of `account`\n    function nativeBalanceOf(address account) external view returns (uint256) {\n\n    }",
        "solution": "function nativeBalanceOf(address account) external view returns (uint256) {\n        // Protocol-maintained balance in wei (10^-18 ether) \u2014 the same\n        // minor-units discipline as storing CHF amounts in rappen.\n        return account.balance;\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l1-s4",
+        "type": "regex",
+        "pattern": "function\\s+nativeBalanceOf\\(address\\s+account\\)\\s+external\\s+view\\s+returns\\s+\\(uint256\\)\\s+\\{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.4",
        "title": "Read a native balance"
       },
@@ -69,7 +97,14 @@
        "explanation": "Any function that writes storage can only be invoked through a **transaction** \u2014 signed, paid for, and globally replicated. A `view` query is free and local; a write costs gas and waits for a block, just as in your world a balance inquiry hits a read replica for free while a booking must travel through the payment pipeline. Design consequence you will carry through the whole course: keep on-chain writes minimal and let reads happen off-chain via events (Chapter 03).",
        "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract HelloLedgerTxLab {\n    // declare postedTotal, then postAmount(uint256 amount) adding to it\n\n}",
        "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract HelloLedgerTxLab {\n    uint256 public postedTotal;\n\n    function postAmount(uint256 amount) external {\n        // Storage write => only reachable via a signed, gas-paid transaction.\n        postedTotal += amount;\n    }\n}",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l2-s1",
+        "type": "regex",
+        "pattern": "function\\s+postAmount\\(uint256\\s+amount\\)\\s+external\\s+\\{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.1",
        "title": "Write a state-changing function (a transaction target)"
       },
@@ -78,7 +113,14 @@
        "explanation": "When `require` fails (or anything reverts deeper in the call), **every** state change of the transaction is rolled back \u2014 storage writes, balance moves, emitted events, all of it. This is your database transaction's `ROLLBACK`, but enforced by the VM with no way to opt out: there is no \"catch and commit partially\" unless you explicitly structure for it. Two sharp edges vs the JDBC mental model: (1) the failed transaction **still appears in the block** and **still pays gas** for the work done up to the revert \u2014 like being billed for a batch job that abended; (2) the revert reason travels back to the caller as ABI-encoded return data, which web3j surfaces when you query the receipt of a failed transaction.",
        "starter": "function postAmount(uint256 amount) external {\n        // reject zero amounts with require(...)\n\n        postedTotal += amount;\n    }",
        "solution": "function postAmount(uint256 amount) external {\n        // Revert = VM-enforced full rollback (storage, events, value moves).\n        // Unlike a DB rollback: tx still lands on-chain and still pays gas.\n        require(amount > 0, \"amount must be positive\");\n        postedTotal += amount;\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l2-s2",
+        "type": "regex",
+        "pattern": "require\\(amount\\s+>\\s+0,\\s+\"amount\\s+must\\s+be\\s+positive\"\\);",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.2",
        "title": "Revert: the all-or-nothing rollback"
       },
@@ -87,7 +129,14 @@
        "explanation": "Revert strings cost gas to deploy and to revert with, byte by byte. A **custom error** is a declared, named failure type encoded as a 4-byte selector plus typed parameters \u2014 your `ErrorCode` enum / structured exception, not a free-text message. CMTAT and modern OZ code use custom errors throughout, so train the reflex now. Off-chain, web3j gives you the raw revert data; you match the selector exactly like mapping a SQLSTATE to a business exception.",
        "starter": "contract HelloLedgerTxLab {\n    uint256 public postedTotal;\n\n    // declare the custom error here\n\n    function postAmount(uint256 amount) external {\n        // replace require with: if (amount == 0) revert <YourError>();\n        require(amount > 0, \"amount must be positive\");\n        postedTotal += amount;\n    }\n}",
        "solution": "contract HelloLedgerTxLab {\n    uint256 public postedTotal;\n\n    // Typed failure: 4-byte selector + params \u2014 an error code, not log text.\n    error HelloLedgerLabZeroAmount();\n\n    function postAmount(uint256 amount) external {\n        if (amount == 0) revert HelloLedgerLabZeroAmount();\n        postedTotal += amount;\n    }\n}",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l2-s3",
+        "type": "regex",
+        "pattern": "if\\s+\\(amount\\s+==\\s+0\\)\\s+revert\\s+HelloLedgerLabZeroAmount\\(\\);",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.3",
        "title": "Custom errors: typed reason codes"
       },
@@ -96,7 +145,14 @@
        "explanation": "Every transaction executes inside a block carrying global context: `block.timestamp` (Unix seconds, set by the block proposer \u2014 accurate to ~seconds, **not** a precision clock; never compare with sub-minute tolerance) and `block.number` (a strictly increasing sequence \u2014 your EOD batch run number, except a \"day\" lasts 12 seconds). Banking mapping: `block.timestamp` \u2248 booking timestamp, `block.number` \u2248 batch/posting cycle id. You will later use block numbers as replay cursors for event reconciliation (Chapter 08).",
        "starter": "uint256 public postedTotal;\n    // declare lastPostedAt and lastPostedBlock here\n\n    function postAmount(uint256 amount) external {\n        if (amount == 0) revert HelloLedgerLabZeroAmount();\n        postedTotal += amount;\n        // record block.timestamp and block.number here\n\n    }",
        "solution": "uint256 public postedTotal;\n    uint256 public lastPostedAt;     // booking timestamp (Unix seconds)\n    uint256 public lastPostedBlock;  // posting-cycle id (block height)\n\n    function postAmount(uint256 amount) external {\n        if (amount == 0) revert HelloLedgerLabZeroAmount();\n        postedTotal += amount;\n        lastPostedAt = block.timestamp;  // proposer-set; second-level precision only\n        lastPostedBlock = block.number;  // strictly increasing sequence\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l2-s4",
+        "type": "regex",
+        "pattern": "lastPostedAt\\s+=\\s+block\\.timestamp;\\s+//\\s+proposer\\-set;\\s+second\\-level\\s+precision\\s+only",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.4",
        "title": "Block context: timestamp and number"
       },
@@ -120,7 +176,14 @@
        "explanation": "Three data locations, three lifetimes \u2014 and you already know all of them. `storage`: persisted in world state, survives across transactions, expensive (\u224820k gas per fresh 32-byte slot) \u2014 your database table. `memory`: scratch space wiped after the call \u2014 your JVM heap inside one request. `calldata`: the read-only encoded arguments of the incoming transaction \u2014 the immutable request payload, like the raw bytes of an ISO 20022 message you parse but never mutate. Reference-type parameters (`string`, `bytes`, arrays, structs) must declare their location; `calldata` is cheapest for inputs you only read.",
        "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract HelloLedgerStateLab {\n    // declare `note` as a private string in storage\n\n    // write stash(...) taking a string in calldata and persisting it\n\n}",
        "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract HelloLedgerStateLab {\n    string private note; // storage: the \"database table\" \u2014 persists across txs\n\n    function stash(string calldata input) external {\n        // calldata -> storage copy: parse-and-persist, request payload to DB row\n        note = input;\n    }\n}",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l3-s1",
+        "type": "regex",
+        "pattern": "string\\s+private\\s+note;\\s+//\\s+storage:\\s+the\\s+\"database\\s+table\"\\s+\u2014\\s+persists\\s+across\\s+txs",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.1",
        "title": "Storage vs memory vs calldata"
       },
@@ -129,7 +192,14 @@
        "explanation": "`view` promises no state writes; `pure` promises no state *reads* either. Both can be served by any single node locally via `eth_call` \u2014 no transaction, no gas paid by the caller, no waiting for a block. This is your read-replica query vs booking distinction, enforced by the compiler. Note the return location is `memory`: you hand back a copy, never a live storage reference.",
        "starter": "// readNote(): external view, returns the stored note\n\n    // shout(s): external pure, returns its argument unchanged",
        "solution": "function readNote() external view returns (string memory) {\n        return note; // view = read replica query: free, local, no tx\n    }\n\n    function shout(string memory s) external pure returns (string memory) {\n        return s;    // pure = static utility method: touches no state at all\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l3-s2",
+        "type": "regex",
+        "pattern": "function\\s+shout\\(string\\s+memory\\s+s\\)\\s+external\\s+pure\\s+returns\\s+\\(string\\s+memory\\)\\s+\\{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.2",
        "title": "view and pure: free reads"
       },
@@ -138,7 +208,14 @@
        "explanation": "A `mapping` is the EVM's keyed table: `mapping(address => uint256)` reads as `CREATE TABLE postings (account CHAR(40) PRIMARY KEY, count NUMERIC)`. Crucial differences from a `HashMap` or table: every key conceptually exists already (unset = zero value, no null), there is **no iteration** \u2014 you cannot `SELECT *` over a mapping, by design (remember the gas limit) \u2014 and lookups are O(1) hashed storage slots. From Chapter 04 on, a `mapping(address => uint256)` of balances *is* the securities register. When the bank needs the full holder list, it rebuilds it off-chain from events \u2014 the indexer pattern, Chapter 08.",
        "starter": "// declare the postingsBy mapping (address => uint256), public\n\n    // post(): external, increments the caller's entry",
        "solution": "// Keyed ledger table: account -> posting count. No iteration on-chain;\n    // every address \"exists\" with default 0 \u2014 no null semantics.\n    mapping(address => uint256) public postingsBy;\n\n    function post() external {\n        postingsBy[msg.sender] += 1;\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l3-s3",
+        "type": "regex",
+        "pattern": "mapping\\(address\\s+=>\\s+uint256\\)\\s+public\\s+postingsBy;",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.3",
        "title": "mapping: the keyed ledger table"
       },
@@ -162,7 +239,14 @@
        "explanation": "The `pragma` pins the compiler range \u2014 your `<maven.compiler.release>` in a POM. `^0.8.20` means \u22650.8.20 and <0.9.0. The 0.8 line matters: arithmetic overflow/underflow reverts by default (pre-0.8 silently wrapped \u2014 the EVM's Y2K-class footgun). The SPDX identifier is a machine-readable license header, required by tooling convention.",
        "starter": "// add SPDX line, pragma, and the empty contract declaration",
        "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;   // compiler range pin, like maven.compiler.release\n\ncontract HelloLedger {\n}",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l4-s1",
+        "type": "regex",
+        "pattern": "contract\\s+HelloLedger\\s+\\{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.1",
        "title": "Contract skeleton"
       },
@@ -171,7 +255,14 @@
        "explanation": "`immutable` means \"assigned once during construction, then read-only forever\" \u2014 Java's `final` field, but the value is embedded into the runtime code, making reads as cheap as constants. The greeting is `private`, so we'll expose it through an explicit getter (`private` hides it from *other contracts' code*, **not** from observers \u2014 all chain data is public; never put secrets in storage, the way you'd never put PINs in a replicated log). `entryCount` is our monotonically increasing sequence \u2014 the entry serial number a bank reconciler can use as an idempotency key.",
        "starter": "contract HelloLedger {\n    // declare: immutable public deployer (address),\n    //          private greeting (string),\n    //          public entryCount (uint256)\n\n\n\n}",
        "solution": "contract HelloLedger {\n    address public immutable deployer; // set once at construction \u2014 `final` field\n    string private greeting;           // hidden from contracts, NOT from observers\n    uint256 public entryCount;         // monotonic sequence -> idempotency key\n}",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l4-s2",
+        "type": "regex",
+        "pattern": "string\\s+private\\s+greeting;\\s+//\\s+hidden\\s+from\\s+contracts,\\s+NOT\\s+from\\s+observers",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.2",
        "title": "State: deployer, greeting, counter"
       },
@@ -180,7 +271,14 @@
        "explanation": "Declare events **before** any function emits them (like declaring a checked exception before throwing it). `indexed` parameters (max 3) become searchable log *topics* \u2014 your message-queue routing keys: the bank's listener can subscribe to \"all `EntryRecorded` where `recordedBy` = our omnibus address\" without scanning every log. Non-indexed parameters travel in the ABI-encoded data section, cheaper and preserving full values (an indexed `string` would be hashed \u2014 only its Keccak digest stored \u2014 so keep strings non-indexed when you need the actual text). The error names carry a `HelloLedger` prefix \u2014 course convention to keep every top-level and easily-confused identifier unique when all chapters compile together.",
        "starter": "// declare EntryRecorded and GreetingChanged events\n\n\n\n    // declare HelloLedgerEmptyNote and HelloLedgerNotDeployer errors",
        "solution": "// Integration surface: what the bank's event listener consumes.\n    // (contractAddress, entryId) = the idempotency key downstream.\n    event EntryRecorded(\n        uint256 indexed entryId,      // topic: filterable, like an MQ routing key\n        address indexed recordedBy,   // topic: filter by booking party\n        string note,                  // data section: full text preserved\n        uint256 timestamp\n    );\n\n    // Audit trail for parameter changes \u2014 config-change record.\n    event GreetingChanged(string oldGreeting, string newGreeting, address indexed changedBy);\n\n    error HelloLedgerEmptyNote();                  // input validation failure\n    error HelloLedgerNotDeployer(address caller);  // authorization failure + evidence",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l4-s3",
+        "type": "regex",
+        "pattern": "event\\s+GreetingChanged\\(string\\s+oldGreeting,\\s+string\\s+newGreeting,\\s+address\\s+indexed\\s+changedBy\\);",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.3",
        "title": "Events and errors: declare the integration surface"
       },
@@ -189,7 +287,14 @@
        "explanation": "The constructor executes inside the deployment transaction and is then **thrown away** \u2014 it is not part of the runtime bytecode. Contrast a servlet's `init()`: that re-runs on every container restart; this runs once in the contract's entire existence. Constructor arguments are ABI-encoded and appended to the deployment bytecode \u2014 which is why a block explorer \"verify contract\" step asks for them. During construction `msg.sender` is the deploying account, which we capture as our owner. (CMTAT in proxy deployments replaces constructors with `initialize()` functions \u2014 Chapter 06 explains why; for a standalone contract, a constructor is correct.)",
        "starter": "// constructor: take initialGreeting (string memory),\n    // capture deployer, store greeting",
        "solution": "constructor(string memory initialGreeting) {\n        deployer = msg.sender;       // deploying account \u2014 captured once, forever\n        greeting = initialGreeting;  // constructor args ride along with the initcode\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l4-s4",
+        "type": "regex",
+        "pattern": "greeting\\s+=\\s+initialGreeting;\\s+//\\s+constructor\\s+args\\s+ride\\s+along\\s+with\\s+the\\s+initcode",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.4",
        "title": "Constructor: the one-shot initializer"
       },
@@ -198,7 +303,14 @@
        "explanation": "The full write-path pattern you will reuse in every CMTAT module: **validate \u2192 mutate \u2192 emit**, in that order (the checks-effects pattern; the \"interactions\" third leg arrives in later chapters). `bytes(note).length` is how you length-check a `string` \u2014 Solidity strings are raw UTF-8 byte arrays with no `.length()` of their own, closer to `byte[]` than to `java.lang.String`. Returning `entryId` serves *contract* callers; the **event** serves the bank \u2014 a transaction sent from Java does not get return values back directly (you get a receipt), which is one more reason events are the real integration contract.",
        "starter": "function recordEntry(string calldata note) external returns (uint256 entryId) {\n        // 1) validate: revert HelloLedgerEmptyNote if note is empty\n\n        // 2) mutate: increment entryCount, assign entryId\n\n        // 3) emit: EntryRecorded with entryId, msg.sender, note, block.timestamp\n\n    }",
        "solution": "function recordEntry(string calldata note) external returns (uint256 entryId) {\n        // validate \u2014 boundary check, typed error\n        if (bytes(note).length == 0) revert HelloLedgerEmptyNote();\n        // mutate \u2014 ^0.8 checked arithmetic: overflow would revert\n        entryCount += 1;\n        entryId = entryCount;\n        // emit \u2014 receipt-log entry; the bank's listener consumes this,\n        // NOT the return value (txs don't return values to off-chain callers)\n        emit EntryRecorded(entryId, msg.sender, note, block.timestamp);\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l4-s5",
+        "type": "regex",
+        "pattern": "function\\s+recordEntry\\(string\\s+calldata\\s+note\\)\\s+external\\s+returns\\s+\\(uint256\\s+entryId\\)\\s+\\{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.5",
        "title": "recordEntry: the business transaction"
       },
@@ -207,7 +319,14 @@
        "explanation": "The deployer-only gate is the smallest possible access control \u2014 a single hardcoded principal, like a service that only accepts requests from one technical user. Chapter 05 replaces this with role-based access control mapped to bank org structure; CMTAT's AuthorizationModule is exactly that, grown up. Note we snapshot the *old* value into `memory` **before** overwriting \u2014 the audit event must carry before/after, the same before-image/after-image discipline as a database journal. The explicit getter exists because `greeting` is private; `view` keeps it a free read.",
        "starter": "function setGreeting(string calldata newGreeting) external {\n        // gate: only deployer; revert HelloLedgerNotDeployer(msg.sender) otherwise\n\n        // snapshot old value, update, emit GreetingChanged(old, new, msg.sender)\n\n\n\n    }\n\n    // getGreeting(): external view returning the greeting\n\n\n    // isContractAccount(account): external view, true if code length > 0",
        "solution": "function setGreeting(string calldata newGreeting) external {\n        // single-principal gate \u2014 Chapter 05 upgrades this to full RBAC\n        if (msg.sender != deployer) revert HelloLedgerNotDeployer(msg.sender);\n        string memory old = greeting;     // before-image, journal-style\n        greeting = newGreeting;\n        emit GreetingChanged(old, newGreeting, msg.sender); // audit: before/after/who\n    }\n\n    function getGreeting() external view returns (string memory) {\n        return greeting;\n    }\n\n    function isContractAccount(address account) external view returns (bool) {\n        return account.code.length > 0; // false during a contract's own constructor\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l4-s6",
+        "type": "regex",
+        "pattern": "emit\\s+GreetingChanged\\(old,\\s+newGreeting,\\s+msg\\.sender\\);\\s+//\\s+audit:\\s+before/after/who",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.6",
        "title": "Guarded mutation and the explicit getter"
       },
@@ -216,7 +335,14 @@
        "explanation": "`forge build` compiles Solidity to two artifacts: the **bytecode** (what gets deployed) and the **ABI** (a JSON interface description \u2014 your WSDL/OpenAPI spec, which web3j consumes to generate Java stubs in Chapter 08). `forge create` then wraps initcode + ABI-encoded constructor args into a transaction with an empty `to` field and signs it with the given key (that key is anvil's well-known dev key #0 \u2014 burned, public, never for real funds). The command prints `Deployed to: 0x\u2026` \u2014 the contract's address, derived deterministically from `keccak256(rlp(deployerAddress, nonce))`. There is nothing else to \"start\": no port, no process, no container. The code now exists on (dev-)chain and any node can serve calls to it. (Assumption: Foundry \u2265 0.2.x; on some versions the flag is `--constructor-args` exactly as shown, and `forge create` may require `--broadcast`.)",
        "starter": "# compile, start a local node, deploy HelloLedger with greeting \"Gr\u00fcezi, Ledger\"\nforge build\nanvil &\nforge create ____________________________________ \\\n  --rpc-url http://127.0.0.1:8545 \\\n  --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \\\n  --constructor-args ____________________",
        "solution": "forge build                            # -> bytecode + ABI (your WSDL/OpenAPI)\nanvil &                                # throwaway local chain, prefunded dev keys\nforge create contracts/shared/HelloLedger.sol:HelloLedger \\\n  --rpc-url http://127.0.0.1:8545 \\\n  --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80 \\\n  --constructor-args \"Gr\u00fcezi, Ledger\"\n# Output: \"Deployed to: 0x5FbDB2315678afecb367f032d93F642f64180aa3\"\n# That address = your service endpoint, forever. No server to keep running.",
-       "checker": null,
+       "checker": {
+        "id": "ch01-l4-s7",
+        "type": "regex",
+        "pattern": "anvil\\s+\\&\\s+\\#\\s+throwaway\\s+local\\s+chain,\\s+prefunded\\s+dev\\s+keys",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.7",
        "title": "Compile and deploy"
       }
@@ -471,7 +597,14 @@
        "explanation": "Marking a state variable `public` makes the compiler auto-generate a free getter function with the same name. `admin` becomes a function `admin()` returning the address \u2014 exactly like Lombok generating `getAdmin()` from a field, except the \"getter\" is part of your public network API. Any system in the world (including your bank's Java adapter) can call `admin()` via `eth_call` at zero cost. There is **no** auto-generated setter \u2014 writes always need an explicit function and a signed transaction, the way a core-banking posting needs an authenticated message, never a raw DB UPDATE.",
        "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract EventDrivenLedger {\n    // declare admin and bookingCount here, both public\n\n}",
        "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract EventDrivenLedger {\n    address public admin;        // public => compiler generates admin() view getter\n    uint256 public bookingCount; // running counter, free to read via eth_call\n}",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l1-s1",
+        "type": "regex",
+        "pattern": "address\\s+public\\s+admin;\\s+//\\s+public\\s+=>\\s+compiler\\s+generates\\s+admin\\(\\)\\s+view\\s+getter",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.1",
        "title": "Lay down the contract skeleton and public state"
       },
@@ -480,7 +613,14 @@
        "explanation": "`view` promises the function reads state but never writes it. The killer consequence for a bank integrator: `view` functions are served by `eth_call`, which executes on a node *without* creating a transaction \u2014 **no gas paid, no signature, no block inclusion, instant answer**. This is your query API, the equivalent of a read-only replica endpoint. Compare with writes: every state-changing call is a transaction that costs gas and waits for a block, like a payment instruction waiting for the clearing cycle. Solidity also returns multiple values natively (tuples) \u2014 no DTO wrapper class needed; web3j decodes the tuple into a `List<Type>` in declaration order. Visibility `external` means \"callable only from outside the contract\" \u2014 marginally cheaper than `public` for functions never called internally, because arguments stay in calldata instead of being copied to memory.",
        "starter": "// returns (bookingCount, admin) as a tuple \u2014 fill in mutability and body\n    function ledgerStatus() external ____ returns (uint256 count, address currentAdmin) {\n\n    }",
        "solution": "// Free read API: served by eth_call \u2014 no gas, no tx, no signature.\n    function ledgerStatus() external view returns (uint256 count, address currentAdmin) {\n        return (bookingCount, admin); // tuple return, decoded in order off-chain\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l1-s2",
+        "type": "regex",
+        "pattern": "function\\s+ledgerStatus\\(\\)\\s+external\\s+view\\s+returns\\s+\\(uint256\\s+count,\\s+address\\s+currentAdmin\\)\\s+\\{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.2",
        "title": "A `view` function with multiple returns: the free query API"
       },
@@ -489,7 +629,14 @@
        "explanation": "`pure` is stricter than `view`: the function may touch *neither* storage *nor* environment (`block.timestamp`, `msg.sender`, balances). Input in, output out \u2014 a static utility method, `Math.multiplyExact` territory. Why bother annotating? The compiler enforces it (you cannot accidentally read state), callers know it is side-effect-free, and nodes can serve it without any state access. The body demonstrates the Chapter 02 money rule: monetary amounts always live as integers in smallest units (CHF 125.50 \u2192 `12550` with `tokenDecimals = 2`). Solidity 0.8 checked arithmetic means the multiplication reverts on overflow instead of silently wrapping \u2014 like `Math.multiplyExact` throwing `ArithmeticException`, not like C's silent wrap.",
        "starter": "// CHF -> rappen style conversion; choose the right mutability keyword\n    function toMinorUnits(uint256 major, uint8 tokenDecimals) public ____ returns (uint256) {\n        return ____;\n    }",
        "solution": "/// pure: reads neither storage nor environment \u2014 a deterministic utility.\n    function toMinorUnits(uint256 major, uint8 tokenDecimals) public pure returns (uint256) {\n        return major * (10 ** uint256(tokenDecimals)); // reverts on overflow (0.8 checked math)\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l1-s3",
+        "type": "regex",
+        "pattern": "function\\s+toMinorUnits\\(uint256\\s+major,\\s+uint8\\s+tokenDecimals\\)\\s+public\\s+pure\\s+returns\\s+\\(uint256\\)\\s+\\{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.3",
        "title": "A `pure` function: deterministic helpers"
       },
@@ -498,7 +645,14 @@
        "explanation": "The legacy pattern `require(ok, \"not admin\")` embeds the ASCII string in the deployed bytecode and ABI-encodes it on every revert \u2014 you pay deployment gas for prose. Custom errors (Solidity \u22650.8.4) compile to a 4-byte selector plus typed parameters: cheaper to deploy, cheaper to revert, and \u2014 crucially for the bank \u2014 **machine-decodable**. `LedgerDuplicateRef(bytes32)` tells your Java adapter *which* reference collided, structured, not by parsing an English sentence. Think typed exception hierarchy (`DuplicateBookingException(String ref)`) versus `throw new RuntimeException(\"something broke\")`. A revert rolls back the *entire* transaction \u2014 every state change, every event \u2014 exactly like a database transaction rollback. There are no partially-applied transactions on the EVM; this is your atomicity guarantee.",
        "starter": "// declare the seven custom errors here, e.g.:\n    // error LedgerNotAdmin(address caller);",
        "solution": "// Custom errors: 4-byte selector + typed params. Cheaper than require strings,\n    // and the bank adapter decodes them like typed exceptions.\n    error LedgerNotAdmin(address caller);\n    error LedgerNotOperator(address caller);\n    error LedgerZeroRef();\n    error LedgerZeroAccount();\n    error LedgerZeroAmount();\n    error LedgerInvalidEntryType(uint8 entryType);\n    error LedgerDuplicateRef(bytes32 externalRef);",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l1-s4",
+        "type": "regex",
+        "pattern": "error\\s+LedgerInvalidEntryType\\(uint8\\s+entryType\\);",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.4",
        "title": "Custom errors instead of require strings"
       },
@@ -522,7 +676,14 @@
        "explanation": "The constructor runs exactly once, during deployment, inside the deployment transaction \u2014 like a Flyway baseline migration plus the creation of the first system user. Inside it, `msg.sender` is the deploying address: whoever signs the deployment transaction becomes admin. In a bank context this deployment key is a ceremony artifact \u2014 generated in an HSM, used once, and the role is then handed to operational keys (Chapter 05 builds full role hierarchies; this chapter uses a deliberately simplified single-admin model, labeled as such). The `isOperator` mapping is our role table: address \u2192 bool, the on-chain equivalent of a `ROLE_ASSIGNMENT` table keyed by principal.",
        "starter": "mapping(address => bool) public isOperator; // role table: principal -> granted\n\n    constructor() {\n        // bootstrap: deployer becomes admin AND first operator\n\n    }",
        "solution": "// modeled on OZ AccessControl (single-role simplification; full RBAC in Chapter 05)\n    mapping(address => bool) public isOperator;\n\n    constructor() {\n        admin = msg.sender;            // deployer = bootstrap principal (key ceremony artifact)\n        isOperator[msg.sender] = true; // admin can also operate, until roles are split\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l2-s1",
+        "type": "regex",
+        "pattern": "admin\\s+=\\s+msg\\.sender;\\s+//\\s+deployer\\s+=\\s+bootstrap\\s+principal\\s+\\(key\\s+ceremony\\s+artifact\\)",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.1",
        "title": "The constructor: who is the bootstrap principal?"
       },
@@ -531,7 +692,14 @@
        "explanation": "Read the modifier as an interceptor: check first, `_;` is `joinPoint.proceed()`. If the check reverts, the body never runs and all state is rolled back. Putting `_;` *after* the check is the standard guard pattern; you could put code after `_;` too (post-conditions \u2014 an `@AfterReturning` advice), which CMTAT does in places. Reverting with the typed error carries the offending caller address into the revert payload, so the bank's monitoring sees *who* attempted the unauthorized call \u2014 your `AccessDeniedException` with the principal attached, except it is also evidence on a public ledger.",
        "starter": "modifier onlyAdmin() {\n        // revert with LedgerNotAdmin(msg.sender) unless caller is admin\n        // then splice in the function body\n\n    }",
        "solution": "// cf. Spring's @PreAuthorize(\"hasRole('ADMIN')\") \u2014 but enforced by every node on earth\n    modifier onlyAdmin() {\n        if (msg.sender != admin) revert LedgerNotAdmin(msg.sender);\n        _; // splice point: the guarded function body executes here\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l2-s2",
+        "type": "regex",
+        "pattern": "if\\s+\\(msg\\.sender\\s+!=\\s+admin\\)\\s+revert\\s+LedgerNotAdmin\\(msg\\.sender\\);",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.2",
        "title": "Write `onlyAdmin` by hand"
       },
@@ -540,7 +708,14 @@
        "explanation": "Same pattern, different role check \u2014 a mapping lookup instead of an equality test. Mapping reads of an unset key return the zero value (`false` for bool), so unknown addresses are denied by default: **default-deny**, the posture every bank security review demands. This hand-rolled pair is the essence of what OpenZeppelin's `AccessControl` generalizes (roles as `bytes32` identifiers, per-role admin roles) and what CMTAT's **AuthorizationModule** packages for tokenized securities. Assumption: CMTAT v2.x AuthorizationModule wraps OZ AccessControl \u2014 we re-derive the primitive here and build the full version in Chapter 05.",
        "starter": "modifier onlyOperator() {\n\n    }",
        "solution": "modifier onlyOperator() {\n        if (!isOperator[msg.sender]) revert LedgerNotOperator(msg.sender);\n        _;\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l2-s3",
+        "type": "regex",
+        "pattern": "if\\s+\\(!isOperator\\[msg\\.sender\\]\\)\\s+revert\\s+LedgerNotOperator\\(msg\\.sender\\);",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.3",
        "title": "Write `onlyOperator`"
       },
@@ -549,7 +724,14 @@
        "explanation": "Applying a modifier is just naming it in the signature \u2014 declarative, like stacking annotations. Only admin can change the role table: in bank terms, only the IAM team mutates `ROLE_ASSIGNMENT`, and every mutation is itself an authorized operation. The zero-address check matters because `address(0)` is the EVM's `null` \u2014 granting it a role is always a fat-finger (a typo'd config value decoding to zero), so we validate at the boundary exactly as you validate inbound payment messages. Note `revokeOperator` does *not* zero-check: revoking a role from address zero is harmless and idempotent.",
        "starter": "function grantOperator(address account) external ____ {\n        // reject address(0), then grant\n\n    }\n\n    function revokeOperator(address account) external ____ {\n\n    }",
        "solution": "function grantOperator(address account) external onlyAdmin {\n        if (account == address(0)) revert LedgerZeroAccount(); // null-principal guard\n        isOperator[account] = true;\n    }\n\n    function revokeOperator(address account) external onlyAdmin {\n        isOperator[account] = false; // idempotent: revoking twice is a no-op\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l2-s4",
+        "type": "regex",
+        "pattern": "if\\s+\\(account\\s+==\\s+address\\(0\\)\\)\\s+revert\\s+LedgerZeroAccount\\(\\);\\s+//\\s+null\\-principal\\s+guard",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.4",
        "title": "Role administration: grant and revoke"
       },
@@ -573,7 +755,14 @@
        "explanation": "Every field placement is a deliberate integration decision. `externalRef` indexed: the bank queries \"did booking ref X land on-chain?\" by topic \u2014 the reconciliation primary key. `account` indexed: \"give me all bookings for this position account\" \u2014 the statement query. `amount` NOT indexed: you never filter by exact amount, and for value types like uint256 it makes no query sense; worse, indexing a *dynamic* type (string/bytes) stores only its keccak hash in the topic \u2014 the actual value would be unrecoverable. `entryType` rides in data next to the amount it qualifies. Discipline: **3 topic slots are scarce \u2014 spend them on identity and party, never on quantities.** This mirrors CMTAT/ERC-20's `Transfer(address indexed from, address indexed to, uint256 value)`: parties indexed, amount in data.",
        "starter": "// the booking feed record \u2014 choose which two params are indexed\n    event BookingRecorded(\n        bytes32 ____ externalRef,\n        address ____ account,\n        uint256 amount,\n        uint8 entryType\n    );",
        "solution": "// The integration contract with core banking. Indexed = queryable topics.\n    event BookingRecorded(\n        bytes32 indexed externalRef, // idempotency key \u2014 reconciliation lookups by topic\n        address indexed account,     // position account \u2014 statement queries by topic\n        uint256 amount,              // smallest units, data section\n        uint8 entryType              // ENTRY_DEBIT / ENTRY_CREDIT, data section\n    );",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l3-s1",
+        "type": "regex",
+        "pattern": "bytes32\\s+indexed\\s+externalRef,\\s+//\\s+idempotency\\s+key\\s+\u2014\\s+reconciliation\\s+lookups\\s+by\\s+topic",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.1",
        "title": "Declare `BookingRecorded`"
       },
@@ -582,7 +771,14 @@
        "explanation": "Why `uint8` codes instead of a Solidity `enum`? An enum would *work* (it ABI-encodes as uint8), but explicit codes make the cross-system contract brutally unambiguous: the Java adapter, the Kotlin reporting job, and the auditor's Python script all hard-code `1 = DEBIT, 2 = CREDIT` against documentation, with no dependency on Solidity declaration order \u2014 renumber an enum by inserting a member and every off-chain decoder breaks silently. We also deliberately skip `0`: an uninitialized uint8 is `0`, so \"zero means invalid\" turns missing data into a loud revert instead of a silently-booked debit. Same reason your ISO 20022 code tables never assign meaning to empty. `constant` values are baked into bytecode at compile time \u2014 reading them costs no storage access, and `public` exposes free getters so off-chain systems can verify the code table on-chain.",
        "starter": "uint8 public constant ENTRY_DEBIT = ____;\n    uint8 public constant ENTRY_CREDIT = ____;\n\n    function _isValidEntryType(uint8 entryType) internal pure returns (bool) {\n        return ____;\n    }",
        "solution": "// Explicit uint8 code table (not an enum): stable ABI for off-chain decoders.\n    // 0 intentionally unassigned \u2014 uninitialized data must fail validation, not book a debit.\n    uint8 public constant ENTRY_DEBIT = 1;\n    uint8 public constant ENTRY_CREDIT = 2;\n\n    function _isValidEntryType(uint8 entryType) internal pure returns (bool) {\n        return entryType == ENTRY_DEBIT || entryType == ENTRY_CREDIT;\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l3-s2",
+        "type": "regex",
+        "pattern": "function\\s+_isValidEntryType\\(uint8\\s+entryType\\)\\s+internal\\s+pure\\s+returns\\s+\\(bool\\)\\s+\\{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.2",
        "title": "Named entry-type codes"
       },
@@ -591,7 +787,14 @@
        "explanation": "Course rule (Chapter Map convention): **every state change emits an event** \u2014 no exceptions, especially not for security-relevant changes. A role grant without an event is a permission change missing from the audit log; no bank control framework tolerates that. Both parties are indexed: \"when did this address gain operator?\" and \"what did this admin grant?\" are both topic queries. Emitting `grantedBy = msg.sender` puts the *acting* principal in the record \u2014 who did it, not just what happened. This is the on-chain twin of your IAM system's mandatory audit events, except append-only by physics rather than by policy. Convention also visible throughout CMTAT/OZ: `RoleGranted(role, account, sender)` carries the grantor for exactly this reason.",
        "starter": "event OperatorGranted(____);\n    event OperatorRevoked(____);\n\n    function grantOperator(address account) external onlyAdmin {\n        if (account == address(0)) revert LedgerZeroAccount();\n        isOperator[account] = true;\n        // emit here\n    }\n\n    function revokeOperator(address account) external onlyAdmin {\n        isOperator[account] = false;\n        // emit here\n    }",
        "solution": "// Role-change audit feed \u2014 cf. OZ AccessControl's RoleGranted/RoleRevoked\n    event OperatorGranted(address indexed account, address indexed grantedBy);\n    event OperatorRevoked(address indexed account, address indexed revokedBy);\n\n    function grantOperator(address account) external onlyAdmin {\n        if (account == address(0)) revert LedgerZeroAccount();\n        isOperator[account] = true;\n        emit OperatorGranted(account, msg.sender); // acting principal in the record\n    }\n\n    function revokeOperator(address account) external onlyAdmin {\n        isOperator[account] = false;\n        emit OperatorRevoked(account, msg.sender);\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l3-s3",
+        "type": "regex",
+        "pattern": "emit\\s+OperatorGranted\\(account,\\s+msg\\.sender\\);\\s+//\\s+acting\\s+principal\\s+in\\s+the\\s+record",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.3",
        "title": "Audit events for role changes"
       },
@@ -600,7 +803,14 @@
        "explanation": "Without this, the deployer's operator role exists in storage but is invisible to any system that reconstructs the role table from the event feed \u2014 your bank's access-review job would report a phantom operator it never saw granted. Rule: **if a consumer replays your events from block 0, it must reach the exact current state.** That property \u2014 the event stream as the source of truth from which state is derivable \u2014 is event sourcing, and it is precisely how your adapter will rebuild its mirror after a restart. Self-grant (`grantedBy == account`) is honest: the genesis record documents the bootstrap, the way the first row in an audit table is the system installer creating itself.",
        "starter": "constructor() {\n        admin = msg.sender;\n        isOperator[msg.sender] = true;\n        // make the bootstrap grant visible on the feed\n\n    }",
        "solution": "constructor() {\n        admin = msg.sender;\n        isOperator[msg.sender] = true;\n        emit OperatorGranted(msg.sender, msg.sender); // genesis audit record: replay-from-0 completeness\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l3-s4",
+        "type": "regex",
+        "pattern": "emit\\s+OperatorGranted\\(msg\\.sender,\\s+msg\\.sender\\);\\s+//\\s+genesis\\s+audit\\s+record:\\s+replay\\-from\\-0\\s+completeness",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.4",
        "title": "Emit the genesis grant from the constructor"
       },
@@ -609,7 +819,14 @@
        "explanation": "These three rules are the deliverable of this lesson \u2014 they govern every event you will design in the bond, equity, and MMF tracks. Rule 1: an event without a bank-side reference cannot be reconciled; `externalRef` is the join key between the chain feed and the core-banking booking store (and because the contract dedups on it, it doubles as the idempotency key). Rule 2: amounts as smallest-unit integers \u2014 formatting is a display concern; the feed carries `BigInteger`-safe raw values, never `1255.50`. Rule 3: spend topics on identity and party. Writing the rules into the source makes them part of the reviewed artifact; the next engineer extending this contract inherits the policy with the code, like an ADR embedded where it cannot be lost.",
        "starter": "/// @title EventDrivenLedger \u2014 booking entries as an event feed\n/// Event-feed design rules:\n///  1. ____\n///  2. ____\n///  3. ____\ncontract EventDrivenLedger {",
        "solution": "/// @title EventDrivenLedger \u2014 booking entries as an event feed (Course Chapter 03)\n/// @notice The event log IS the ledger feed. Storage keeps only what the EVM\n///         must enforce: access control + idempotency dedup.\n/// Event-feed design rules (the integration contract with core banking):\n///  1. Every event carries an idempotency key: `externalRef` (bytes32, bank-assigned).\n///  2. Amounts are uint256 in smallest units \u2014 never floats, never formatted strings.\n///  3. `indexed` fields = what the bank queries by (topics); non-indexed = payload (data).\ncontract EventDrivenLedger {",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l3-s5",
+        "type": "regex",
+        "pattern": "contract\\s+EventDrivenLedger\\s+\\{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.5",
        "title": "Write the event-design rules into the contract header"
       },
@@ -633,7 +850,14 @@
        "explanation": "The one piece of booking data that *must* live in expensive storage rather than the cheap log: the dedup flag. Why? Lesson 3, fact 2 \u2014 **the contract cannot read its own events**, so \"have I seen this externalRef?\" cannot be answered from the log; it must be answerable in storage at execution time. This mapping is the on-chain twin of the unique constraint on your booking table's external-reference column. Cost analysis: one storage slot (20,000 gas first write) buys you exactly-once semantics against a retrying adapter \u2014 cheap insurance compared to a double-booked CHF position. The split rule generalizes: *storage = what the contract must enforce; events = what the bank must know.*",
        "starter": "// idempotency: which externalRefs have already been booked?\n    mapping(____ => ____) public processed;",
        "solution": "// Idempotency dedup \u2014 the contract's UNIQUE constraint on the bank's booking reference.\n    // Must be storage (not events): contracts cannot read their own logs.\n    mapping(bytes32 => bool) public processed;",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l4-s1",
+        "type": "regex",
+        "pattern": "mapping\\(bytes32\\s+=>\\s+bool\\)\\s+public\\s+processed;",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.1",
        "title": "The idempotency store"
       },
@@ -642,7 +866,14 @@
        "explanation": "This is your inbound message parser: every field validated before any state changes, like an MT/MX syntax-and-semantics check before a payment enters the posting engine. Order matters for diagnosis quality: structural validity first (ref, account, amount, type), business-state check last (duplicate). Each failure mode gets its own typed error so the adapter can branch \u2014 remember from Lesson 1: `LedgerDuplicateRef` means \"already booked, stand down\" (success-by-idempotency), the others mean \"bad message or bad config, investigate.\" A revert refunds remaining gas and rolls back everything; failing fast on the cheapest checks first also minimizes the gas burned on garbage input.",
        "starter": "function recordBooking(\n        bytes32 externalRef,\n        address account,\n        uint256 amount,\n        uint8 entryType\n    ) external ____ {\n        // five guard checks, each with its typed error\n\n    }",
        "solution": "function recordBooking(\n        bytes32 externalRef,\n        address account,\n        uint256 amount,\n        uint8 entryType\n    ) external onlyOperator {\n        // checks \u2014 validate at the boundary, like a payment-message parser\n        if (externalRef == bytes32(0)) revert LedgerZeroRef();\n        if (account == address(0)) revert LedgerZeroAccount();\n        if (amount == 0) revert LedgerZeroAmount();\n        if (!_isValidEntryType(entryType)) revert LedgerInvalidEntryType(entryType);\n        if (processed[externalRef]) revert LedgerDuplicateRef(externalRef); // idempotency gate\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l4-s2",
+        "type": "regex",
+        "pattern": "if\\s+\\(processed\\[externalRef\\]\\)\\s+revert\\s+LedgerDuplicateRef\\(externalRef\\);\\s+//\\s+idempotency\\s+gate",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.2",
        "title": "`recordBooking`: validate at the boundary"
       },
@@ -651,7 +882,14 @@
        "explanation": "**Checks \u2192 effects \u2192 interactions/emit** \u2014 Solidity's canonical ordering (the discipline that prevents reentrancy bugs once external calls appear in later chapters; we adopt it now as habit). Mark the ref processed *before* anything else can observe state. The `unchecked` block disables 0.8's overflow check for the increment \u2014 justified and documented because a uint256 counter incremented once per booking cannot realistically overflow (10^77 bookings), and it shaves a small, *auditable* amount of gas; never use `unchecked` on arithmetic with user-supplied operands. The emit goes last: by the time the record hits the bank's feed, all invariants hold. One booking, one event, exactly once \u2014 enforced by the dedup gate above.",
        "starter": "// effects\n        ____;\n        unchecked {\n            ____;\n        }\n\n        // event last: the booking hits the bank's feed exactly once\n        emit ____;",
        "solution": "// effects (state first \u2014 checks-effects-interactions discipline)\n        processed[externalRef] = true;\n        unchecked {\n            bookingCount += 1; // counter can't overflow uint256 in any realistic timeline\n        }\n\n        // event last: the booking hits the bank's feed exactly once\n        emit BookingRecorded(externalRef, account, amount, entryType);\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l4-s3",
+        "type": "regex",
+        "pattern": "bookingCount\\s+\\+=\\s+1;\\s+//\\s+counter\\s+can't\\s+overflow\\s+uint256\\s+in\\s+any\\s+realistic\\s+timeline",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.3",
        "title": "Effects, then emit"
       },
@@ -660,7 +898,14 @@
        "explanation": "web3j has no compiler checking your `Event` against the deployed contract \u2014 the mirror is a *convention contract*, like a hand-written JAXB binding for a message schema. The boolean in `new TypeReference<Bytes32>(true) {}` marks the parameter indexed; the **order and indexed flags must match the Solidity declaration exactly**, because web3j uses them to decide which values come from topics and which from the data blob. A wrong flag does not throw \u2014 it mis-slices the data and hands you garbage that often *looks* plausible (an amount decoded from an address's bytes). `EventEncoder.encode` canonicalizes the signature and keccak-hashes it: the same `topic0` you pinned in the Solidity comment in Step 3.6 \u2014 assert they match in a unit test.",
        "starter": "/** Mirror of: event BookingRecorded(bytes32 indexed, address indexed, uint256, uint8) */\n    public static final Event BOOKING_RECORDED = new Event(\n            \"BookingRecorded\",\n            Arrays.<TypeReference<?>>asList(\n                    new TypeReference<Bytes32>(____) {},   // externalRef\n                    new TypeReference<Address>(____) {},   // account\n                    new TypeReference<Uint256>(____) {},   // amount\n                    new TypeReference<Uint8>(____) {}      // entryType\n            ));\n\n    public static final String BOOKING_RECORDED_TOPIC = ____;",
        "solution": "/** Mirror of: event BookingRecorded(bytes32 indexed, address indexed, uint256, uint8) */\n    public static final Event BOOKING_RECORDED = new Event(\n            \"BookingRecorded\",\n            Arrays.<TypeReference<?>>asList(\n                    new TypeReference<Bytes32>(true) {},   // externalRef  (indexed -> topic[1])\n                    new TypeReference<Address>(true) {},   // account      (indexed -> topic[2])\n                    new TypeReference<Uint256>(false) {},  // amount       (data)\n                    new TypeReference<Uint8>(false) {}     // entryType    (data)\n            ));\n\n    /** topic0 = keccak256(\"BookingRecorded(bytes32,address,uint256,uint8)\") */\n    public static final String BOOKING_RECORDED_TOPIC = EventEncoder.encode(BOOKING_RECORDED);",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l4-s4",
+        "type": "regex",
+        "pattern": "public\\s+static\\s+final\\s+String\\s+BOOKING_RECORDED_TOPIC\\s+=\\s+EventEncoder\\.encode\\(BOOKING_RECORDED\\);",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.4",
        "title": "Java: mirror the event and derive topic0"
       },
@@ -669,7 +914,14 @@
        "explanation": "`EthFilter` = the WHERE clause executed server-side by the node: `address = contract AND topics[0] = topic0 AND block BETWEEN from AND to`. The node's log index does the work; you receive only matching records \u2014 never download all blocks and grep, the way you would never full-table-scan when an index exists. `addSingleTopic` pins topic0 (the event type); later, reconciliation queries can add `topics[1] = externalRef` to point-look-up one booking. The `isRemoved()` check: streaming filters can deliver a log and *later* deliver it again flagged removed when its block was reorged out \u2014 consuming a removed log as a booking is how phantom positions are born. For `eth_getLogs` over already-final ranges it should never trigger, but the guard is defense-in-depth and costs one branch.",
        "starter": "private List<BookingEntry> fetchRange(BigInteger fromBlock, BigInteger toBlock) throws IOException {\n        EthFilter filter = new EthFilter(\n                DefaultBlockParameter.valueOf(____),\n                DefaultBlockParameter.valueOf(____),\n                ____);\n        filter.____(BOOKING_RECORDED_TOPIC);\n\n        EthLog response = web3j.ethGetLogs(filter).send();\n        if (response.hasError()) {\n            throw new IOException(\"eth_getLogs failed: \" + response.getError().getMessage());\n        }\n        List<BookingEntry> out = new ArrayList<>();\n        for (EthLog.LogResult<?> result : response.getLogs()) {\n            Log log = (Log) result.get();\n            // skip reorged-away logs\n            ____\n            out.add(decode(log));\n        }\n        return out;\n    }",
        "solution": "/** One eth_getLogs call: filter = address + topic0, range [fromBlock, toBlock]. */\n    private List<BookingEntry> fetchRange(BigInteger fromBlock, BigInteger toBlock) throws IOException {\n        EthFilter filter = new EthFilter(\n                DefaultBlockParameter.valueOf(fromBlock),\n                DefaultBlockParameter.valueOf(toBlock),\n                contractAddress);\n        filter.addSingleTopic(BOOKING_RECORDED_TOPIC); // node-side filtering on topic0\n\n        EthLog response = web3j.ethGetLogs(filter).send();\n        if (response.hasError()) {\n            throw new IOException(\"eth_getLogs failed: \" + response.getError().getMessage());\n        }\n        List<BookingEntry> out = new ArrayList<>();\n        for (EthLog.LogResult<?> result : response.getLogs()) {\n            Log log = (Log) result.get();\n            if (Boolean.TRUE.equals(log.isRemoved())) {\n                continue; // reorged-away log \u2014 never book it\n            }\n            out.add(decode(log));\n        }\n        return out;\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l4-s5",
+        "type": "regex",
+        "pattern": "private\\s+List<BookingEntry>\\s+fetchRange\\(BigInteger\\s+fromBlock,\\s+BigInteger\\s+toBlock\\)\\s+throws\\s+IOException\\s+\\{",
+        "flags": "m",
+        "target": "java",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.5",
        "title": "Java: filter and fetch with `EthFilter`"
       },
@@ -678,7 +930,14 @@
        "explanation": "Two physically different decode paths, because the log stores them differently. Indexed params: each is one standalone 32-byte topic \u2014 decode each topic individually (`topics[0]` is the signature hash; *your* params start at index 1). Non-indexed params: ABI-encoded *together* into the data blob, decoded in one shot into an ordered `List<Type>` \u2014 order is declaration order, position is meaning, exactly like a fixed-position MT field sequence. Type landings: `Bytes32.getValue()` \u2192 `byte[32]`, trim trailing zeros to recover the ASCII booking ref (course bytes32 convention); `Address.getValue()` \u2192 checksummed-hex `String`; `Uint256.getValue()` \u2192 `BigInteger`, kept raw in smallest units; `Uint8.getValue()` \u2192 `BigInteger`, narrowed with `intValueExact()` which *throws* on out-of-range rather than truncating \u2014 always prefer the exploding conversion at a money boundary.",
        "starter": "public BookingEntry decode(Log log) {\n        // indexed: one topic each, starting at topics[1]\n        Bytes32 refRaw = (Bytes32) FunctionReturnDecoder.decodeIndexedValue(\n                log.getTopics().get(____), new TypeReference<Bytes32>() {});\n        Address accountRaw = (Address) FunctionReturnDecoder.decodeIndexedValue(\n                log.getTopics().get(____), new TypeReference<Address>() {});\n\n        // non-indexed: decoded together from the data blob, in declaration order\n        List<Type> data = FunctionReturnDecoder.decode(\n                ____, BOOKING_RECORDED.getNonIndexedParameters());\n        BigInteger amount = ((Uint256) data.get(____)).getValue();\n        int entryType = ((Uint8) data.get(____)).getValue().____();\n\n        return new BookingEntry(bytes32ToAscii(refRaw.getValue()), accountRaw.getValue(),\n                amount, entryType, log.getBlockNumber(), log.getTransactionHash(), log.getLogIndex());\n    }",
        "solution": "public BookingEntry decode(Log log) {\n        // --- indexed params: each one is its own topic; topics[0] = signature hash ---\n        Bytes32 refRaw = (Bytes32) FunctionReturnDecoder.decodeIndexedValue(\n                log.getTopics().get(1), new TypeReference<Bytes32>() {});\n        Address accountRaw = (Address) FunctionReturnDecoder.decodeIndexedValue(\n                log.getTopics().get(2), new TypeReference<Address>() {});\n\n        // --- non-indexed params: one blob, decoded in declaration order ---\n        List<Type> data = FunctionReturnDecoder.decode(\n                log.getData(), BOOKING_RECORDED.getNonIndexedParameters());\n        BigInteger amount = ((Uint256) data.get(0)).getValue();          // smallest units, raw\n        int entryType = ((Uint8) data.get(1)).getValue().intValueExact(); // throws if out of range\n\n        return new BookingEntry(bytes32ToAscii(refRaw.getValue()), accountRaw.getValue(),\n                amount, entryType, log.getBlockNumber(), log.getTransactionHash(), log.getLogIndex());\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l4-s6",
+        "type": "regex",
+        "pattern": "int\\s+entryType\\s+=\\s+\\(\\(Uint8\\)\\s+data\\.get\\(1\\)\\)\\.getValue\\(\\)\\.intValueExact\\(\\);\\s+//\\s+throws\\s+if\\s+out\\s+of\\s+range",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.6",
        "title": "Java: decode indexed vs non-indexed fields"
       },
@@ -687,7 +946,14 @@
        "explanation": "Two production necessities. **Reorg depth:** the newest blocks can be replaced if the network briefly forks \u2014 a log in them can vanish. Treat depth < 12 blocks as *provisional*, like an unconfirmed payment message before settlement finality; only book entries at or below `head \u2212 12`. (12 is a mainnet-conservative default; tune per chain and risk appetite \u2014 Chapter 08 covers finality in depth, Chapter 09 the legal-finality view.) **Chunking:** RPC providers cap `eth_getLogs` ranges/response sizes; bounded chunks make backfill restartable and provider-friendly, exactly like paging a large database extract instead of one giant cursor. The replay loop is your disaster-recovery story: adapter down for a week? Read the last booked block from the bank's store, `replayFrom(lastBooked + 1)`, and dedup on `txHash:logIndex` (each log's globally unique identity) during upsert. Logs never expire \u2014 the chain *is* the durable message archive.",
        "starter": "public static final BigInteger CONFIRMATION_DEPTH = BigInteger.valueOf(____);\n    private static final BigInteger CHUNK_SIZE = BigInteger.valueOf(5_000);\n\n    public BigInteger safeHead() throws IOException {\n        BigInteger head = web3j.____().send().getBlockNumber();\n        BigInteger safe = head.subtract(____);\n        return safe.signum() < 0 ? BigInteger.ZERO : safe;\n    }\n\n    public List<BookingEntry> replayFrom(BigInteger fromBlock) throws IOException {\n        BigInteger safeHead = safeHead();\n        List<BookingEntry> entries = new ArrayList<>();\n        BigInteger start = fromBlock;\n        while (start.compareTo(safeHead) <= 0) {\n            BigInteger end = ____;\n            entries.addAll(fetchRange(start, end));\n            start = ____;\n        }\n        return entries;\n    }",
        "solution": "/** Blocks below the chain head we treat as final. Tune per chain (see Chapter 08). */\n    public static final BigInteger CONFIRMATION_DEPTH = BigInteger.valueOf(12);\n    /** eth_getLogs range per request \u2014 keeps RPC responses bounded during backfill. */\n    private static final BigInteger CHUNK_SIZE = BigInteger.valueOf(5_000);\n\n    /** Chain head minus CONFIRMATION_DEPTH \u2014 logs above this line may still reorg away. */\n    public BigInteger safeHead() throws IOException {\n        BigInteger head = web3j.ethBlockNumber().send().getBlockNumber();\n        BigInteger safe = head.subtract(CONFIRMATION_DEPTH);\n        return safe.signum() < 0 ? BigInteger.ZERO : safe;\n    }\n\n    /** Backfill: replay the feed from fromBlock to the reorg-safe head, in bounded chunks. */\n    public List<BookingEntry> replayFrom(BigInteger fromBlock) throws IOException {\n        BigInteger safeHead = safeHead();\n        List<BookingEntry> entries = new ArrayList<>();\n        BigInteger start = fromBlock;\n        while (start.compareTo(safeHead) <= 0) {\n            BigInteger end = start.add(CHUNK_SIZE).min(safeHead); // bounded page\n            entries.addAll(fetchRange(start, end));\n            start = end.add(BigInteger.ONE); // next page starts after this one\n        }\n        return entries;\n    }",
-       "checker": null,
+       "checker": {
+        "id": "ch03-l4-s7",
+        "type": "regex",
+        "pattern": "public\\s+List<BookingEntry>\\s+replayFrom\\(BigInteger\\s+fromBlock\\)\\s+throws\\s+IOException\\s+\\{",
+        "flags": "m",
+        "target": "java",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.7",
        "title": "Java: replay for backfill with a reorg-safe head"
       }
@@ -1219,7 +1485,14 @@
        "explanation": "This is the foundational mental-model shift. Pre-2021, transferring a token did not by itself transfer the legal right \u2014 you needed a written assignment (like emailing a PDF of a contract while the signed original stays in a vault). Post-973d, registration and transfer *in the ledger* effect the transfer of the right itself: the on-chain `Transfer` event is not a notification about a settlement that happened elsewhere \u2014 it **is** the settlement of the securities leg. For a core-banking engineer: the difference between a reporting copy of the register and the master table itself.",
        "starter": "Before the DLT Act: a token was ...\nAfter OR Art. 973d: the token entry in the securities ledger ...\nand transfer of the token ...",
        "solution": "Before the DLT Act: a token was at most evidence of a right held elsewhere;\nmoving the token did not legally move the right (a written assignment was needed).\nAfter OR Art. 973d: the token entry in the securities ledger IS the security,\nand transfer of the token in the ledger IS the legally effective transfer of\nthe right \u2014 the on-chain Transfer event is the settlement of the securities leg.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l1-s1",
+        "type": "regex",
+        "pattern": "moving\\s+the\\s+token\\s+did\\s+not\\s+legally\\s+move\\s+the\\s+right\\s+\\(a\\s+written\\s+assignment\\s+was\\s+needed\\)\\.",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.1",
        "title": "Identify what changed legally in 2021"
       },
@@ -1228,7 +1501,14 @@
        "explanation": "You will be asked this in every design review. The four requirements are the acceptance criteria for \"is this system legally a securities ledger at all\": (1) holder power of disposal by technical means, (2) integrity protected against unauthorised modification (joint management by several independent participants), (3) content of rights and functioning of the ledger recorded in the ledger or linked accompanying data, (4) holders can view their entries and verify integrity without a third party. Memorize them as **dispose / integrity / disclose / verify**. Note what is *not* on the list: the law is technology-neutral \u2014 it never says \"blockchain\", it describes properties. A sufficiently replicated, jointly-operated permissioned ledger can qualify; a single-operator SQL database cannot satisfy requirement 2.",
        "starter": "1. Holders can ...\n2. The ledger's ...\n3. The content of the rights and ...\n4. Holders can ... without ...",
        "solution": "1. Holders can dispose of their rights by technical means (power of disposal).\n2. The ledger's integrity is protected against unauthorised modification \u2014\n   adequate technical/organisational measures, e.g. joint management by\n   several independent participants.\n3. The content of the rights and the functioning of the ledger are recorded\n   in the ledger or in linked accompanying data (registration agreement).\n4. Holders can view their own entries and verify ledger integrity relating\n   to themselves without the intervention of a third party.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l1-s2",
+        "type": "regex",
+        "pattern": "1\\.\\s+Holders\\s+can\\s+dispose\\s+of\\s+their\\s+rights\\s+by\\s+technical\\s+means\\s+\\(power\\s+of\\s+disposal\\)\\.",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.2",
        "title": "Extract the four ledger requirements"
       },
@@ -1237,7 +1517,14 @@
        "explanation": "This mapping is the core deliverable of Lesson 1 \u2014 it is literally a slide your compliance team will ask you to produce. The discipline matters: every CMTAT module you deploy should trace to a legal or operational requirement (and vice versa). Requirement 1 is satisfied by the most basic ERC-20 mechanics \u2014 only the keyholder's signature moves the keyholder's balance. Requirement 2 is *not* satisfied by your contract at all \u2014 it is a property of the **chain you deploy to**, which is why the choice of network (public mainnet vs bank consortium chain) is a legal question, not just an infrastructure one. Requirements 3 and 4 are satisfied by CMTAT's BaseModule/DocumentModule and the EVM's public-read nature respectively.",
        "starter": "Power of disposal        -> ?\nLedger integrity         -> ?\nLinked accompanying data -> ?\nThird-party-free verify  -> ?",
        "solution": "Power of disposal        -> ERC20BaseModule transfer + private-key control:\n                            only msg.sender can move msg.sender's balance.\nLedger integrity         -> the chain itself: consensus across several\n                            independent node operators; append-only blocks.\n                            (A property of the network, NOT of the contract.)\nLinked accompanying data -> BaseModule terms field + DocumentModule:\n                            URI + hash of the registration agreement.\nThird-party-free verify  -> public view functions (balanceOf, totalSupply)\n                            and public event logs, readable from any node.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l1-s3",
+        "type": "regex",
+        "pattern": "Power\\s+of\\s+disposal\\s+\\->\\s+ERC20BaseModule\\s+transfer\\s+\\+\\s+private\\-key\\s+control:",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.3",
        "title": "Map law clause to CMTAT feature"
       },
@@ -1246,7 +1533,14 @@
        "explanation": "In a pure-crypto world, lost keys mean lost assets, full stop. For a ledger-based security that outcome is legally unacceptable \u2014 the *right* (the share, the bond claim) survives the key. OR Art. 973h provides court cancellation of the ledger-based security, after which it can be re-registered to the rightful holder. The technical execution of that judgment is EnforcementModule's forced transfer (or burn-then-mint): a registrar role, after the legal process completes, moves or reissues the position. This is why Chapter 07 insisted forced transfer is **not a backdoor** \u2014 it is the implementation of a statutory remedy, gated by roles (Chapter 05) and fully evented for audit.",
        "starter": "Legal step: ...\nTechnical step: ... (module: ...)\nWhy this is not a backdoor: ...",
        "solution": "Legal step: the holder obtains cancellation of the ledger-based security by\nthe court under OR Art. 973h, establishing their entitlement.\nTechnical step: the registrar executes a forced transfer (or burn + re-mint)\nvia the EnforcementModule, moving the position to the holder's new address.\nWhy this is not a backdoor: it is the on-chain implementation of a statutory\nremedy, restricted to an authorised role and fully logged via events.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l1-s4",
+        "type": "regex",
+        "pattern": "Technical\\s+step:\\s+the\\s+registrar\\s+executes\\s+a\\s+forced\\s+transfer\\s+\\(or\\s+burn\\s+\\+\\s+re\\-mint\\)",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "1.4",
        "title": "Lost keys are a legal scenario, not just an ops incident"
       },
@@ -1270,7 +1564,14 @@
        "explanation": "Classification is the first gate of every tokenization project \u2014 it decides which legal regime, hence which CMTAT modules and adapter duties, apply. The test is functional: (a) embodies a claim against an issuer (interest + principal) \u2192 asset token \u2192 security; (b) grants access to a working digital service \u2192 utility token; (c) is a pure means of payment with no counterparty claim \u2192 payment token. If (b)'s network were *not yet live* at issuance, FINMA would treat the sale as investment-like \u2014 functionality at issuance matters.",
        "starter": "(a) bond-coupon token: ...\n(b) storage-compute token: ...\n(c) fee-payment token: ...",
        "solution": "(a) bond-coupon token: ASSET token \u2014 claim on the issuer (interest,\n    principal) => treated as a security.\n(b) storage-compute token: UTILITY token \u2014 access to a functioning\n    digital service; not a security if usable at issuance.\n(c) fee-payment token: PAYMENT token \u2014 means of payment, no issuer\n    claim; AML regime applies, not securities law.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l2-s1",
+        "type": "regex",
+        "pattern": "\\(a\\)\\s+bond\\-coupon\\s+token:\\s+ASSET\\s+token\\s+\u2014\\s+claim\\s+on\\s+the\\s+issuer\\s+\\(interest,",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.1",
        "title": "Classify three tokens"
       },
@@ -1279,7 +1580,14 @@
        "explanation": "\"It's a security\" is not a label, it is a cascade: securities-law treatment means (i) it should be issued as a **ledger-based security** under OR 973d (Lesson 1) to get clean transferability, and (ii) offering documents/terms duties (FinSA prospectus rules, when applicable \u2014 counsel decides applicability; you provide the plumbing). Engineering-side, the two recurring duties are: **terms/document availability on-chain** (DocumentModule, BaseModule terms) and **controlled transferability** (ValidationModule + RuleEngine, because securities distribution is restricted by investor eligibility). Notice both already exist in CMTAT \u2014 that is the point of using the standard.",
        "starter": "Regime: ...\nEngineering duty 1: ...\nEngineering duty 2: ...",
        "solution": "Regime: securities law \u2014 issue as a ledger-based security (OR 973d) and\nrespect offering/prospectus duties under FinSA where applicable.\nEngineering duty 1: terms and offering documents discoverable from the\ntoken (BaseModule terms + DocumentModule with URI and hash).\nEngineering duty 2: transfer restriction enforcement \u2014 ValidationModule\ndelegating to a RuleEngine that encodes investor-eligibility rules.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l2-s2",
+        "type": "regex",
+        "pattern": "Regime:\\s+securities\\s+law\\s+\u2014\\s+issue\\s+as\\s+a\\s+ledger\\-based\\s+security\\s+\\(OR\\s+973d\\)\\s+and",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.2",
        "title": "State the consequence of \"asset token = security\""
       },
@@ -1288,7 +1596,14 @@
        "explanation": "This determines system boundaries: each licensed function usually lives in a separate legal entity with its own systems, and your adapters cross those boundaries. (1) is the textbook **DLT trading facility** under FMIA Art. 73a ff. \u2014 the DLT Act created it precisely so one entity may combine trading + settlement + custody and admit retail directly, which no traditional Swiss exchange may do. (2) holding client cash is deposit-taking \u2192 **banking licence** (or the Art. 1b fintech licence within its limits). (3) professional token custody triggers at minimum **AMLA financial-intermediary** status, and depending on structure banking/FinIA rules.",
        "starter": "(1) retail venue + settlement + custody -> ?\n(2) client CHF cash                     -> ?\n(3) professional token safekeeping      -> ?",
        "solution": "(1) retail venue + settlement + custody -> DLT trading facility licence\n    (FMIA Art. 73a ff.) \u2014 may combine trading, settlement, custody and\n    admit retail participants directly.\n(2) client CHF cash                     -> banking licence (BankA), or the\n    Art. 1b fintech licence within its CHF 100m / no-lending limits.\n(3) professional token safekeeping      -> AMLA financial-intermediary\n    status at minimum; banking rules can apply depending on structure.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l2-s3",
+        "type": "regex",
+        "pattern": "\\(2\\)\\s+client\\s+CHF\\s+cash\\s+\\->\\s+banking\\s+licence\\s+\\(BankA\\),\\s+or\\s+the",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.3",
        "title": "Pick the licence for the function"
       },
@@ -1297,7 +1612,14 @@
        "explanation": "Technology neutrality cuts both ways: regulation does not get lighter on-chain, and your *control architecture* should not be reinvented on-chain either. The bank's KYC system already satisfies AMLA process requirements (audited, four-eyes, case management); the chain's job is **enforcement at the transfer boundary**, not decision-making. Correct shape: KYC decision off-chain \u2192 adapter writes a boolean/whitelist entry on-chain \u2192 RuleEngine consults it on transfer (Chapter 07). On-chain scoring would duplicate a regulated process in an environment where every input is public and every fix is a migration.",
        "starter": "Decision should live: ...\nChain's role: ...\nBecause (same risks, same rules): ...",
        "solution": "Decision should live: in the bank's existing KYC/compliance systems, which\nalready meet AMLA process requirements.\nChain's role: enforcement point only \u2014 the RuleEngine checks a whitelist\nflag the adapter maintains from the KYC system of record.\nBecause (same risks, same rules): the regulatory duty is unchanged by the\ntechnology, so the audited off-chain process remains the decision-maker;\nduplicating it on-chain adds public data exposure and migration risk\nwithout discharging any duty.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l2-s4",
+        "type": "regex",
+        "pattern": "Decision\\s+should\\s+live:\\s+in\\s+the\\s+bank's\\s+existing\\s+KYC/compliance\\s+systems,\\s+which",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "2.4",
        "title": "Apply \"same risks, same rules\" to an architecture decision"
       },
@@ -1321,7 +1643,14 @@
        "explanation": "This single sentence drives the wallet architecture decision. The structure is: *kept available for the client at all times* AND (*individually allocated* OR *allocated to a community with the client's share clearly determined*). Engineers tend to remember the omnibus alternative and forget the umbrella condition \u2014 \"available at all times\" is what rules out lending out client tokens or commingling them with the bank's proprietary trading positions.",
        "starter": "Client crypto-assets are segregated from the custodian's bankruptcy estate\nif the custodian keeps them ... at all times, AND they are either\n(a) ... , or\n(b) ... and the client's share ...",
        "solution": "Client crypto-assets are segregated from the custodian's bankruptcy estate\nif the custodian keeps them available for the client at all times, AND they\nare either\n(a) individually allocated to the client, or\n(b) allocated to a community (omnibus pool) and the client's share of that\n    community is clearly determined.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l3-s1",
+        "type": "regex",
+        "pattern": "if\\s+the\\s+custodian\\s+keeps\\s+them\\s+available\\s+for\\s+the\\s+client\\s+at\\s+all\\s+times,\\s+AND\\s+they",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.1",
        "title": "State the two segregation conditions"
       },
@@ -1330,7 +1659,14 @@
        "explanation": "There is no universally right answer, but the scenario's parameters point omnibus: 40,000 whitelist entries would make the RuleEngine a gas-expensive mirror of the client database, and high *internal* turnover (client A sells to client B at the same bank) settles in the sub-ledger without any chain transaction at all \u2014 exactly how your existing custody book nets internal transfers today. The price is that bankruptcy remoteness now rests entirely on sub-ledger quality, so the `sum == balanceOf` invariant becomes a regulatory control, not a nice-to-have. A segregated answer is acceptable if argued (client-level on-chain transparency, simpler 242a(a) path) \u2014 what matters is reasoning from the table's trade-offs.",
        "starter": "Recommendation: ...\nReason 1 (whitelist): ...\nReason 2 (reconciliation/settlement): ...\nAccepted cost: ...",
        "solution": "Recommendation: omnibus wallet with a core-banking sub-ledger.\nReason 1 (whitelist): only the omnibus address needs whitelisting in the\nRuleEngine \u2014 40,000 retail addresses would bloat on-chain state and make\nevery KYC status change a chain transaction.\nReason 2 (reconciliation/settlement): client-to-client trades at the same\nbank settle in the sub-ledger with no on-chain transfer, cutting gas and\nlatency; the chain only sees net external movements.\nAccepted cost: bankruptcy remoteness now depends on Art. 242a(b)'s \"share\nclearly determined\" \u2014 the sum(sub-ledger) == balanceOf(omnibus) invariant\nmust be continuously reconciled and historically evidenced.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l3-s2",
+        "type": "regex",
+        "pattern": "Reason\\s+2\\s+\\(reconciliation/settlement\\):\\s+client\\-to\\-client\\s+trades\\s+at\\s+the\\s+same",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.2",
        "title": "Choose a wallet model for a scenario"
       },
@@ -1339,7 +1675,14 @@
        "explanation": "Turning \"share clearly determined\" into an executable check is the lesson's central move: law \u2192 invariant \u2192 scheduled job \u2192 audit record. The invariant compares two systems of record across a trust boundary, so it runs in the bank-side adapter (it can read both), on a schedule plus on every settlement event, and its results are themselves persisted append-only \u2014 in a dispute, the *history* of green checks is the evidence.",
        "starter": "Invariant: ...\nChecked by: ...",
        "solution": "Invariant: sum(subLedger.balances[clientId] for all clients)\n           == token.balanceOf(omnibusAddress)\nChecked by: the bank-side ReconciliationJob (Chapter 08), scheduled and\nevent-triggered, writing each result to the append-only audit trail.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l3-s3",
+        "type": "regex",
+        "pattern": "Checked\\s+by:\\s+the\\s+bank\\-side\\s+ReconciliationJob\\s+\\(Chapter\\s+08\\),\\s+scheduled\\s+and",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.3",
        "title": "Write the omnibus invariant"
       },
@@ -1348,7 +1691,14 @@
        "explanation": "You will face this question verbatim. The rebuttal structure mirrors the chapter's recurring triad: (1) **legal basis** \u2014 the powers implement statutory and contractual obligations (court attachment, sanctions, OR 973h reissue) and are disclosed in the registration agreement the client accepted (Lesson 1, requirement 3 \u2014 no hidden powers); (2) **technical gating** \u2014 only the ENFORCER/registrar role can call them (Chapter 05), held by a regulated entity, ideally behind multi-sig quorum; (3) **audit trail** \u2014 every invocation emits events with case references, verifiable by the client from their own node (Lesson 1, requirement 4). Then flip it: a token *without* these powers could not satisfy a Swiss court order or recover a fat-fingered transfer \u2014 *that* would be the unsafe custody.",
        "starter": "Legal basis: ...\nTechnical gating: ...\nAudit trail: ...\nFlip: a token WITHOUT these powers ...",
        "solution": "Legal basis: forced transfer implements statutory duties \u2014 court-ordered\nattachment, sanctions freezes, OR 973h lost-key cancellation/reissue \u2014 and\nthe powers are disclosed in the registration agreement you accepted.\nTechnical gating: only the registrar's ENFORCER role can invoke it, held by\na regulated entity under multi-party (quorum) key control.\nAudit trail: every freeze and forced transfer emits an event with a case\nreference; you can verify all uses from your own node, third-party-free.\nFlip: a token WITHOUT these powers could not execute a court order or\nrecover a mis-sent position \u2014 that token is the one no Swiss custodian\nshould hold for you.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l3-s4",
+        "type": "regex",
+        "pattern": "Technical\\s+gating:\\s+only\\s+the\\s+registrar's\\s+ENFORCER\\s+role\\s+can\\s+invoke\\s+it,\\s+held\\s+by",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "3.4",
        "title": "Defend freeze/forced-transfer to a skeptical client"
       },
@@ -1372,7 +1722,14 @@
        "explanation": "Most AMLA duties are pure process (identification, beneficial-owner establishment, clarification, MROS reporting) \u2014 they live in bank systems and produce *data* the chain consumes. Exactly two reach the chain as enforcement: the duty to ensure you only deal with identified parties materializes as the **ValidationModule + RuleEngine whitelist** (no transfer to/from unresolved addresses), and the duty to freeze assets in connection with reporting materializes as the **EnforcementModule address freeze**. Knowing which duties stay off-chain is as important as knowing which go on \u2014 it keeps you from gold-plating the contract.",
        "starter": "Duties: 1. ...  2. ...  3. ...  4. ...  5. ...\nOn-chain hook A: duty ... -> module ...\nOn-chain hook B: duty ... -> module ...",
        "solution": "Duties: 1. verify customer identity  2. establish the beneficial owner\n3. monitor transactions for unusual patterns  4. clarify anomalies\n5. report suspicions to MROS  6. freeze assets connected to a report\nOn-chain hook A: dealing only with identified counterparties\n  -> ValidationModule + RuleEngine whitelist gate on every transfer.\nOn-chain hook B: asset freezing\n  -> EnforcementModule address freeze (and unfreeze on release).",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l4-s1",
+        "type": "regex",
+        "pattern": "Duties:\\s+1\\.\\s+verify\\s+customer\\s+identity\\s+2\\.\\s+establish\\s+the\\s+beneficial\\s+owner",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.1",
        "title": "List the AMLA duties and find the two with on-chain hooks"
       },
@@ -1381,7 +1738,14 @@
        "explanation": "Three facts to retain. First, originator and beneficiary information must accompany VASP transfers \u2014 exchanged off-chain between the institutions, like MT103 fields travel with a wire. Second, FINMA applies this **without a de-minimis threshold** \u2014 stricter than many jurisdictions; do not design tiered logic that skips Travel-Rule handling for small amounts. Third, for unhosted wallets, FINMA expects supervised institutions to transact only where the **customer's ownership of the external wallet is proven by technical means** (signed message, verification transaction). Your whitelist trichotomy (VASP / proven customer wallet / blocked) encodes all three.",
        "starter": "Must accompany the transfer: ...\nSwiss threshold: ...\nUnhosted wallets: allowed only if ...",
        "solution": "Must accompany the transfer: identifying information on the originator and\nthe beneficiary, exchanged off-chain between the VASPs (never on-chain).\nSwiss threshold: none \u2014 FINMA applies the Travel Rule without a de-minimis\nthreshold, so it covers transfers of any amount.\nUnhosted wallets: allowed only if the institution's own customer's ownership\nof the external wallet has been proven by technical means (e.g. a message\nsigned with the wallet's key or a verification micro-transaction).",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l4-s2",
+        "type": "regex",
+        "pattern": "Unhosted\\s+wallets:\\s+allowed\\s+only\\s+if\\s+the\\s+institution's\\s+own\\s+customer's\\s+ownership",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.2",
        "title": "State FINMA's Travel-Rule position"
       },
@@ -1390,7 +1754,14 @@
        "explanation": "This step converts Lesson 4's law into the Chapter 07 contract you already built. The RuleEngine itself stays simple \u2014 `isWhitelisted(address)` \u2014 but *what whitelisting means* is now precise: (i) **identified VASP** \u2014 Travel-Rule messaging channel established with that institution, its receiving address registered; (ii) **proven customer wallet** \u2014 ownership-proof artifact (signed challenge) stored against the KYC file; (iii) **blocked** \u2014 everything else, which is simply *absence* from the whitelist (deny-by-default, Chapter 07). The compliance semantics live in the adapter's process; the chain enforces the result.",
        "starter": "Category 1: ... -> adapter precondition: ...\nCategory 2: ... -> adapter precondition: ...\nCategory 3: ... -> on-chain representation: ...",
        "solution": "Category 1: identified VASP counterparty -> adapter precondition: Travel-\nRule data-exchange channel established with that institution and the\naddress registered as belonging to it.\nCategory 2: customer's own external wallet -> adapter precondition:\nownership proven by technical means (signed challenge / verification tx),\nartifact stored in the KYC case file before the whitelist mutation.\nCategory 3: everything else (blocked) -> on-chain representation: absence\nfrom the whitelist \u2014 the RuleEngine denies by default, so unresolved\naddresses simply cannot receive or send the token.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l4-s3",
+        "type": "regex",
+        "pattern": "Category\\s+1:\\s+identified\\s+VASP\\s+counterparty\\s+\\->\\s+adapter\\s+precondition:\\s+Travel\\-",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.3",
        "title": "Design the counterparty trichotomy into the RuleEngine"
       },
@@ -1399,7 +1770,14 @@
        "explanation": "The mapping discipline from Chapter 05 now gets its regulatory rationale: separation of duties on-chain must mirror the bank's *legally meaningful* separation off-chain, because supervisors audit the org chart and the role-grant events as one system. Freezes are compliance decisions \u2192 compliance holds ENFORCER. Register maintenance is the transfer agent's core function \u2192 registrar ops maintain the whitelist. Issuance follows the issuer's corporate decisions, executed by the registrar \u2192 MINTER sits with registrar ops under issuer instruction (ideally quorum-gated). Market-wide halts are an operations/market-control call \u2192 PAUSER with operations, with an incident runbook (Chapter 07).",
        "starter": "ENFORCER_ROLE       -> ...\nWhitelist maintainer -> ...\nMINTER_ROLE          -> ...\nPAUSER_ROLE          -> ...",
        "solution": "ENFORCER_ROLE        -> the bank's compliance function (freeze/forced\n                        transfer are compliance/legal decisions).\nWhitelist maintainer -> registrar/transfer-agent operations: keeping the\n                        register's eligibility list is their core function.\nMINTER_ROLE          -> registrar operations executing the issuer's\n                        instructions, behind a quorum (four-eyes) control.\nPAUSER_ROLE          -> operations/market control, per the incident and\n                        regulatory-action runbook.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l4-s4",
+        "type": "regex",
+        "pattern": "Whitelist\\s+maintainer\\s+\\->\\s+registrar/transfer\\-agent\\s+operations:\\s+keeping\\s+the",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.4",
        "title": "Map registrar and transfer-agent functions to roles"
       },
@@ -1408,7 +1786,14 @@
        "explanation": "Precision here prevents two common errors in bank documentation: calling CMTAT \"the Swiss legal standard\" (it is not law) or dismissing it as \"just some open-source code\" (it is the market's reference blueprint, drafted by the association's bank/law-firm membership specifically to satisfy the OR 973d framework you studied in Lesson 1). The accurate framing: an industry-standard reference implementation that de-risks compliance review because the pattern is already known to Swiss counsel and supervisors.",
        "starter": "CMTA: ...\nCMTAT: ...\nLegal status: ...",
        "solution": "CMTA: the Capital Markets and Technology Association \u2014 a Geneva-based\nindustry association of Swiss banks, law firms, and technology firms.\nCMTAT: the CMTA Token \u2014 CMTA's open-source reference implementation for\ntokenizing Swiss securities (the modular contract set of Chapters 06-07).\nLegal status: not mandatory \u2014 no statute requires it; it is the market\nstandard blueprint designed to satisfy the OR 973d ledger-based-securities\nframework, which is why Swiss issuances converge on it.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l4-s5",
+        "type": "regex",
+        "pattern": "standard\\s+blueprint\\s+designed\\s+to\\s+satisfy\\s+the\\s+OR\\s+973d\\s+ledger\\-based\\-securities",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.5",
        "title": "Place CMTA and CMTAT correctly"
       },
@@ -1417,7 +1802,14 @@
        "explanation": "Auditors love measurable control latencies. The freeze-latency metric (instruction timestamp \u2192 on-chain `Freeze` event timestamp) directly evidences the bank's ability to discharge its AMLA freezing duty *in practice*, not just on paper \u2014 it is the on-chain analogue of sanctions-screening response times that audit already tracks for payments.",
        "starter": "Metric: ...\nWhy audit cares: ...",
        "solution": "Metric: freeze latency \u2014 time from compliance's freeze instruction to the\non-chain Freeze event.\nWhy audit cares: it is direct, measurable evidence that the bank can\nactually discharge its AMLA asset-freezing duty in operation, equivalent\nto the sanctions-screening response times audit already tracks for\npayment systems.",
-       "checker": null,
+       "checker": {
+        "id": "ch09-l4-s6",
+        "type": "regex",
+        "pattern": "Metric:\\s+freeze\\s+latency\\s+\u2014\\s+time\\s+from\\s+compliance's\\s+freeze\\s+instruction\\s+to\\s+the",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Your code should match the solution for this step."
+       },
        "id": "4.6",
        "title": "Lesson 4 engineering checklist"
       }

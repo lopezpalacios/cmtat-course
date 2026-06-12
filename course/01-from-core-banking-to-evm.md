@@ -67,6 +67,11 @@ contract HelloLedgerWarmup {
 
 > **Datatype/parser note:** Solidity `address` ↔ web3j `org.web3j.abi.datatypes.Address`, which unwraps to a Java `String` (`"0x"`-prefixed, 40 hex chars). Addresses have an EIP-55 mixed-case checksum: `org.web3j.crypto.Keys.toChecksumAddress(addr)` produces it, and your boundary validation should reject inputs whose mixed-case form fails the checksum — the EVM itself will accept any well-formed 20 bytes, so a typo silently sends value to a stranger. Treat this like IBAN check-digit validation in a payment gateway.
 
+
+
+```checker
+{"id": "ch01-l1-s1", "type": "regex", "pattern": "address\\s+public\\s+treasuryAccount;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 1.2 — Capture the authenticated caller with `msg.sender`
 
 **Instruction:** Write a function `claimTreasury()` with `external` visibility that sets `treasuryAccount` to `msg.sender`.
@@ -98,6 +103,11 @@ contract HelloLedgerWarmup {
 
 **Validation rule:** `function\s+claimTreasury\s*\(\s*\)\s+external[\s\S]*?treasuryAccount\s*=\s*msg\.sender\s*;` — checks an external `claimTreasury()` assigns `msg.sender` to `treasuryAccount`.
 
+
+
+```checker
+{"id": "ch01-l1-s2", "type": "regex", "pattern": "function\\s+claimTreasury\\(\\)\\s+external\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 1.3 — Distinguish EOA from contract account
 
 **Instruction:** Write a `view` function `isContractAccount(address account)` returning `bool` — `true` when `account.code.length > 0`.
@@ -123,6 +133,11 @@ contract HelloLedgerWarmup {
 
 **Validation rule:** `account\.code\.length\s*>\s*0` — checks the function inspects `account.code.length`.
 
+
+
+```checker
+{"id": "ch01-l1-s3", "type": "regex", "pattern": "function\\s+isContractAccount\\(address\\s+account\\)\\s+external\\s+view\\s+returns\\s+\\(bool\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 1.4 — Read a native balance
 
 **Instruction:** Write a `view` function `nativeBalanceOf(address account)` that returns `account.balance` as `uint256`.
@@ -150,6 +165,11 @@ contract HelloLedgerWarmup {
 
 > **Datatype/parser note:** Solidity `uint256` ↔ web3j `org.web3j.abi.datatypes.generated.Uint256`, which unwraps to `java.math.BigInteger`. Never route a 256-bit balance through `long` (max ~9.2×10^18 — barely 9 ether in wei) or `double` (silent precision loss above 2^53). `BigInteger` end-to-end, convert to `BigDecimal` only at the presentation layer with an explicit scale: `new BigDecimal(weiAmount, 18)` semantics via `Convert.fromWei(...)`.
 
+
+
+```checker
+{"id": "ch01-l1-s4", "type": "regex", "pattern": "function\\s+nativeBalanceOf\\(address\\s+account\\)\\s+external\\s+view\\s+returns\\s+\\(uint256\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 1.5 — Validate against the zero address
 
 **Instruction:** At the top of `claimTreasury()`, add `require(treasuryAccount == address(0), "already claimed");` so the treasury can only be claimed once.
@@ -193,6 +213,11 @@ A transaction is a **signed instruction** from an EOA: "call function X on contr
 
 Fee = gas used × price. The mainframe analogy is exact: MIPS-metered batch jobs, where an expensive query costs real money and a runaway job gets killed at its quota.
 
+
+
+```checker
+{"id": "ch01-l1-s5", "type": "regex", "pattern": "require\\(treasuryAccount\\s+==\\s+address\\(0\\),\\s+\"already\\s+claimed\"\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.1 — Write a state-changing function (a transaction target)
 
 **Instruction:** In scratch contract `HelloLedgerTxLab`, declare `uint256 public postedTotal;` and a function `postAmount(uint256 amount)` (`external`) that adds `amount` to `postedTotal`.
@@ -227,6 +252,11 @@ contract HelloLedgerTxLab {
 
 **Validation rule:** `function\s+postAmount\s*\(\s*uint256\s+amount\s*\)\s+external[\s\S]*?postedTotal\s*\+=\s*amount` — checks `postAmount` is external and accumulates into `postedTotal`.
 
+
+
+```checker
+{"id": "ch01-l2-s1", "type": "regex", "pattern": "function\\s+postAmount\\(uint256\\s+amount\\)\\s+external\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.2 — Revert: the all-or-nothing rollback
 
 **Instruction:** At the top of `postAmount`, add `require(amount > 0, "amount must be positive");`.
@@ -254,6 +284,11 @@ contract HelloLedgerTxLab {
 
 **Validation rule:** `require\s*\(\s*amount\s*>\s*0\s*,` — checks a `require` guards `amount > 0` with a reason.
 
+
+
+```checker
+{"id": "ch01-l2-s2", "type": "regex", "pattern": "require\\(amount\\s+>\\s+0,\\s+\"amount\\s+must\\s+be\\s+positive\"\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.3 — Custom errors: typed reason codes
 
 **Instruction:** Declare `error HelloLedgerLabZeroAmount();` at contract level, and replace the `require` with `if (amount == 0) revert HelloLedgerLabZeroAmount();`.
@@ -292,6 +327,11 @@ contract HelloLedgerTxLab {
 
 **Validation rule:** `error\s+HelloLedgerLabZeroAmount\s*\(\s*\)\s*;[\s\S]*?revert\s+HelloLedgerLabZeroAmount\s*\(\s*\)` — checks the custom error is declared and used in a `revert`.
 
+
+
+```checker
+{"id": "ch01-l2-s3", "type": "regex", "pattern": "if\\s+\\(amount\\s+==\\s+0\\)\\s+revert\\s+HelloLedgerLabZeroAmount\\(\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.4 — Block context: timestamp and number
 
 **Instruction:** Declare `uint256 public lastPostedAt;` and `uint256 public lastPostedBlock;`, and set them in `postAmount` from `block.timestamp` and `block.number`.
@@ -327,6 +367,11 @@ contract HelloLedgerTxLab {
 
 **Validation rule:** `lastPostedAt\s*=\s*block\.timestamp\s*;[\s\S]*?lastPostedBlock\s*=\s*block\.number\s*;` — checks both block-context values are recorded.
 
+
+
+```checker
+{"id": "ch01-l2-s4", "type": "regex", "pattern": "lastPostedAt\\s+=\\s+block\\.timestamp;\\s+//\\s+proposer\\-set;\\s+second\\-level\\s+precision\\s+only", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.5 — Respect the gas limit: bound your loops
 
 **Instruction:** Write `postBatch(uint256[] calldata amounts)` (`external`) that requires `amounts.length <= 100` (reason `"batch too large"`), then loops and accumulates each non-zero amount into `postedTotal`.
@@ -415,6 +460,11 @@ The **world state** is one global key-value structure: every account's balance, 
 
 **Finality** needs care. In Swiss settlement, finality is a legal moment (SIC settlement is final and irrevocable when posted). On a blockchain, a new block is at first only *probably* permanent: if validators briefly disagree, a competing chain segment can replace the last few blocks — a **reorg** — and "your" transaction may land in a different block or return to the pending pool. Ethereum's proof-of-stake then **finalizes** checkpoints (~2 epochs ≈ 12–13 minutes): a finalized block cannot be reverted without an economically suicidal attack. Bank policy translation: treat inclusion as *processing*, treat finalization (or your chosen confirmation depth) as *settlement finality*, and make the reconciliation job reorg-aware (Chapter 08). Chapter 09 covers how Swiss law maps legal finality onto this.
 
+
+
+```checker
+{"id": "ch01-l2-s5", "type": "regex", "pattern": "function\\s+postBatch\\(uint256\\[\\]\\s+calldata\\s+amounts\\)\\s+external\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.1 — Storage vs memory vs calldata
 
 **Instruction:** In scratch contract `HelloLedgerStateLab`, declare `string private note;` (storage), then write `function stash(string calldata input) external` that assigns `note = input;`.
@@ -451,6 +501,11 @@ contract HelloLedgerStateLab {
 
 **Validation rule:** `string\s+private\s+note\s*;[\s\S]*?function\s+stash\s*\(\s*string\s+calldata\s+input\s*\)` — checks a storage string and a `calldata` parameter are used.
 
+
+
+```checker
+{"id": "ch01-l3-s1", "type": "regex", "pattern": "string\\s+private\\s+note;\\s+//\\s+storage:\\s+the\\s+\"database\\s+table\"\\s+\u2014\\s+persists\\s+across\\s+txs", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.2 — view and pure: free reads
 
 **Instruction:** Add `function readNote() external view returns (string memory)` returning `note`, and `function shout(string memory s) external pure returns (string memory)` returning `s` unchanged.
@@ -478,6 +533,11 @@ contract HelloLedgerStateLab {
 
 **Validation rule:** `function\s+readNote\s*\(\s*\)\s+external\s+view[\s\S]*?function\s+shout\s*\([^)]*\)\s+external\s+pure` — checks both functions exist with `view` and `pure` mutability.
 
+
+
+```checker
+{"id": "ch01-l3-s2", "type": "regex", "pattern": "function\\s+shout\\(string\\s+memory\\s+s\\)\\s+external\\s+pure\\s+returns\\s+\\(string\\s+memory\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.3 — mapping: the keyed ledger table
 
 **Instruction:** Declare `mapping(address => uint256) public postingsBy;` and write `function post() external` that increments `postingsBy[msg.sender]`.
@@ -505,6 +565,11 @@ contract HelloLedgerStateLab {
 
 **Validation rule:** `mapping\s*\(\s*address\s*=>\s*uint256\s*\)\s+public\s+postingsBy\s*;[\s\S]*?postingsBy\[msg\.sender\]\s*\+=\s*1` — checks the mapping is declared and incremented per caller.
 
+
+
+```checker
+{"id": "ch01-l3-s3", "type": "regex", "pattern": "mapping\\(address\\s+=>\\s+uint256\\)\\s+public\\s+postingsBy;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.4 — Emit block context for the reconciler
 
 **Instruction:** Declare `event Posted(address indexed account, uint256 count, uint256 blockNumber);` and emit it at the end of `post()` with `msg.sender`, the caller's new count, and `block.number`.
@@ -589,6 +654,11 @@ Deployment first, because it breaks JVM intuition: there is **no application ser
 
 Immutability is the point: holders of a CMTAT security token rely on the fact that no developer can hot-patch the ledger logic. The release-management discipline you know from production banking gets pushed *before* deployment — audits, testnets — because there is no patch window afterward.
 
+
+
+```checker
+{"id": "ch01-l3-s4", "type": "regex", "pattern": "event\\s+Posted\\(address\\s+indexed\\s+account,\\s+uint256\\s+count,\\s+uint256\\s+blockNumber\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.1 — Contract skeleton
 
 **Instruction:** Create `contracts/shared/HelloLedger.sol` with the SPDX line, `pragma solidity ^0.8.20;`, and an empty contract `HelloLedger`.
@@ -612,6 +682,11 @@ contract HelloLedger {
 
 **Validation rule:** `pragma\s+solidity\s+\^0\.8\.20\s*;[\s\S]*?contract\s+HelloLedger\s*\{` — checks the pragma and contract declaration.
 
+
+
+```checker
+{"id": "ch01-l4-s1", "type": "regex", "pattern": "contract\\s+HelloLedger\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.2 — State: deployer, greeting, counter
 
 **Instruction:** Inside `HelloLedger`, declare: `address public immutable deployer;`, `string private greeting;`, `uint256 public entryCount;`.
@@ -641,6 +716,11 @@ contract HelloLedger {
 
 **Validation rule:** `address\s+public\s+immutable\s+deployer\s*;[\s\S]*?string\s+private\s+greeting\s*;[\s\S]*?uint256\s+public\s+entryCount\s*;` — checks all three state variables with correct visibility/mutability.
 
+
+
+```checker
+{"id": "ch01-l4-s2", "type": "regex", "pattern": "string\\s+private\\s+greeting;\\s+//\\s+hidden\\s+from\\s+contracts,\\s+NOT\\s+from\\s+observers", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.3 — Events and errors: declare the integration surface
 
 **Instruction:** Declare two events — `EntryRecorded(uint256 indexed entryId, address indexed recordedBy, string note, uint256 timestamp)` and `GreetingChanged(string oldGreeting, string newGreeting, address indexed changedBy)` — and two custom errors: `HelloLedgerEmptyNote()` and `HelloLedgerNotDeployer(address caller)`.
@@ -678,6 +758,11 @@ contract HelloLedger {
 
 **Validation rule:** `event\s+EntryRecorded\s*\(\s*uint256\s+indexed\s+entryId\s*,\s*address\s+indexed\s+recordedBy[\s\S]*?error\s+HelloLedgerNotDeployer\s*\(\s*address\s+caller\s*\)` — checks both indexed topics on `EntryRecorded` and the parameterized error.
 
+
+
+```checker
+{"id": "ch01-l4-s3", "type": "regex", "pattern": "event\\s+GreetingChanged\\(string\\s+oldGreeting,\\s+string\\s+newGreeting,\\s+address\\s+indexed\\s+changedBy\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.4 — Constructor: the one-shot initializer
 
 **Instruction:** Write a constructor taking `string memory initialGreeting` that sets `deployer = msg.sender;` and `greeting = initialGreeting;`.
@@ -703,6 +788,11 @@ contract HelloLedger {
 
 **Validation rule:** `constructor\s*\(\s*string\s+memory\s+initialGreeting\s*\)\s*\{[\s\S]*?deployer\s*=\s*msg\.sender\s*;[\s\S]*?greeting\s*=\s*initialGreeting\s*;` — checks the constructor captures deployer and stores the greeting.
 
+
+
+```checker
+{"id": "ch01-l4-s4", "type": "regex", "pattern": "greeting\\s+=\\s+initialGreeting;\\s+//\\s+constructor\\s+args\\s+ride\\s+along\\s+with\\s+the\\s+initcode", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.5 — recordEntry: the business transaction
 
 **Instruction:** Write `function recordEntry(string calldata note) external returns (uint256 entryId)`: revert with `HelloLedgerEmptyNote` if `bytes(note).length == 0`; increment `entryCount`; set `entryId = entryCount`; emit `EntryRecorded(entryId, msg.sender, note, block.timestamp)`.
@@ -748,6 +838,11 @@ contract HelloLedger {
 >
 > Had `note` been declared `indexed`, topic[3] would hold only its Keccak-256 hash — web3j would give you `byte[32]`, the text unrecoverable. Rule of thumb: index what you filter on, keep what you must *read* in the data section.
 
+
+
+```checker
+{"id": "ch01-l4-s5", "type": "regex", "pattern": "function\\s+recordEntry\\(string\\s+calldata\\s+note\\)\\s+external\\s+returns\\s+\\(uint256\\s+entryId\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.6 — Guarded mutation and the explicit getter
 
 **Instruction:** Add `setGreeting(string calldata newGreeting)` (`external`) that reverts with `HelloLedgerNotDeployer(msg.sender)` unless `msg.sender == deployer`, stores the old greeting in a local `string memory old`, updates `greeting`, and emits `GreetingChanged(old, newGreeting, msg.sender)`. Then add `getGreeting() external view returns (string memory)` and `isContractAccount(address account) external view returns (bool)` (from Step 1.3).
@@ -794,6 +889,11 @@ contract HelloLedger {
 
 **Validation rule:** `if\s*\(\s*msg\.sender\s*!=\s*deployer\s*\)\s*revert\s+HelloLedgerNotDeployer\s*\(\s*msg\.sender\s*\)[\s\S]*?emit\s+GreetingChanged\s*\(\s*old\s*,[\s\S]*?function\s+getGreeting\s*\(\s*\)\s+external\s+view` — checks the gate, the before/after audit emit, and the view getter.
 
+
+
+```checker
+{"id": "ch01-l4-s6", "type": "regex", "pattern": "emit\\s+GreetingChanged\\(old,\\s+newGreeting,\\s+msg\\.sender\\);\\s+//\\s+audit:\\s+before/after/who", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.7 — Compile and deploy
 
 **Instruction:** Compile with Foundry, then deploy to a local dev node:
@@ -1035,3 +1135,8 @@ d) Events can only be emitted 100 times per transaction
 ---
 
 **Next:** Chapter 02 — Solidity Datatypes for Banking Integrators: the full `[TYPES-heavy]` treatment of `uint256` money math, `bytes32` ISIN/LEI, enums, structs, and the complete Solidity↔web3j mapping table.
+
+
+```checker
+{"id": "ch01-l4-s7", "type": "regex", "pattern": "anvil\\s+\\&\\s+\\#\\s+throwaway\\s+local\\s+chain,\\s+prefunded\\s+dev\\s+keys", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```

@@ -54,6 +54,11 @@ interface IBankERC20 {
 ```
 **Validation rule:** `event\s+Transfer\(address\s+indexed\s+from,\s*address\s+indexed\s+to,\s*uint256\s+value\)` — checks the Transfer event matches the EIP-20 signature exactly (selector compatibility).
 
+
+
+```checker
+{"id": "ch04-l1-s2", "type": "regex", "pattern": "event\\s+Approval\\(address\\s+indexed\\s+owner,\\s+address\\s+indexed\\s+spender,\\s+uint256\\s+value\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 1.3 — Declare the read-only register queries
 **Instruction:** Inside the interface, add the six `view` functions: `name()`, `symbol()`, `decimals()`, `totalSupply()`, `balanceOf(address account)`, `allowance(address owner, address spender)` with their standard return types.
 **Explanation:** These are your balance-inquiry messages — `camt.052`-style reads that change nothing. `view` is the compiler-enforced promise of no state mutation (like a `@Transactional(readOnly = true)` repository method, except the EVM *rejects* writes instead of trusting you). Note the return types: `string` for metadata, `uint8` for decimals (a count 0–255, no need for 32 bytes), `uint256` for every amount. Get a type wrong and the function selector — derived from the full signature — no longer matches what wallets call.
@@ -77,6 +82,11 @@ interface IBankERC20 {
 ```
 **Validation rule:** `function\s+decimals\(\)\s+external\s+view\s+returns\s*\(uint8\)` — checks decimals() returns uint8 per EIP-20.
 
+
+
+```checker
+{"id": "ch04-l1-s3", "type": "regex", "pattern": "function\\s+decimals\\(\\)\\s+external\\s+view\\s+returns\\s+\\(uint8\\);\\s+//\\s+precision\\s+indicator,\\s+fits\\s+in\\s+1\\s+byte", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 1.4 — Declare the state-changing booking instructions
 **Instruction:** Add the three mutating functions to the interface: `transfer(address to, uint256 value)`, `approve(address spender, uint256 value)`, `transferFrom(address from, address to, uint256 value)` — each returning `bool`.
 **Explanation:** These are your booking instructions — the `pacs.008` equivalents. All three return `bool` per the standard. Historical quirk: early tokens returned `false` on failure instead of reverting; modern practice (OpenZeppelin, CMTAT) is *revert on failure, return true on success* — like throwing an exception versus returning an error code. The `bool` stays in the signature for selector compatibility, the way a legacy field stays in a message schema. Off-chain callers must still check it, because they may interact with old non-reverting tokens.
@@ -95,6 +105,11 @@ interface IBankERC20 {
 ```
 **Validation rule:** `function\s+transferFrom\(address\s+from,\s*address\s+to,\s*uint256\s+value\)\s+external\s+returns\s*\(bool\)` — checks transferFrom keeps the standard three-argument bool-returning signature.
 
+
+
+```checker
+{"id": "ch04-l1-s4", "type": "regex", "pattern": "function\\s+transferFrom\\(address\\s+from,\\s+address\\s+to,\\s+uint256\\s+value\\)\\s+external\\s+returns\\s+\\(bool\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 1.5 — The register: balances mapping and total supply
 **Instruction:** Declare `contract BankERC20 is IBankERC20` with two private state variables: `mapping(address => uint256) private _balances;` and `uint256 private _totalSupply;`. Implement `totalSupply()` and `balanceOf(address)` as `public view` functions returning them.
 **Explanation:** This mapping IS the share register. In your core-banking system the register is a `positions` table keyed by account number; here it is a key-value store keyed by a 20-byte address, living in the contract's storage trie. Two crucial differences from a DB table: (1) you cannot iterate a mapping — there is no `SELECT * FROM positions`; if the bank needs the full holder list, it rebuilds it off-chain from `Transfer` events (Lesson 4.2's Java adapter does exactly this); (2) every key "exists" with default value `0` — no null rows, no `Optional`. The core invariant you will maintain through the whole chapter: **`_totalSupply` equals the sum of all `_balances` entries at all times** — the on-chain version of "the register reconciles to issued capital."
@@ -161,6 +176,11 @@ contract BankERC20 is IBankERC20 {
 
 A transfer is a two-legged booking: debit the sender, credit the receiver, same amount, atomically. In your core-banking system that is a DB transaction around two row updates plus a journal entry. On the EVM, atomicity is free — a reverted transaction rolls back *all* state changes, like an automatic `ROLLBACK` — and the journal entry is the `Transfer` event.
 
+
+
+```checker
+{"id": "ch04-l1-s5", "type": "regex", "pattern": "function\\s+balanceOf\\(address\\s+account\\)\\s+public\\s+view\\s+returns\\s+\\(uint256\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.1 — Declare the transfer errors
 **Instruction:** Inside the contract, declare three custom errors: `BankERC20InvalidSender(address sender)`, `BankERC20InvalidReceiver(address receiver)`, and `BankERC20InsufficientBalance(address sender, uint256 balance, uint256 needed)`.
 **Explanation:** Custom errors (Chapter 03) are typed exceptions — like defining `InsufficientFundsException(account, balance, requested)` instead of throwing `RuntimeException("oops")`. They are ABI-encoded on revert, so the Java side can decode *which* check failed and with what values, and they cost far less gas than revert strings. Naming convention: prefix with the contract name (`BankERC20...`) — same reason your bank prefixes internal error codes by subsystem, and it keeps names unique when all course chapters compile together.
@@ -179,6 +199,11 @@ A transfer is a two-legged booking: debit the sender, credit the receiver, same 
 ```
 **Validation rule:** `error\s+BankERC20InsufficientBalance\(address\s+sender,\s*uint256\s+balance,\s*uint256\s+needed\)\s*;` — checks the insufficient-balance error carries sender, balance, and needed amount.
 
+
+
+```checker
+{"id": "ch04-l2-s1", "type": "regex", "pattern": "error\\s+BankERC20InsufficientBalance\\(address\\s+sender,\\s+uint256\\s+balance,\\s+uint256\\s+needed\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.2 — The booking engine: `_update`
 **Instruction:** Write `function _update(address from, address to, uint256 value) internal`. If `from` is the zero address, add `value` to `_totalSupply` (checked); otherwise verify `_balances[from] >= value` (revert with `BankERC20InsufficientBalance` if not) and debit it inside `unchecked`. If `to` is the zero address, subtract `value` from `_totalSupply` inside `unchecked`; otherwise credit `_balances[to]` inside `unchecked`. Emit `Transfer(from, to, value)` at the end.
 **Explanation:** This is the OpenZeppelin 5.x pattern (`// modeled on OZ ERC20._update`), and it is the *single* booking engine for transfers, mints, and burns: `address(0)` as `from` means issuance, `address(0)` as `to` means cancellation. One code path = one place to attach compliance hooks later (CMTAT's ValidationModule wraps exactly this choke point). The `unchecked` blocks are a deliberate optimization, each justified by an invariant: the debit can't underflow because we just checked the balance; the credit can't overflow because no balance can exceed `_totalSupply`, whose *checked* add is the single overflow gate. This is "validate at the boundary, trust internally" — the same discipline as validating an inbound message once, then trusting the parsed object.
@@ -242,6 +267,11 @@ A transfer is a two-legged booking: debit the sender, credit the receiver, same 
 ```
 **Validation rule:** `function\s+_update\(address\s+from,\s*address\s+to,\s*uint256\s+value\)\s+internal[\s\S]*emit\s+Transfer\(from,\s*to,\s*value\);` — checks _update exists with the standard signature and ends by emitting Transfer.
 
+
+
+```checker
+{"id": "ch04-l2-s2", "type": "regex", "pattern": "function\\s+_update\\(address\\s+from,\\s+address\\s+to,\\s+uint256\\s+value\\)\\s+internal\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.3 — Zero-address guards: `_transfer`
 **Instruction:** Write `function _transfer(address from, address to, uint256 value) internal` that reverts with `BankERC20InvalidSender(address(0))` if `from` is zero, reverts with `BankERC20InvalidReceiver(address(0))` if `to` is zero, then calls `_update(from, to, value)`.
 **Explanation:** `address(0)` (`0x000...000`) is not a real account — nobody holds its private key. Tokens sent there are irrecoverably destroyed, which is why the standard reserves it as the mint/burn marker. A *holder-to-holder* transfer must never touch it: transferring **to** zero would silently destroy a client's shares (an unauthorized capital reduction!), and a zero **from** would be a spoofed issuance. Think of `address(0)` as a suspense account that only the issuance/cancellation processes may post against — `_transfer` is the client-payments channel, and it blocks that account on both legs.
@@ -264,6 +294,11 @@ A transfer is a two-legged booking: debit the sender, credit the receiver, same 
 ```
 **Validation rule:** `if\s*\(to\s*==\s*address\(0\)\)\s*revert\s+BankERC20InvalidReceiver\(address\(0\)\);` — checks the receiver zero-address guard is present.
 
+
+
+```checker
+{"id": "ch04-l2-s3", "type": "regex", "pattern": "if\\s+\\(to\\s+==\\s+address\\(0\\)\\)\\s+revert\\s+BankERC20InvalidReceiver\\(address\\(0\\)\\);\\s+//\\s+would\\s+destroy\\s+shares", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.4 — The public `transfer`
 **Instruction:** Implement `function transfer(address to, uint256 value) public returns (bool)`: call `_transfer(msg.sender, to, value)` and `return true`.
 **Explanation:** `msg.sender` is the cryptographically authenticated caller — the EVM's equivalent of the authenticated principal in your security context, except it is established by the transaction signature, not a session token, so it cannot be spoofed (Chapter 01). The sender of a booking is *always* the signer; there is no parameter for it, which is what makes `transfer` safe by construction. Returning `true` unconditionally is correct in the revert-on-failure style: if you reach the `return`, every check has passed — like a method that either throws or succeeds, with the `boolean` kept for interface compatibility.
@@ -283,6 +318,11 @@ A transfer is a two-legged booking: debit the sender, credit the receiver, same 
 ```
 **Validation rule:** `_transfer\(msg\.sender,\s*to,\s*value\);\s*return\s+true;` — checks transfer debits msg.sender and returns true.
 
+
+
+```checker
+{"id": "ch04-l2-s4", "type": "regex", "pattern": "_transfer\\(msg\\.sender,\\s+to,\\s+value\\);\\s+//\\s+sender\\s+=\\s+authenticated\\s+signer,\\s+never\\s+a\\s+parameter", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 2.5 — Read the booking entries from Java
 **Instruction:** No new Solidity. Study the event-consumption pattern below — your `Erc20Operations.java` adapter implements it in full — and answer for yourself: why does the consumer persist the last processed block number?
 **Explanation:** The bank's shadow ledger is rebuilt from `Transfer` events, exactly like rebuilding positions from a journal. The event stream is your `camt.054` notification feed: each log carries the transaction hash and log index — a globally unique booking reference, your idempotency key. Persisting the last processed block lets a crashed consumer *replay from block N* instead of losing entries — the same checkpoint/restart discipline as a message-queue consumer committing offsets. Mint and burn appear on this same stream as transfers from/to the zero address, so one consumer covers issuance, cancellation, and trading.
@@ -352,6 +392,11 @@ Why does ERC-20 need a second transfer path? Because contracts cannot be "pushed
 ```
 **Validation rule:** `mapping\(address\s*=>\s*mapping\(address\s*=>\s*uint256\)\)\s+private\s+_allowances\s*;` — checks the nested allowance mapping is declared.
 
+
+
+```checker
+{"id": "ch04-l3-s1", "type": "regex", "pattern": "return\\s+_allowances\\[owner\\]\\[spender\\];\\s+//\\s+no\\s+entry\\s+=>\\s+0\\s+=>\\s+no\\s+mandate\\s+\\(deny\\s+by\\s+default\\)", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.2 — Recording the mandate: `_approve`
 **Instruction:** Add errors `BankERC20InvalidApprover(address approver)` and `BankERC20InvalidSpender(address spender)`. Write `function _approve(address owner, address spender, uint256 value) internal`: revert with the respective error if `owner` or `spender` is the zero address, then set `_allowances[owner][spender] = value` and emit `Approval(owner, spender, value)`.
 **Explanation:** The zero-address checks mirror `_transfer`'s: a mandate from or to a nonexistent principal is meaningless and would only pollute the audit trail. Note that `_approve` *overwrites* — it does not add to the previous mandate. That is "set the standing-order limit to X," not "raise it by X" — and it is the root of the race caveat in the next step. The `Approval` event is the audit record: your compliance archive can reconstruct the full history of who authorized whom for how much, the same way you'd audit signing-authority changes.
@@ -381,6 +426,11 @@ Why does ERC-20 need a second transfer path? Because contracts cannot be "pushed
 ```
 **Validation rule:** `_allowances\[owner\]\[spender\]\s*=\s*value;\s*emit\s+Approval\(owner,\s*spender,\s*value\);` — checks _approve stores the mandate and emits Approval.
 
+
+
+```checker
+{"id": "ch04-l3-s2", "type": "regex", "pattern": "function\\s+_approve\\(address\\s+owner,\\s+address\\s+spender,\\s+uint256\\s+value\\)\\s+internal\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.3 — The public `approve` and the race caveat
 **Instruction:** Implement `function approve(address spender, uint256 value) public returns (bool)`: call `_approve(msg.sender, spender, value)` and return `true`.
 **Explanation:** Now the caveat every integrator must know. Suppose Alice approved an operator for 100, then decides to *reduce* it to 50 and sends `approve(operator, 50)`. The operator, watching the mempool (the queue of pending transactions), front-runs her: spends the old 100 *before* her transaction lands, then spends the fresh 50 after — total 150, more than Alice ever intended at once. The banking analogy: amending a power of attorney by fax while the attorney is standing at the counter — the order of execution at the counter decides. Mitigations: set to 0 first and *confirm on-chain* before setting the new value, or use increase/decrease-style functions (non-standard), or EIP-2612 permits (later chapters). Your bank-side adapter should treat allowance changes as a two-step confirmed workflow, never fire-and-forget.
@@ -403,6 +453,11 @@ Why does ERC-20 need a second transfer path? Because contracts cannot be "pushed
 ```
 **Validation rule:** `_approve\(msg\.sender,\s*spender,\s*value\);` — checks approve binds the mandate to msg.sender as owner.
 
+
+
+```checker
+{"id": "ch04-l3-s3", "type": "regex", "pattern": "_approve\\(msg\\.sender,\\s+spender,\\s+value\\);\\s+//\\s+only\\s+the\\s+owner\\s+can\\s+set\\s+their\\s+own\\s+mandates", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.4 — Consuming the mandate: `_spendAllowance`
 **Instruction:** Add error `BankERC20InsufficientAllowance(address spender, uint256 currentAllowance, uint256 needed)`. Write `function _spendAllowance(address owner, address spender, uint256 value) internal`: read the current allowance; if it is *not* `type(uint256).max`, revert with the error when it is below `value`, otherwise decrement it inside `unchecked`.
 **Explanation:** Every draw reduces the remaining mandate — standard standing-order accounting. The `type(uint256).max` special case is an industry convention: the maximum `uint256` (~1.16×10⁷⁷) is treated as "unlimited mandate" and never decremented, saving a storage write (~5,000 gas) on every `transferFrom`. Compare with an uncapped power of attorney where you don't bother tracking a running total. For a *securities* register your compliance team will likely forbid unlimited mandates operationally — but the code pattern is standard, and CMTAT inherits it via OZ. The `unchecked` decrement is safe for the same reason as in `_update`: the comparison just above guarantees no underflow.
@@ -440,6 +495,11 @@ Why does ERC-20 need a second transfer path? Because contracts cannot be "pushed
 ```
 **Validation rule:** `if\s*\(currentAllowance\s*!=\s*type\(uint256\)\.max\)` — checks the unlimited-allowance short-circuit is present.
 
+
+
+```checker
+{"id": "ch04-l3-s4", "type": "regex", "pattern": "error\\s+BankERC20InsufficientAllowance\\(address\\s+spender,\\s+uint256\\s+currentAllowance,\\s+uint256\\s+needed\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 3.5 — The attorney executes: `transferFrom`
 **Instruction:** Implement `function transferFrom(address from, address to, uint256 value) public returns (bool)`: call `_spendAllowance(from, msg.sender, value)`, then `_transfer(from, to, value)`, then return `true`.
 **Explanation:** Order matters: consume the mandate *first*, then book the movement. Both happen in one atomic transaction, so there is no window where the mandate is spent but the booking missing (or vice versa) — the EVM gives you the all-or-nothing guarantee you'd build with a DB transaction. Note who is who: `msg.sender` is the *spender* (the attorney executing), `from` is the principal whose position moves. The balance check happens inside `_update`, the mandate check in `_spendAllowance` — two independent limits, both enforced, like checking both the account balance and the attorney's authority limit before releasing a payment.
@@ -483,6 +543,11 @@ Why does ERC-20 need a second transfer path? Because contracts cannot be "pushed
 
 The EVM has no floating point and no decimal type — only integers. Every "amount" on chain is an integer count of *base units*, and `decimals` declares where the decimal point sits for display: `humanValue = baseUnits / 10^decimals`. You already live by this rule: core-banking systems store CHF amounts as integer *Rappen* (or 1/100ths) precisely to avoid `double` rounding. The EVM just makes the discipline mandatory.
 
+
+
+```checker
+{"id": "ch04-l3-s5", "type": "regex", "pattern": "function\\s+transferFrom\\(address\\s+from,\\s+address\\s+to,\\s+uint256\\s+value\\)\\s+public\\s+returns\\s+\\(bool\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.1 — Store decimals as an immutable
 **Instruction:** Declare `uint8 private immutable _decimals;` plus `string private _name;` and `string private _symbol;` as contract state.
 **Explanation:** `immutable` means: assigned once in the constructor, then baked into the deployed bytecode — reads cost no storage access (no `SLOAD`, ~2,100 gas saved per read), like a `final` field inlined by the JIT. An instrument's precision must never change after issuance (imagine repricing every position by 10× mid-life), so `immutable` both documents and enforces that. `name`/`symbol` stay as ordinary storage strings — `immutable` only supports value types (another difference from Java's `final`, which takes references too).
@@ -500,6 +565,11 @@ The EVM has no floating point and no decimal type — only integers. Every "amou
 ```
 **Validation rule:** `uint8\s+private\s+immutable\s+_decimals\s*;` — checks decimals is a uint8 immutable.
 
+
+
+```checker
+{"id": "ch04-l4-s1", "type": "regex", "pattern": "uint8\\s+private\\s+immutable\\s+_decimals;\\s+//\\s+fixed\\s+at\\s+issuance,\\s+read\\s+from\\s+bytecode\\s+not\\s+storage", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.2 — Wire the constructor
 **Instruction:** Write the constructor taking `(string memory name_, string memory symbol_, uint8 decimals_)` and assigning all three fields.
 **Explanation:** The trailing-underscore parameter names avoid shadowing the state variables — the Solidity equivalent of `this.name = name` disambiguation, since Solidity has no `this.field` assignment syntax for that purpose. The constructor runs exactly once, at deployment, in the deployment transaction itself — closer to a DB migration's `INSERT` of reference data than to a Java constructor that runs per instance: there is only ever *one* instance of a deployed contract.
@@ -521,6 +591,11 @@ The EVM has no floating point and no decimal type — only integers. Every "amou
 ```
 **Validation rule:** `constructor\(string\s+memory\s+name_,\s*string\s+memory\s+symbol_,\s*uint8\s+decimals_\)` — checks the constructor takes name, symbol, decimals.
 
+
+
+```checker
+{"id": "ch04-l4-s2", "type": "regex", "pattern": "constructor\\(string\\s+memory\\s+name_,\\s+string\\s+memory\\s+symbol_,\\s+uint8\\s+decimals_\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.3 — Metadata accessors
 **Instruction:** Implement `name()`, `symbol()`, and `decimals()` as `public view` functions returning the stored fields.
 **Explanation:** These satisfy the interface from Lesson 4.1. They are the instrument's static data record — what your securities-master file holds per ISIN. `decimals` is *display metadata only*: nothing in `_update` looks at it; the chain's arithmetic is pure integer regardless. Wallets, your Java adapter, and reporting layers apply it. Get this division of labor wrong (e.g. scaling amounts on-chain "for convenience") and you create double-scaling bugs — the classic cents-vs-francs interface mismatch.
@@ -538,6 +613,11 @@ The EVM has no floating point and no decimal type — only integers. Every "amou
 ```
 **Validation rule:** `function\s+decimals\(\)\s+public\s+view\s+returns\s*\(uint8\)\s*\{\s*return\s+_decimals;\s*\}` — checks decimals() returns the immutable field.
 
+
+
+```checker
+{"id": "ch04-l4-s3", "type": "regex", "pattern": "function\\s+decimals\\(\\)\\s+public\\s+view\\s+returns\\s+\\(uint8\\)\\s+\\{\\s+return\\s+_decimals;\\s+\\}\\s+//\\s+display\\s+metadata\\s+only", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 4.4 — Choose the precision: 0 vs 18
 **Instruction:** No new code — decide the deployment parameter. For a registered-share token, deploy with `decimals_ = 0`. Write the one-line deployment comment in your contract header recording the decision and why.
 **Explanation:** The decision rule for tokenized securities: **shares are indivisible legal units — use `decimals = 0`** so one base unit = one share, and fractional transfers are *unrepresentable* (the type system enforces what the articles of association say; CMTAT equity deployments commonly do exactly this). **Cash legs and cash-like instruments use high precision** — 18 is the EVM convention (ether itself is 18; stablecoins often 6) — because interest and price computations need sub-unit precision before final rounding. A bond token may use 0 (one unit = one note of CHF 1,000 par) while its coupon *payments* are computed in an 18- or 6-decimal cash token. Mixing the two without explicit scaling is the on-chain version of adding Rappen to Francs.
@@ -620,6 +700,11 @@ Transfers move existing shares between holders — secondary market. Mint and bu
 ```
 **Validation rule:** `modifier\s+onlyRegistrar\(\)\s*\{[\s\S]*revert\s+BankERC20UnauthorizedRegistrar\(msg\.sender\);[\s\S]*_;` — checks the modifier reverts for non-registrar callers before the body placeholder.
 
+
+
+```checker
+{"id": "ch04-l5-s1", "type": "regex", "pattern": "address\\s+public\\s+immutable\\s+registrar;\\s+//\\s+single\\s+transfer\\-agent\\s+key;\\s+full\\s+RBAC\\s+in\\s+Ch\\.\\s+05", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 5.2 — Issuance/cancellation events with idempotency keys
 **Instruction:** Declare two events: `Issued(address indexed to, uint256 value, bytes32 indexed operationId)` and `Cancelled(address indexed from, uint256 value, bytes32 indexed operationId)`.
 **Explanation:** `_update` already emits the standard zero-address `Transfer` for mints and burns — wallets and explorers rely on that. These *additional* events exist for the bank: `operationId` is a `bytes32` idempotency key assigned by the issuance system (e.g. `keccak256` of the corporate-action reference, or the reference itself right-padded to 32 ASCII bytes, per the Chapter 02 ISIN convention). The reconciliation job matches `Issued`/`Cancelled` events 1:1 against its instruction file — like matching `camt.054` entries back to your original `pain.001` by end-to-end ID. Indexing `operationId` lets Java query "did operation X land?" directly via a topic filter, which is exactly how an idempotent retry decides whether to resend.
@@ -636,6 +721,11 @@ Transfers move existing shares between holders — secondary market. Mint and bu
 ```
 **Validation rule:** `event\s+Issued\(address\s+indexed\s+to,\s*uint256\s+value,\s*bytes32\s+indexed\s+operationId\)` — checks Issued carries an indexed bytes32 operationId.
 
+
+
+```checker
+{"id": "ch04-l5-s2", "type": "regex", "pattern": "event\\s+Cancelled\\(address\\s+indexed\\s+from,\\s+uint256\\s+value,\\s+bytes32\\s+indexed\\s+operationId\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 5.3 — The `_mint` primitive
 **Instruction:** Write `function _mint(address to, uint256 value) internal`: revert with `BankERC20InvalidReceiver(address(0))` if `to` is zero, then call `_update(address(0), to, value)`.
 **Explanation:** Minting *to* the zero address would create supply and destroy it in one booking — `_totalSupply` would rise while no balance does, breaking the register invariant, so it's blocked. Then `_mint` simply routes through the booking engine with `from = address(0)`: supply grows (checked add), receiver is credited, and the emitted `Transfer(address(0), to, value)` is the standard's canonical issuance signal. One engine, three operations — the audit story stays simple because every capital movement flows through one function. (`// modeled on OZ ERC20._mint`.)
@@ -656,6 +746,11 @@ Transfers move existing shares between holders — secondary market. Mint and bu
 ```
 **Validation rule:** `_update\(address\(0\),\s*to,\s*value\);` — checks _mint routes through _update with the zero address as sender.
 
+
+
+```checker
+{"id": "ch04-l5-s3", "type": "regex", "pattern": "_update\\(address\\(0\\),\\s+to,\\s+value\\);\\s+//\\s+from\\s+=\\s+zero\\s+=>\\s+supply\\s+grows\\s+in\\s+_update", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 5.4 — The `_burn` primitive
 **Instruction:** Write `function _burn(address from, uint256 value) internal`: revert with `BankERC20InvalidSender(address(0))` if `from` is zero, then call `_update(from, address(0), value)`.
 **Explanation:** Burning checks the holder actually has the shares — `_update`'s balance check covers it — then debits the holder and shrinks `_totalSupply`. This is share cancellation: after a buyback, after a bond redemption, after a capital reduction. Note what `_burn` does *not* do: it does not require the holder's consent — the caller decides. That is exactly why the public wrapper must be registrar-gated (next step), and why in CMTAT proper, forced operations are a separate, explicitly-evented EnforcementModule concern (Chapter 07): regulators distinguish "holder asked to redeem" from "registrar seized and cancelled," and your event trail must too.
@@ -676,6 +771,11 @@ Transfers move existing shares between holders — secondary market. Mint and bu
 ```
 **Validation rule:** `_update\(from,\s*address\(0\),\s*value\);` — checks _burn routes through _update with the zero address as receiver.
 
+
+
+```checker
+{"id": "ch04-l5-s4", "type": "regex", "pattern": "_update\\(from,\\s+address\\(0\\),\\s+value\\);\\s+//\\s+to\\s+=\\s+zero\\s+=>\\s+supply\\s+shrinks\\s+in\\s+_update", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
 ### Step 5.5 — Registrar-gated `mint` and `burn` with operation IDs
 **Instruction:** Implement `function mint(address to, uint256 value, bytes32 operationId) external onlyRegistrar` calling `_mint(to, value)` then emitting `Issued(to, value, operationId)`; and the symmetric `burn(address from, uint256 value, bytes32 operationId) external onlyRegistrar` calling `_burn` then emitting `Cancelled`.
 **Explanation:** The external functions are the corporate-action entry points: privilege gate first (`onlyRegistrar` runs before the body), booking second, bank-facing audit event third — all atomic. Threading `operationId` from the bank's instruction through to the event closes the reconciliation loop: instruction file → signed transaction → on-chain event → matched booking, one key end to end. Check the invariant survives: `mint` raises `_totalSupply` and one balance by the same amount; `burn` lowers both by the same amount; `transfer` touches balances only. `sum(_balances) == _totalSupply` holds after every operation — your register always reconciles to issued capital, by construction.
@@ -1055,3 +1155,8 @@ a) order operations within a block — b) let the bank match on-chain events 1:1
 ---
 
 **Next:** Chapter 05 replaces the single `registrar` address with a full role-based access-control layer — DEFAULT_ADMIN_ROLE, MINTER_ROLE, BURNER_ROLE and friends — mapped onto the bank's org structure.
+
+
+```checker
+{"id": "ch04-l5-s5", "type": "regex", "pattern": "function\\s+burn\\(address\\s+from,\\s+uint256\\s+value,\\s+bytes32\\s+operationId\\)\\s+external\\s+onlyRegistrar\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+```
