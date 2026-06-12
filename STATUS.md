@@ -8,6 +8,7 @@
 - [x] Track C (mmf): ch 16, 17, 18
 - [x] 18 chapters + map · 78 lessons · 181 steps · 151 machine-readable checkers
 - [x] Depth pass: ch06/08/10/13/16 expanded; ALL 18 chapters now 22k+ (consistent depth)
+- [x] 17 web3j adapters in java-adapters/ — every chapter-map `Java:` reference resolves
 
 ## Contracts (assembled, forge build)
 - [x] contracts/shared/*.sol (8)
