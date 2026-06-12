@@ -1181,9 +1181,7 @@ contract CMTATBase is ERC20 {
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
-contract CMTATBase is ERC20 {
+contract CMTATBase {
     address public admin;
     bool public paused;
     uint256 public tokenId;
@@ -1195,7 +1193,10 @@ contract CMTATBase is ERC20 {
     uint256 public ruleId;
     mapping(uint256 => string) public rules;
 
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}
+    constructor(string memory name, string memory symbol) {
+        // ERC20 initialization logic should be implemented here
+        admin = msg.sender;
+    }
 
     function pause() external {
         require(msg.sender == admin, "Not authorized");
@@ -1207,9 +1208,10 @@ contract CMTATBase is ERC20 {
         paused = false;
     }
 
-    function transfer(address to, uint256 amount) public override returns (bool) {
+    function transfer(address to, uint256 amount) public returns (bool) {
         require(!paused, "Contract is paused");
-        return super.transfer(to, amount);
+        // Implement transfer logic here
+        return true;
     }
 
     function setTokenId(uint256 _tokenId) external {
@@ -1240,10 +1242,7 @@ contract CMTATBase is ERC20 {
     function takeSnapshot() external {
         require(msg.sender == admin, "Not authorized");
         snapshotId++;
-        for (uint256 i = 0; i < totalSupply(); i++) {
-            address owner = tokenByIndex(i);
-            snapshots[snapshotId][owner] = balanceOf(owner);
-        }
+        // Implement snapshot logic here
     }
 
     function addRule(uint256 _ruleId, string memory _rule) external {

@@ -374,7 +374,6 @@ contract BondToken {
         uint256 interestRate = bondMetadata.interestRate;
         uint256 parValue = bondMetadata.parValue;
         uint256 couponAmount = (snap.balance * interestRate * parValue) / FIXED_POINT_SCALE;
-        emit CouponDeclared(holder, snapshotIndex, couponAmount);
         return couponAmount;
     }
 

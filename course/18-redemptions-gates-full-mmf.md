@@ -958,6 +958,10 @@ contract FundShareToken {
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+interface INavOracle {
+    function getNAV() external view returns (uint256);
+}
+
 contract FundShareToken {
     address public navOracle;
     uint256 public totalShares;
@@ -991,7 +995,7 @@ contract FundShareToken {
     event OrderAdded(uint256 indexed orderId, address user, uint256 amount, bool isRedemption);
     event OrderProcessed(uint256 indexed orderId, address user, uint256 amount, bool isRedemption);
 
-    function getNAV() external view returns (uint256) {
+    function getNAV() public view returns (uint256) {
         return INavOracle(navOracle).getNAV();
     }
 
