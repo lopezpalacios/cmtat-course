@@ -57,6 +57,43 @@ public class CmtatBankAdapter {
 {"id": "ch08-l1-s1", "type": "regex", "pattern": "Function\\s+function\\s+=\\s+new\\s+Function\\(", "flags": "", "target": "java", "error_hint": "Ensure the function is correctly encoded with the admin address."}
 ```
 
+### Step 1.2 — Decode a transaction using web3j
+
+**Instruction:** Use web3j to decode an encoded transaction string back into its original components.
+
+**Explanation:** Decoding is the reverse process of encoding, ensuring that data can be retrieved and processed correctly after being sent to the blockchain. This step will use `FunctionDecoder` to parse the encoded transaction string.
+
+**Starter code:**
+```java
+import org.web3j.abi.FunctionDecoder;
+import org.web3j.protocol.core.methods.request.Transaction;
+
+public class CmtatBankAdapter {
+    public Function decodeSetAdmin(String encodedTransaction) {
+        // Your code here
+    }
+}
+```
+
+**Solution:**
+```java
+import org.web3j.abi.FunctionDecoder;
+import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.abi.datatypes.Function;
+
+public class CmtatBankAdapter {
+    public Function decodeSetAdmin(String encodedTransaction) {
+        return FunctionDecoder.decode(encodedTransaction);
+    }
+}
+```
+
+**Validation rule:** The method `decodeSetAdmin` correctly decodes the transaction string back into a `Function` object.
+
+```checker
+{"id": "ch08-l1-s2", "type": "regex", "pattern": "return\\s+FunctionDecoder\\.decode\\(encodedTransaction\\);", "flags": "", "target": "java", "error_hint": "Ensure the encoded transaction is correctly decoded."}
+```
+
 ## Lesson 2 — Event Log Subscription and Replay
 
 **Learning objective:** Learn how to subscribe to event logs and replay events from a specific block using web3j.  
@@ -103,6 +140,44 @@ public class CmtatBankAdapter {
 
 ```checker
 {"id": "ch08-l2-s1", "type": "regex", "pattern": "EthFilter\\s+filter\\s+=\\s+new\\s+EthFilter\\(DefaultBlockParameterName.LATEST,\\s+DefaultBlockParameterName.PENDING,\\s+\"CmtatToken\"\\);", "flags": "m", "target": "java", "error_hint": "Ensure the filter is correctly set up for the Transfer event."}
+```
+
+### Step 2.2 — Replay events from a specific block
+
+**Instruction:** Use web3j to replay `Transfer` events starting from a specific block number.
+
+**Explanation:** In case of an outage or system restart, it's crucial to replay missed events to ensure that all transactions are processed correctly. This step will use `ethGetLogs` to fetch logs from a specified block range.
+
+**Starter code:**
+```java
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.request.EthFilter;
+
+public class CmtatBankAdapter {
+    public List<Log> replayTransferEventsFromBlock(Web3j web3j, BigInteger startBlock) throws Exception {
+        // Your code here
+    }
+}
+```
+
+**Solution:**
+```java
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.request.EthFilter;
+import org.web3j.protocol.core.methods.response.Log;
+
+public class CmtatBankAdapter {
+    public List<Log> replayTransferEventsFromBlock(Web3j web3j, BigInteger startBlock) throws Exception {
+        EthFilter filter = new EthFilter(startBlock, DefaultBlockParameterName.LATEST, "CmtatToken");
+        return web3j.ethGetLogs(filter).send().getLogs();
+    }
+}
+```
+
+**Validation rule:** The method `replayTransferEventsFromBlock` correctly fetches logs from the specified block range.
+
+```checker
+{"id": "ch08-l2-s2", "type": "regex", "pattern": "EthFilter\\s+filter\\s+=\\s+new\\s+EthFilter\\(startBlock, DefaultBlockParameterName.LATEST, \"CmtatToken\"\\);", "flags": "m", "target": "java", "error_hint": "Ensure the filter is correctly set up to replay events from the specified block."}
 ```
 
 ## Lesson 3 — Transaction Submission with Nonce Management
@@ -172,6 +247,65 @@ public class CmtatBankAdapter {
 {"id": "ch08-l3-s1", "type": "regex", "pattern": "EthGetTransactionCount\\s+ethGetTransactionCount\\s+=\\s+web3j\\.ethGetTransactionCount\\(credentials\\.getAddress\\(\\), DefaultBlockParameterName\\.LATEST\\)\\.send\\(\\);", "flags": "m", "target": "java", "error_hint": "Ensure nonce is correctly retrieved and used in the transaction."}
 ```
 
+### Step 3.2 — Handle nonce conflicts
+
+**Instruction:** Implement a mechanism to handle nonce conflicts when submitting transactions.
+
+**Explanation:** In high-frequency trading environments, nonce conflicts can occur if multiple transactions are submitted simultaneously. This step will involve checking for existing nonces and adjusting them accordingly.
+
+**Starter code:**
+```java
+import org.web3j.protocol.Web3j;
+import org.web3j.tx.RawTransactionManager;
+import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+
+public class CmtatBankAdapter {
+    public void submitSetAdminTransactionWithNonceConflictHandling(Web3j web3j, String adminAddress) throws Exception {
+        // Your code here
+    }
+}
+```
+
+**Solution:**
+```java
+import org.web3j.protocol.Web3j;
+import org.web3j.tx.RawTransactionManager;
+import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+import org.web3j.protocol.core.methods.request.Transaction;
+import org.web3j.crypto.Credentials;
+import org.web3j.utils.Numeric;
+
+public class CmtatBankAdapter {
+    public void submitSetAdminTransactionWithNonceConflictHandling(Web3j web3j, String adminAddress) throws Exception {
+        Credentials credentials = Credentials.create("your-private-key");
+        EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(credentials.getAddress(), DefaultBlockParameterName.LATEST).send();
+        BigInteger nonce = ethGetTransactionCount.getTransactionCount();
+
+        Function function = new Function(
+            "setAdmin", 
+            Arrays.<Type>asList(new Address(adminAddress)), 
+            Collections.emptyList()
+        );
+        String encodedFunction = FunctionEncoder.encode(function);
+
+        RawTransactionManager rawTransactionManager = new RawTransactionManager(web3j, credentials);
+        BigInteger gasPrice = Numeric.decodeQuantity("0x9184e72a000"); // Example gas price
+        BigInteger gasLimit = Numeric.decodeQuantity("0x76c0"); // Example gas limit
+
+        Transaction transaction = Transaction.createFunctionCallTransaction(
+            credentials.getAddress(), nonce, gasPrice, gasLimit, "CmtatToken", encodedFunction
+        );
+        rawTransactionManager.sendTransaction(transaction);
+    }
+}
+```
+
+**Validation rule:** The method `submitSetAdminTransactionWithNonceConflictHandling` correctly handles nonce conflicts.
+
+```checker
+{"id": "ch08-l3-s2", "type": "regex", "pattern": "EthGetTransactionCount\\s+ethGetTransactionCount\\s+=\\s+web3j\\.ethGetTransactionCount\\(credentials\\.getAddress\\(\\), DefaultBlockParameterName\\.LATEST\\)\\.send\\(\\);", "flags": "m", "target": "java", "error_hint": "Ensure nonce is correctly retrieved and used in the transaction."}
+```
+
 ## Lesson 4 — Gas Strategy and Idempotency Keys
 
 **Learning objective:** Learn how to implement a gas strategy and use idempotency keys for transaction submission using web3j.  
@@ -239,6 +373,70 @@ public class CmtatBankAdapter {
 {"id": "ch08-l4-s1", "type": "regex", "pattern": "BigInteger\\s+gasPrice\\s+=\\s+Numeric.decodeQuantity\\(\"0x9184e72a000\"\\);", "flags": "m", "target": "java", "error_hint": "Ensure gas price is correctly set."}
 ```
 
+### Step 4.2 — Use idempotency keys to prevent duplicate transactions
+
+**Instruction:** Implement a mechanism to use idempotency keys to ensure that each transaction is processed only once.
+
+**Explanation:** Idempotency keys help in preventing duplicate transactions, which can lead to incorrect state updates on the blockchain. This step will involve storing and checking idempotency keys before submitting transactions.
+
+**Starter code:**
+```java
+import java.util.HashSet;
+import java.util.Set;
+
+public class CmtatBankAdapter {
+    private Set<String> processedKeys = new HashSet<>();
+
+    public void submitSetAdminTransactionWithIdempotencyKey(String idempotencyKey, Web3j web3j, String adminAddress) throws Exception {
+        // Your code here
+    }
+}
+```
+
+**Solution:**
+```java
+import java.util.HashSet;
+import java.util.Set;
+
+public class CmtatBankAdapter {
+    private Set<String> processedKeys = new HashSet<>();
+
+    public void submitSetAdminTransactionWithIdempotencyKey(String idempotencyKey, Web3j web3j, String adminAddress) throws Exception {
+        if (processedKeys.contains(idempotencyKey)) {
+            throw new RuntimeException("Transaction with this idempotency key has already been processed.");
+        }
+
+        Credentials credentials = Credentials.create("your-private-key");
+        EthGetTransactionCount ethGetTransactionCount = web3j.ethGetTransactionCount(credentials.getAddress(), DefaultBlockParameterName.LATEST).send();
+        BigInteger nonce = ethGetTransactionCount.getTransactionCount();
+
+        Function function = new Function(
+            "setAdmin", 
+            Arrays.<Type>asList(new Address(adminAddress)), 
+            Collections.emptyList()
+        );
+        String encodedFunction = FunctionEncoder.encode(function);
+
+        RawTransactionManager rawTransactionManager = new RawTransactionManager(web3j, credentials);
+        BigInteger gasPrice = Numeric.decodeQuantity("0x9184e72a000"); // Example gas price
+        BigInteger gasLimit = Numeric.decodeQuantity("0x76c0"); // Example gas limit
+
+        Transaction transaction = Transaction.createFunctionCallTransaction(
+            credentials.getAddress(), nonce, gasPrice, gasLimit, "CmtatToken", encodedFunction
+        );
+        rawTransactionManager.sendTransaction(transaction);
+
+        processedKeys.add(idempotencyKey);
+    }
+}
+```
+
+**Validation rule:** The method `submitSetAdminTransactionWithIdempotencyKey` correctly uses idempotency keys to prevent duplicate transactions.
+
+```checker
+{"id": "ch08-l4-s2", "type": "regex", "pattern": "if\\s+\\(processedKeys\\.contains\\(idempotencyKey\\)\\)", "flags": "m", "target": "java", "error_hint": "Ensure idempotency key is checked before processing the transaction."}
+```
+
 ## Lesson 5 — Off-Chain Settlement Reconciliation Loop
 
 **Learning objective:** Understand how to implement an off-chain settlement reconciliation loop using web3j.  
@@ -288,6 +486,49 @@ public class ReconciliationJob {
 {"id": "ch08-l5-s1", "type": "regex", "pattern": "public\\s+void\\s+reconcileTransactions\\(Web3j\\s+web3j,\\s+List<String>\\s+transactionHashes\\)\\s+throws\\s+Exception\\s+\\{", "flags": "m", "target": "java", "error_hint": "Ensure transaction receipts are correctly retrieved and processed."}
 ```
 
+### Step 5.2 — Handle reorgs in the reconciliation loop
+
+**Instruction:** Implement a mechanism to handle chain reorganizations (reorgs) during the reconciliation process.
+
+**Explanation:** Chain reorganizations can cause transactions to be reverted, which must be accounted for in the off-chain records. This step will involve checking for reorgs and updating records accordingly.
+
+**Starter code:**
+```java
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
+
+public class ReconciliationJob {
+    public void reconcileTransactionsWithReorgHandling(Web3j web3j, List<String> transactionHashes) throws Exception {
+        // Your code here
+    }
+}
+```
+
+**Solution:**
+```java
+import org.web3j.protocol.Web3j;
+import org.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
+
+public class ReconciliationJob {
+    public void reconcileTransactionsWithReorgHandling(Web3j web3j, List<String> transactionHashes) throws Exception {
+        for (String hash : transactionHashes) {
+            EthGetTransactionReceipt receipt = web3j.ethGetTransactionReceipt(hash).send();
+            if (receipt.getTransactionReceipt().isPresent()) {
+                // Update off-chain records
+            } else {
+                // Handle reorg by reverting the transaction in off-chain records
+            }
+        }
+    }
+}
+```
+
+**Validation rule:** The method `reconcileTransactionsWithReorgHandling` correctly handles chain reorganizations.
+
+```checker
+{"id": "ch08-l5-s2", "type": "regex", "pattern": "if\\s+\\(receipt\\.getTransactionReceipt\\(\\)\\.isPresent\\(\\)", "flags": "m", "target": "java", "error_hint": "Ensure reorgs are correctly handled during reconciliation."}
+```
+
 ## Lesson 6 — Append-Only Audit Trail
 
 **Learning objective:** Learn how to maintain an append-only audit trail for transactions using web3j.  
@@ -334,6 +575,49 @@ public class CmtatBankAdapter {
 
 ```checker
 {"id": "ch08-l6-s1", "type": "regex", "pattern": "auditTrail\\.add\\(transactionDetails\\);", "flags": "m", "target": "java", "error_hint": "Ensure transaction details are correctly added to the audit trail."}
+```
+
+### Step 6.2 — Secure the audit trail
+
+**Instruction:** Implement a mechanism to secure the audit trail, ensuring that it cannot be tampered with.
+
+**Explanation:** Securing the audit trail is crucial for maintaining trust and compliance. This step will involve using cryptographic techniques to ensure data integrity and authenticity.
+
+**Starter code:**
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class CmtatBankAdapter {
+    private List<String> auditTrail = new ArrayList<>();
+
+    public void addToSecureAuditTrail(String transactionDetails) throws NoSuchAlgorithmException {
+        // Your code here
+    }
+}
+```
+
+**Solution:**
+```java
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
+public class CmtatBankAdapter {
+    private List<String> auditTrail = new ArrayList<>();
+
+    public void addToSecureAuditTrail(String transactionDetails) throws NoSuchAlgorithmException {
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = md.digest(transactionDetails.getBytes());
+        String hashString = Numeric.toHexString(hashBytes);
+        auditTrail.add(hashString);
+    }
+}
+```
+
+**Validation rule:** The method `addToSecureAuditTrail` correctly adds a secure hash of transaction details to the audit trail.
+
+```checker
+{"id": "ch08-l6-s2", "type": "regex", "pattern": "MessageDigest\\s+md\\s+=\\s+MessageDigest\\.getInstance\\(\"SHA-256\"\\);", "flags": "m", "target": "java", "error_hint": "Ensure the transaction details are securely hashed before adding to the audit trail."}
 ```
 
 ## Quiz
