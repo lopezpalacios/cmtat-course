@@ -1088,93 +1088,233 @@
   },
   {
    "file": "06-cmtat-architecture.md",
-   "title": "Chapter 06 \u2014 CMTAT Architecture: A Module Tour",
+   "title": "Chapter 06 \u2014 CMTAT Architecture: A Module Tour `[shared] [BANK] [TYPES]`",
    "lessons": [
     {
      "n": "1",
      "title": "Introduction to CMTAT Modules",
      "steps": [
       {
-       "instruction": "Create the file `CMTATBase.sol`. Declare the pragma, contract, and import necessary modules.",
-       "explanation": "Just as in core banking systems where each module is a separate component that interacts with others to provide comprehensive services, CMTAT uses modular components to build a robust tokenized securities platform. Start by setting up the basic structure of the `CMTATBase.sol` contract and importing the required modules.",
-       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract CMTATBase {\n    // import necessary modules here\n}",
-       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\nimport \"./modules/BaseModule.sol\";\nimport \"./modules/PauseModule.sol\";\n\ncontract CMTATBase is ERC20, BaseModule, PauseModule {\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n}",
+       "instruction": "Create a new file named `CMTATBase.sol`. Start by defining the basic structure of the contract, including the necessary imports and the base contract declaration.",
+       "explanation": "Just as in a core-banking system where different modules inherit from a common base class to share functionalities, the CMTAT modules will inherit from a base contract. This base contract will serve as the foundation for all other modules.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\ncontract CMTATBase {\n    // define here\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n}",
        "checker": {
         "id": "ch06-l1-s1",
         "type": "regex",
-        "pattern": "contract\\s+CMTATBase\\s+is\\s+ERC20,\\s+BaseModule,\\s+PauseModule\\s*{",
+        "pattern": "import\\s+\"@openzeppelin\\/contracts\\/token\\/ERC20\\/ERC20\\.sol\";",
         "flags": "m",
         "target": "solidity",
-        "error_hint": "Ensure the contract inherits from ERC20, BaseModule, and PauseModule."
+        "error_hint": "Import the ERC20 contract from OpenZeppelin."
        },
        "id": "1.1",
-       "title": "Create the `CMTATBase.sol` contract skeleton"
+       "title": "Define the Base Contract"
+      },
+      {
+       "instruction": "Inside the `CMTATBase` contract, add two public state variables: `admin` of type `address` and `paused` of type `bool`.",
+       "explanation": "In a core-banking system, there are often admin-level controls to manage user access and operations. Similarly, in CMTAT, an `admin` address can control certain functionalities, and a `paused` flag can be used to halt critical operations.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    // define here\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n}",
+       "checker": {
+        "id": "ch06-l1-s2",
+        "type": "regex",
+        "pattern": "address\\s+public\\s+admin\\s*;[\\s\\S]*bool\\s+public\\s+paused\\s*;",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Declare both `admin` and `paused` as public."
+       },
+       "id": "1.2",
+       "title": "Add Basic State Variables"
       }
      ]
     },
     {
      "n": "2",
-     "title": "Implementing Basic Token Functions",
+     "title": "PauseModule Implementation",
      "steps": [
       {
-       "instruction": "Implement a `mint` function that allows the contract admin to mint new tokens.",
-       "explanation": "Just as in core banking systems where authorized personnel can deposit funds into accounts, the `mint` function allows the contract admin to issue new tokens. This is a critical functionality for managing token supply and ensuring proper authorization.",
-       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\nimport \"./modules/BaseModule.sol\";\nimport \"./modules/PauseModule.sol\";\n\ncontract CMTATBase is ERC20, BaseModule, PauseModule {\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    // implement mint function here\n}",
-       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\nimport \"./modules/BaseModule.sol\";\nimport \"./modules/PauseModule.sol\";\n\ncontract CMTATBase is ERC20, BaseModule, PauseModule {\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function mint(address to, uint256 amount) public onlyAdmin {\n        _mint(to, amount);\n    }\n}",
+       "instruction": "Inside the `CMTATBase` contract, add two functions: `pause()` and `unpause()`. These functions should only be callable by the `admin`.",
+       "explanation": "In a core-banking system, there are often emergency stop mechanisms to prevent unauthorized transactions during critical times. Similarly, in CMTAT, the `PauseModule` provides such functionality.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    // define here\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n}",
        "checker": {
         "id": "ch06-l2-s1",
         "type": "regex",
-        "pattern": "function\\s+mint\\(address\\s+to,\\s+uint256\\s+amount\\)\\s+public\\s+onlyAdmin\\s*{[^}]*_mint\\(to,\\s+amount\\);",
-        "flags": "m",
+        "pattern": "function\\s+pause\\(\\)\\s+external\\s*{",
+        "flags": "",
         "target": "solidity",
-        "error_hint": "Ensure the mint function is correctly implemented and accessible only by the admin."
+        "error_hint": "Define both `pause()` and `unpause()` functions with the correct access control."
        },
        "id": "2.1",
-       "title": "Add a function to mint tokens"
+       "title": "Add Pause Functions"
+      },
+      {
+       "instruction": "Override the `transfer` function in the `CMTATBase` contract to include a check that prevents transfers when the contract is paused.",
+       "explanation": "In a core-banking system, there are often checks to prevent transactions during critical times. Similarly, in CMTAT, the `PauseModule` ensures that no transfers occur when the contract is paused.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    // define here\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n}",
+       "checker": {
+        "id": "ch06-l2-s2",
+        "type": "regex",
+        "pattern": "require\\(!paused,\\s*\"Contract\\s+is\\s+paused\"\\);",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Add a check to prevent transfers when the contract is paused."
+       },
+       "id": "2.2",
+       "title": "Modify Transfer Function"
       }
      ]
     },
     {
      "n": "3",
-     "title": "Adding Pause Functionality",
+     "title": "BaseModule Implementation",
      "steps": [
       {
-       "instruction": "Implement a `pause` function that allows the contract admin to pause all token transfers.",
-       "explanation": "Just as in core banking systems where authorized personnel can temporarily halt certain operations, the `pause` function allows the contract admin to suspend token transfers and other critical operations. This is essential for maintaining security and preventing unauthorized activities.",
-       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\nimport \"./modules/BaseModule.sol\";\nimport \"./modules/PauseModule.sol\";\n\ncontract CMTATBase is ERC20, BaseModule, PauseModule {\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function mint(address to, uint256 amount) public onlyAdmin {\n        _mint(to, amount);\n    }\n\n    // implement pause function here\n}",
-       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\nimport \"./modules/BaseModule.sol\";\nimport \"./modules/PauseModule.sol\";\n\ncontract CMTATBase is ERC20, BaseModule, PauseModule {\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function mint(address to, uint256 amount) public onlyAdmin {\n        _mint(to, amount);\n    }\n\n    function pause() public onlyAdmin {\n        _pause();\n    }\n}",
+       "instruction": "Inside the `CMTATBase` contract, add three public state variables: `tokenId` of type `uint256`, `terms` of type `string`, and `information` of type `string`.",
+       "explanation": "In a core-banking system, tokens often have unique identifiers and associated metadata. Similarly, in CMTAT, the `BaseModule` manages these details.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n}",
        "checker": {
         "id": "ch06-l3-s1",
         "type": "regex",
-        "pattern": "function\\s+pause\\(\\)\\s+public\\s+onlyAdmin\\s*{[^}]*_pause\\(\\);",
+        "pattern": "uint256\\s+public\\s+tokenId\\s*;[\\s\\S]*string\\s+public\\s+terms\\s*;[\\s\\S]*string\\s+public\\s+information\\s*;",
         "flags": "m",
         "target": "solidity",
-        "error_hint": "Ensure the pause function is correctly implemented and accessible only by the admin."
+        "error_hint": "Declare `tokenId`, `terms`, and `information` as public."
        },
        "id": "3.1",
-       "title": "Implement the pause function"
+       "title": "Add Token Information State Variables"
+      },
+      {
+       "instruction": "Inside the `CMTATBase` contract, add three functions: `setTokenId(uint256 _tokenId)`, `setTerms(string memory _terms)`, and `setInformation(string memory _information)`. These functions should only be callable by the `admin`.",
+       "explanation": "In a core-banking system, there are often admin-level controls to manage token metadata. Similarly, in CMTAT, the `BaseModule` provides such functionality.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    // define here\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n}",
+       "checker": {
+        "id": "ch06-l3-s2",
+        "type": "regex",
+        "pattern": "function\\s+setTokenId\\(uint256\\s+_tokenId\\)\\s+external\\s*{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Define all three functions with the correct access control."
+       },
+       "id": "3.2",
+       "title": "Add Functions to Set Token Information"
       }
      ]
     },
     {
      "n": "4",
-     "title": "Adding Freeze Functionality",
+     "title": "EnforcementModule Implementation",
      "steps": [
       {
-       "instruction": "Implement a `freeze` function that allows the contract admin to freeze a specific address.",
-       "explanation": "Just as in core banking systems where authorized personnel can temporarily prevent certain accounts from performing transactions, the `freeze` function allows the contract admin to suspend token transfers and other critical operations for a specific address. This is essential for maintaining security and preventing unauthorized activities.",
-       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\nimport \"./modules/BaseModule.sol\";\nimport \"./modules/PauseModule.sol\";\nimport \"./modules/EnforcementModule.sol\";\n\ncontract CMTATBase is ERC20, BaseModule, PauseModule, EnforcementModule {\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function mint(address to, uint256 amount) public onlyAdmin {\n        _mint(to, amount);\n    }\n\n    function pause() public onlyAdmin {\n        _pause();\n    }\n\n    // implement freeze function here\n}",
-       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\nimport \"./modules/BaseModule.sol\";\nimport \"./modules/PauseModule.sol\";\nimport \"./modules/EnforcementModule.sol\";\n\ncontract CMTATBase is ERC20, BaseModule, PauseModule, EnforcementModule {\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function mint(address to, uint256 amount) public onlyAdmin {\n        _mint(to, amount);\n    }\n\n    function pause() public onlyAdmin {\n        _pause();\n    }\n\n    function freeze(address account) public onlyAdmin {\n        _freeze(account);\n    }\n}",
+       "instruction": "Inside the `CMTATBase` contract, add a public state variable `frozen` of type `mapping(address => bool)`.",
+       "explanation": "In a core-banking system, there are often mechanisms to freeze accounts or transactions for specific users. Similarly, in CMTAT, the `EnforcementModule` provides such functionality.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n}",
        "checker": {
         "id": "ch06-l4-s1",
         "type": "regex",
-        "pattern": "function\\s+freeze\\(address\\s+account\\)\\s+public\\s+onlyAdmin\\s*{[^}]*_freeze\\(account\\);",
+        "pattern": "mapping\\(address\\s+=>\\s+bool\\)\\s+public\\s+frozen\\s*;",
         "flags": "m",
         "target": "solidity",
-        "error_hint": "Ensure the freeze function is correctly implemented and accessible only by the admin."
+        "error_hint": "Declare `frozen` as a public mapping."
        },
        "id": "4.1",
-       "title": "Implement the freeze function"
+       "title": "Add Freeze State Variable"
+      },
+      {
+       "instruction": "Inside the `CMTATBase` contract, add two functions: `freeze(address _address)` and `unfreeze(address _address)`. These functions should only be callable by the `admin`.",
+       "explanation": "In a core-banking system, there are often mechanisms to freeze accounts or transactions for specific users. Similarly, in CMTAT, the `EnforcementModule` provides such functionality.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n\n    // define here\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n\n    function freeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = true;\n    }\n\n    function unfreeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = false;\n    }\n}",
+       "checker": {
+        "id": "ch06-l4-s2",
+        "type": "regex",
+        "pattern": "function\\s+freeze\\(address\\s+_address\\)\\s+external\\s*{[^}]*}",
+        "flags": "",
+        "target": "solidity",
+        "error_hint": "Define both `freeze` and `unfreeze` functions with the correct access control."
+       },
+       "id": "4.2",
+       "title": "Add Freeze and Unfreeze Functions"
+      }
+     ]
+    },
+    {
+     "n": "5",
+     "title": "ERC20SnapshotModule Implementation",
+     "steps": [
+      {
+       "instruction": "Inside the `CMTATBase` contract, add two public state variables: `snapshotId` of type `uint256` and `snapshots` of type `mapping(uint256 => mapping(address => uint256))`.",
+       "explanation": "In a core-banking system, snapshots are often taken to record the state of accounts at specific times. Similarly, in CMTAT, the `ERC20SnapshotModule` provides such functionality.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n    uint256 public snapshotId;\n    mapping(uint256 => mapping(address => uint256)) public snapshots;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n\n    function freeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = true;\n    }\n\n    function unfreeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = false;\n    }\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n    uint256 public snapshotId;\n    mapping(uint256 => mapping(address => uint256)) public snapshots;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n\n    function freeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = true;\n    }\n\n    function unfreeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = false;\n    }\n}",
+       "checker": {
+        "id": "ch06-l5-s1",
+        "type": "regex",
+        "pattern": "uint256\\s+public\\s+snapshotId\\s*;[\\s\\S]*mapping\\(uint256\\s+=>\\s+mapping\\(address\\s+=>\\s+uint256\\)\\)\\s+public\\s+snapshots\\s*;",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Declare `snapshotId` and `snapshots` as public."
+       },
+       "id": "5.1",
+       "title": "Add Snapshot State Variables"
+      },
+      {
+       "instruction": "Inside the `CMTATBase` contract, add a function `takeSnapshot()` that takes a snapshot of the current token balances and increments the `snapshotId`.",
+       "explanation": "In a core-banking system, snapshots are often taken to record the state of accounts at specific times. Similarly, in CMTAT, the `ERC20SnapshotModule` provides such functionality.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n    uint256 public snapshotId;\n    mapping(uint256 => mapping(address => uint256)) public snapshots;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n\n    function freeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = true;\n    }\n\n    function unfreeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = false;\n    }\n\n    // define here\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n    uint256 public snapshotId;\n    mapping(uint256 => mapping(address => uint256)) public snapshots;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n\n    function freeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = true;\n    }\n\n    function unfreeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = false;\n    }\n\n    function takeSnapshot() external {\n        require(msg.sender == admin, \"Not authorized\");\n        snapshotId++;\n        for (uint256 i = 0; i < totalSupply(); i++) {\n            address owner = tokenByIndex(i);\n            snapshots[snapshotId][owner] = balanceOf(owner);\n        }\n    }\n}",
+       "checker": {
+        "id": "ch06-l5-s2",
+        "type": "regex",
+        "pattern": "function\\s+takeSnapshot\\(\\)\\s+external\\s*{[\\s\\S]*}",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Define the `takeSnapshot` function with the correct access control and logic."
+       },
+       "id": "5.2",
+       "title": "Add Snapshot Function"
+      }
+     ]
+    },
+    {
+     "n": "6",
+     "title": "ValidationModule Implementation",
+     "steps": [
+      {
+       "instruction": "Inside the `CMTATBase` contract, add two public state variables: `ruleId` of type `uint256` and `rules` of type `mapping(uint256 => string)`.",
+       "explanation": "In a core-banking system, there are often rules to validate transactions. Similarly, in CMTAT, the `ValidationModule` provides such functionality.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n    uint256 public snapshotId;\n    mapping(uint256 => mapping(address => uint256)) public snapshots;\n    uint256 public ruleId;\n    mapping(uint256 => string) public rules;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n\n    function freeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = true;\n    }\n\n    function unfreeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = false;\n    }\n\n    function takeSnapshot() external {\n        require(msg.sender == admin, \"Not authorized\");\n        snapshotId++;\n        for (uint256 i = 0; i < totalSupply(); i++) {\n            address owner = tokenByIndex(i);\n            snapshots[snapshotId][owner] = balanceOf(owner);\n        }\n    }\n\n    // define here\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n    uint256 public snapshotId;\n    mapping(uint256 => mapping(address => uint256)) public snapshots;\n    uint256 public ruleId;\n    mapping(uint256 => string) public rules;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n\n    function freeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = true;\n    }\n\n    function unfreeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = false;\n    }\n\n    function takeSnapshot() external {\n        require(msg.sender == admin, \"Not authorized\");\n        snapshotId++;\n        for (uint256 i = 0; i < totalSupply(); i++) {\n            address owner = tokenByIndex(i);\n            snapshots[snapshotId][owner] = balanceOf(owner);\n        }\n    }\n}",
+       "checker": {
+        "id": "ch06-l6-s1",
+        "type": "regex",
+        "pattern": "uint256\\s+public\\s+ruleId\\s*;[\\s\\S]*mapping\\(uint256\\s+=>\\s+string\\)\\s+public\\s+rules\\s*;",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Declare `ruleId` and `rules` as public."
+       },
+       "id": "6.1",
+       "title": "Add Rule State Variables"
+      },
+      {
+       "instruction": "Inside the `CMTATBase` contract, add two functions: `addRule(uint256 _ruleId, string memory _rule)` and `validateTransaction(address from, address to, uint256 amount)`. The `addRule` function should only be callable by the `admin`.",
+       "explanation": "In a core-banking system, there are often rules to validate transactions. Similarly, in CMTAT, the `ValidationModule` provides such functionality.",
+       "starter": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n    uint256 public snapshotId;\n    mapping(uint256 => mapping(address => uint256)) public snapshots;\n    uint256 public ruleId;\n    mapping(uint256 => string) public rules;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n\n    function freeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = true;\n    }\n\n    function unfreeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = false;\n    }\n\n    function takeSnapshot() external {\n        require(msg.sender == admin, \"Not authorized\");\n        snapshotId++;\n        for (uint256 i = 0; i < totalSupply(); i++) {\n            address owner = tokenByIndex(i);\n            snapshots[snapshotId][owner] = balanceOf(owner);\n        }\n    }\n\n    // define here\n}",
+       "solution": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.20;\n\nimport \"@openzeppelin/contracts/token/ERC20/ERC20.sol\";\n\ncontract CMTATBase is ERC20 {\n    address public admin;\n    bool public paused;\n    uint256 public tokenId;\n    string public terms;\n    string public information;\n    mapping(address => bool) public frozen;\n    uint256 public snapshotId;\n    mapping(uint256 => mapping(address => uint256)) public snapshots;\n    uint256 public ruleId;\n    mapping(uint256 => string) public rules;\n\n    constructor(string memory name, string memory symbol) ERC20(name, symbol) {}\n\n    function pause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = true;\n    }\n\n    function unpause() external {\n        require(msg.sender == admin, \"Not authorized\");\n        paused = false;\n    }\n\n    function transfer(address to, uint256 amount) public override returns (bool) {\n        require(!paused, \"Contract is paused\");\n        return super.transfer(to, amount);\n    }\n\n    function setTokenId(uint256 _tokenId) external {\n        require(msg.sender == admin, \"Not authorized\");\n        tokenId = _tokenId;\n    }\n\n    function setTerms(string memory _terms) external {\n        require(msg.sender == admin, \"Not authorized\");\n        terms = _terms;\n    }\n\n    function setInformation(string memory _information) external {\n        require(msg.sender == admin, \"Not authorized\");\n        information = _information;\n    }\n\n    function freeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = true;\n    }\n\n    function unfreeze(address _address) external {\n        require(msg.sender == admin, \"Not authorized\");\n        frozen[_address] = false;\n    }\n\n    function takeSnapshot() external {\n        require(msg.sender == admin, \"Not authorized\");\n        snapshotId++;\n        for (uint256 i = 0; i < totalSupply(); i++) {\n            address owner = tokenByIndex(i);\n            snapshots[snapshotId][owner] = balanceOf(owner);\n        }\n    }\n\n    function addRule(uint256 _ruleId, string memory _rule) external {\n        require(msg.sender == admin, \"Not authorized\");\n        rules[_ruleId] = _rule;\n    }\n\n    function validateTransaction(address from, address to, uint256 amount) public view returns (bool) {\n        // Implement validation logic here\n        return true;\n    }\n}",
+       "checker": {
+        "id": "ch06-l6-s2",
+        "type": "regex",
+        "pattern": "function\\s+addRule\\(uint256\\s+_ruleId,\\s+string\\s+memory\\s+_rule\\)\\s+external\\s*{",
+        "flags": "m",
+        "target": "solidity",
+        "error_hint": "Define both `addRule` and `validateTransaction` functions with the correct access control."
+       },
+       "id": "6.2",
+       "title": "Add Rule Functions"
       }
      ]
     }

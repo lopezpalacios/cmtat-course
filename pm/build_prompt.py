@@ -89,7 +89,7 @@ This is the chapter-map entry you must realize completely:
 {entry}
 
 REQUIREMENTS:
-- 4 to 6 Lessons. Each Lesson: 2 to 4 Steps. Every Step: **Instruction**, **Explanation** (with a mandatory JVM/core-banking analogy), **Starter code**, **Solution**, **Validation rule:** prose, then a ```checker JSON block with a UNIQUE id of form ch{nn}-lL-sS.
+- 5 to 6 Lessons. Each Lesson MUST have AT LEAST 2 Steps (never a single-step lesson) — aim for 2 to 4. Every Step: **Instruction**, **Explanation** (with a mandatory JVM/core-banking analogy), **Starter code**, **Solution**, **Validation rule:** prose, then a ```checker JSON block with a UNIQUE id of form ch{nn}-lL-sS. This is a substantial chapter: target 20k+ characters of real content.
 - Every ```checker regex MUST literally match its own Solution code (the harness verifies this — if it won't match, fix the pattern). Escape backslashes for JSON.
 - CHECKER REGEX RULES (critical): keep each pattern SHORT — anchor on ONE distinctive single line or declaration from the Solution (e.g. `struct\\s+Snapshot`, `function\\s+payCoupon`, `event\\s+CouponPaid`). NEVER use `.` or `.*` to span multiple lines — `.` does not match newlines and the check will fail. Do NOT encode an entire function body or multiple lines in one pattern. One construct, one line.
 - Header block first: `# Chapter {nn} — <title>` then **Track**, **Emphasis threads**, **Chapter learning objective**, **Prerequisites**, **You will build**.
