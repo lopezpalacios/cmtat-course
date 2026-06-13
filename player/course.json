@@ -1718,7 +1718,19 @@
      "options": [
       {
        "key": "a",
-       "text": "To manage the total supply of tokens. b) To delegate authority to transfer tokens on behalf of another account. c) To record the transaction history of each token. d) To mint new tokens into existence."
+       "text": "To manage the total supply of tokens."
+      },
+      {
+       "key": "b",
+       "text": "To delegate authority to transfer tokens on behalf of another account."
+      },
+      {
+       "key": "c",
+       "text": "To record the transaction history of each token."
+      },
+      {
+       "key": "d",
+       "text": "To mint new tokens into existence."
       }
      ],
      "answer": "b",
@@ -1731,7 +1743,19 @@
      "options": [
       {
        "key": "a",
-       "text": "To update the balances mapping. b) To record the transaction history and maintain audit trails. c) To increase the total supply of tokens. d) To decrease the total supply of tokens."
+       "text": "To update the balances mapping."
+      },
+      {
+       "key": "b",
+       "text": "To record the transaction history and maintain audit trails."
+      },
+      {
+       "key": "c",
+       "text": "To increase the total supply of tokens."
+      },
+      {
+       "key": "d",
+       "text": "To decrease the total supply of tokens."
       }
      ],
      "answer": "b",
@@ -1744,7 +1768,19 @@
      "options": [
       {
        "key": "a",
-       "text": "The number of tokens minted initially. b) The smallest unit of the token that can be transferred. c) The total supply of tokens in circulation. d) The maximum amount of tokens an account can hold."
+       "text": "The number of tokens minted initially."
+      },
+      {
+       "key": "b",
+       "text": "The smallest unit of the token that can be transferred."
+      },
+      {
+       "key": "c",
+       "text": "The total supply of tokens in circulation."
+      },
+      {
+       "key": "d",
+       "text": "The maximum amount of tokens an account can hold."
       }
      ],
      "answer": "b",
@@ -3168,7 +3204,19 @@
      "options": [
       {
        "key": "a",
-       "text": "The token must be issued on a private blockchain only. b) The token issuer must comply with Swiss financial market supervision laws. c) The token must have a fixed supply and cannot be minted or burned. d) The token must be tradable on a centralized exchange."
+       "text": "The token must be issued on a private blockchain only."
+      },
+      {
+       "key": "b",
+       "text": "The token issuer must comply with Swiss financial market supervision laws."
+      },
+      {
+       "key": "c",
+       "text": "The token must have a fixed supply and cannot be minted or burned."
+      },
+      {
+       "key": "d",
+       "text": "The token must be tradable on a centralized exchange."
       }
      ],
      "answer": "b",
@@ -3181,7 +3229,19 @@
      "options": [
       {
        "key": "a",
-       "text": "All tokens should be treated equally without regard to their use case. b) Tokens with similar risks should be regulated similarly to traditional financial instruments. c) Only tokens used in initial coin offerings (ICOs) need regulatory oversight. d) Token regulation should focus solely on the technology used, not the underlying asset."
+       "text": "All tokens should be treated equally without regard to their use case."
+      },
+      {
+       "key": "b",
+       "text": "Tokens with similar risks should be regulated similarly to traditional financial instruments."
+      },
+      {
+       "key": "c",
+       "text": "Only tokens used in initial coin offerings (ICOs) need regulatory oversight."
+      },
+      {
+       "key": "d",
+       "text": "Token regulation should focus solely on the technology used, not the underlying asset."
       }
      ],
      "answer": "b",
@@ -3194,7 +3254,19 @@
      "options": [
       {
        "key": "a",
-       "text": "Ensuring that token holders can access their funds at any time without restriction. b) Protecting the assets held by the custodian from the issuer's creditors in case of insolvency. c) Allowing the custodian to use the tokens for their own trading activities. d) Providing a mechanism for token issuers to unilaterally freeze or seize tokens."
+       "text": "Ensuring that token holders can access their funds at any time without restriction."
+      },
+      {
+       "key": "b",
+       "text": "Protecting the assets held by the custodian from the issuer's creditors in case of insolvency."
+      },
+      {
+       "key": "c",
+       "text": "Allowing the custodian to use the tokens for their own trading activities."
+      },
+      {
+       "key": "d",
+       "text": "Providing a mechanism for token issuers to unilaterally freeze or seize tokens."
       }
      ],
      "answer": "b",
@@ -3872,7 +3944,19 @@
      "options": [
       {
        "key": "a",
-       "text": "To ensure that bonds can be traded on secondary markets. b) To guarantee that bondholders receive their principal back at the end of the bond's term. c) To facilitate the coupon payment process to bondholders. d) To allow for early redemption of bonds by bondholders."
+       "text": "To ensure that bonds can be traded on secondary markets."
+      },
+      {
+       "key": "b",
+       "text": "To guarantee that bondholders receive their principal back at the end of the bond's term."
+      },
+      {
+       "key": "c",
+       "text": "To facilitate the coupon payment process to bondholders."
+      },
+      {
+       "key": "d",
+       "text": "To allow for early redemption of bonds by bondholders."
       }
      ],
      "answer": "b",
@@ -3885,7 +3969,19 @@
      "options": [
       {
        "key": "a",
-       "text": "BondIssuance b) CouponPayment c) RedemptionBurn d) CreditEvent"
+       "text": "BondIssuance"
+      },
+      {
+       "key": "b",
+       "text": "CouponPayment"
+      },
+      {
+       "key": "c",
+       "text": "RedemptionBurn"
+      },
+      {
+       "key": "d",
+       "text": "CreditEvent"
       }
      ],
      "answer": "c",
@@ -3898,7 +3994,19 @@
      "options": [
       {
        "key": "a",
-       "text": "Setting up a time lock on the RedemptionBurn module. b) Implementing role-based access control (RBAC) for the CouponPayment module. c) Enabling multi-signature transactions for the BondIssuance module. d) Utilizing a whitelist in the CreditEvent module."
+       "text": "Setting up a time lock on the RedemptionBurn module."
+      },
+      {
+       "key": "b",
+       "text": "Implementing role-based access control (RBAC) for the CouponPayment module."
+      },
+      {
+       "key": "c",
+       "text": "Enabling multi-signature transactions for the BondIssuance module."
+      },
+      {
+       "key": "d",
+       "text": "Utilizing a whitelist in the CreditEvent module."
       }
      ],
      "answer": "a",

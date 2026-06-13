@@ -30,7 +30,8 @@ LOBJ = re.compile(r"\*\*Learning objective:?\*\*\s*(.*)")
 
 QUIZ_SEC = re.compile(r"^#+\s*Quiz\s*$", re.M)
 QITEM = re.compile(r"\*\*Q(\d+)\s*\(([^)]+)\)\.?\*\*\s*(.*?)(?=\n\*\*Q\d+\s*\(|\Z)", re.S)
-OPT = re.compile(r"(?:^|[—-]\s*)([a-d])\)\s*(.*?)(?=\s+[—-]\s+[a-d]\)|$)", re.S)
+# layout-agnostic: options separated by " — " OR on their own lines
+OPT = re.compile(r"([a-d])\)\s*(.*?)(?=\s+[—-]?\s*[a-d]\)|$)", re.S)
 ANSWER = re.compile(r"\*\*Answer:?\s*([a-d])?\.?\*\*\s*(.*)", re.S)
 
 # Part / track grouping by chapter number (stable per the chapter map).
@@ -95,7 +96,7 @@ def parse_quiz(text):
             question = question[:om.start()].strip()
             optline = om.group(1)
             for k, t in OPT.findall(optline.replace("\n", " ")):
-                opts.append({"key": k, "text": clean(t)})
+                opts.append({"key": k, "text": clean(t).rstrip("—- ").strip()})
         ans_key = am.group(1) if am else None
         ans_text = clean(am.group(2)) if am else ""
         out.append({
