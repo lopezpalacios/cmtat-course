@@ -1300,3 +1300,24 @@ contract CMTATBase is ERC20 {
         return super.transfer(to, amount);
     }
 
+
+
+## Quiz
+
+**Q1 (multiple choice).** Which module in CMTAT is primarily responsible for managing the state of tokens at specific points in time, such as during an audit or compliance check?
+a) PauseModule — b) ERC20SnapshotModule — c) BaseModule — d) ValidationModule
+**Answer: b.** The ERC20SnapshotModule allows for creating snapshots of token balances at a particular block number, which is useful for audits and compliance checks.
+
+**Q2 (multiple choice).** Which module in CMTAT provides the ability to pause contract operations, ensuring that no transactions can be processed until the contract is unpaused?
+a) PauseModule — b) BaseModule — c) EnforcementModule — d) ERC20SnapshotModule
+**Answer: a.** The PauseModule allows the contract owner to pause and unpause token transfers and other critical functions.
+
+**Q3 (multiple choice).** Which module in CMTAT is responsible for enforcing rules and conditions on token transactions, such as minimum holding periods or transaction limits?
+a) BaseModule — b) EnforcementModule — c) ERC20SnapshotModule — d) ValidationModule
+**Answer: b.** The EnforcementModule enforces specific rules and constraints on token transfers to ensure compliance with regulatory requirements.
+
+**Q4 (short answer).** Describe the purpose of the PauseModule in a CMTAT implementation.
+**Answer:** The PauseModule is used to temporarily halt all operations within the contract, such as token transfers, to prevent unauthorized access or during critical maintenance periods. This ensures that the system remains secure and stable.
+
+**Q5 (short answer).** Explain how the ERC20SnapshotModule contributes to compliance in a financial application.
+**Answer:** The ERC20SnapshotModule allows for the creation of snapshots of token holdings at specific points in time, which is crucial for regulatory reporting and audits. This ensures that accurate records are maintained and can be quickly accessed when required by regulators or auditors.

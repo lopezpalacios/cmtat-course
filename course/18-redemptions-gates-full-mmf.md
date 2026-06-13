@@ -1064,3 +1064,23 @@ contract FundShareToken {
 
 ```checker
 {"id": "ch18-l5-s1", "type": "regex", "pattern": "function\\s+dailyCutOff\\(\\)\\s+
+
+## Quiz
+
+**Q1 (multiple choice).** Which of the following is a key component in implementing liquidity gates to ensure that redemptions do not deplete the fund's reserves below a certain threshold?
+a) Redemption Suspension — b) Fee Accrual — c) Liquidity Gate Threshold — d) Daily Cut-Off Logic
+**Answer: c.** The liquidity gate threshold ensures that the fund maintains sufficient reserves by preventing redemptions when they would fall below this predefined level.
+
+**Q2 (multiple choice).** In the context of implementing a redemption payout flow with an off-chain CHF leg, which of the following is essential to ensure accurate fee accrual?
+a) Integer Math — b) Floating Point Arithmetic — c) Off-Chain Oracle — d) Redemption Pause
+**Answer: a.** Using integer math for fee accrual ensures precise calculations without the rounding errors associated with floating point arithmetic.
+
+**Q3 (multiple choice).** When implementing redemption suspension logic, which of the following mechanisms would you use to temporarily halt redemptions?
+a) Liquidity Gate — b) Daily Cut-Off Logic — c) Redemption Pause — d) Fee Accrual
+**Answer: c.** The redemption pause mechanism is specifically designed to temporarily halt redemptions when necessary.
+
+**Q4 (short answer).** Explain how implementing a daily cut-off logic can affect the redemption process in a MoneyMarketFundShare.
+**Answer:** Implementing daily cut-off logic ensures that all redemption requests are processed up to a specific time each day, preventing last-minute redemptions that could disrupt the fund's liquidity or exposure management. This helps maintain consistent operations and risk control.
+
+**Q5 (short answer).** Describe how fee accrual in integer math can be beneficial for a MoneyMarketFundShare.
+**Answer:** Fee accrual in integer math provides precise and predictable calculations, avoiding the rounding errors that can occur with floating point arithmetic. This ensures accurate tracking of fees, which is crucial for maintaining transparency and compliance in financial operations.

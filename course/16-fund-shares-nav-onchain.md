@@ -722,40 +722,20 @@ contract FundShareToken {
 
 ## Quiz
 
-1. What event is emitted when the NAV value is updated?
-   - A. `NAVUpdated`
-   - B. `ShareIssued`
-   - C. `SubscriptionCompleted`
-   - D. `NavOracleSet`
+**Q1 (multiple choice).** Which of the following Solidity data types is most suitable for representing a fixed-point number in the context of calculating Net Asset Value (NAV) with high precision?
+a) uint256 — b) int256 — c) FixedPoint — d) decimal
+**Answer: c.** The FixedPoint library provides a way to handle fixed-point arithmetic, which is essential for precise financial calculations like NAV.
 
-2. How many decimal places does the NAV value have in this implementation?
-   - A. 4
-   - B. 6
-   - C. 8
-   - D. 10
+**Q2 (multiple choice).** In the context of integrating an oracle for NAV calculation in a Solidity contract, what is the primary purpose of implementing staleness guards?
+a) To ensure that the oracle data is always up-to-date — b) To prevent unauthorized access to the contract — c) To handle rounding errors in calculations — d) To limit the number of transactions per day
+**Answer: a.** Staleness guards are used to check if the oracle data is fresh enough to be trusted, ensuring that the NAV calculation is based on recent and reliable information.
 
-3. What is the purpose of the staleness guard in the `subscribe` function?
-   - A. To ensure the NAV value is not too old
-   - B. To limit the number of shares issued
-   - C. To prevent unauthorized access to the contract
-   - D. To track the total number of shares
+**Q3 (multiple choice).** When implementing subscription functionality for a money market fund share token, which of the following Java/.NET classes would you use to interact with the blockchain from the NavPublisher adapter?
+a) Web3j — b) Truffle — c) Ganache — d) Hardhat
+**Answer: a.** Web3j is a popular Java library for interacting with Ethereum nodes and can be used to implement the NavPublisher adapter in a Java/.NET environment.
 
-4. Which function fetches the current NAV value from the oracle?
-   - A. `subscribe`
-   - B. `updateNAV`
-   - C. `getNAV`
-   - D. `setNavOracle`
+**Q4 (short answer).** Explain what a rounding policy is in the context of NAV calculations on-chain.
+**Answer:** A rounding policy defines how fractional values are rounded when converting between different units or performing arithmetic operations, ensuring that financial calculations adhere to specific precision requirements and avoid potential discrepancies.
 
-5. What is the role of the `navOracle` address in this contract?
-   - A. To store the total number of shares
-   - B. To fetch the current NAV value from an external oracle
-   - C. To track the balance of each user's shares
-   - D. To emit events when the NAV is updated
-
-**Answers:**
-
-1. A. `NAVUpdated`
-2. B. 6
-3. A. To ensure the NAV value is not too old
-4. C. `getNAV`
-5. B. To fetch the current NAV value from an external oracle
+**Q5 (short answer).** Describe the role of the NavPublisher Java adapter in the integration of blockchain with a Swiss core-banking system.
+**Answer:** The NavPublisher Java adapter acts as an intermediary between the core-banking system and the blockchain, enabling the publication of Net Asset Value (NAV) data to the blockchain using an oracle mechanism. This ensures that the on-chain NAV calculations are based on accurate and up-to-date financial information from the banking system.

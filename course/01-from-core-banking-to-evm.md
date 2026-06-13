@@ -1134,6 +1134,27 @@ d) Events can only be emitted 100 times per transaction
 
 ---
 
+
+## Quiz
+
+**Q1 (multiple choice).** In the context of blockchain integration with core banking systems, which of the following best describes the relationship between a bank account and an EVM account?
+a) A bank account is equivalent to an EVM account — b) A bank account can be mapped to multiple EVM accounts — c) An EVM account is a subset of a bank account — d) There is no direct correlation between bank accounts and EVM accounts
+**Answer: d.** There is no direct correlation between bank accounts and EVM accounts.
+
+**Q2 (multiple choice).** When integrating blockchain with core banking systems, how does the concept of "gas" in Ethereum relate to traditional banking operations?
+a) Gas is equivalent to CPU time in a traditional banking system — b) Gas represents transaction fees paid in Ether — c) Gas is used for securing transactions through cryptographic means — d) Gas is unrelated to resource consumption in core banking systems
+**Answer: a.** Gas is equivalent to CPU time in a traditional banking system.
+
+**Q3 (multiple choice).** In the context of blockchain security, which of the following best describes the role of private keys compared to Hardware Security Modules (HSMs) in secure transaction signing?
+a) Private keys are stored in HSMs for enhanced security — b) HSMs generate and store public keys for encryption — c) Private keys are used directly for signing transactions without any additional security measures — d) HSMs are only used for generating private keys, not storing them
+**Answer: a.** Private keys are stored in HSMs for enhanced security.
+
+**Q4 (short answer).** Explain the concept of "finality" in blockchain and how it differs from settlement finality in traditional banking.
+**Answer:** Finality in blockchain refers to the point at which a transaction is considered irreversible and has been added to the blockchain. In contrast, settlement finality in traditional banking involves multiple steps such as confirmation by counterparties and clearinghouses before a transaction is considered settled.
+
+**Q5 (short answer).** Describe how transactions in Ethereum differ from payment messages in core banking systems.
+**Answer:** Transactions in Ethereum involve executing code on the blockchain, consuming gas, and altering the state of contracts. Payment messages in core banking systems are typically used for transferring funds between accounts, involving various checks and balances to ensure accuracy and compliance.
+
 **Next:** Chapter 02 — Solidity Datatypes for Banking Integrators: the full `[TYPES-heavy]` treatment of `uint256` money math, `bytes32` ISIN/LEI, enums, structs, and the complete Solidity↔web3j mapping table.
 
 

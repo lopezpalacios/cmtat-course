@@ -543,27 +543,20 @@ contract RoleControlled is AccessControl {
 
 ## Quiz
 
-1. What is the purpose of defining role hierarchies in a smart contract?
-   - A) To allow any user to perform any action.
-   - B) To ensure that certain actions require approval from multiple roles.
-   - C) To make the contract more complex and harder to understand.
+**Q1 (multiple choice).** In a Solidity smart contract implementing role-based access control for a bank, which of the following is NOT a typical organizational role that would be mapped on-chain?
+a) Issuer — b) Registrar/Transfer Agent — c) Compliance Officer — d) Customer Support
+**Answer: d.** Customer Support is not typically an on-chain role in a banking context.
 
-2. How can you log role changes for auditing purposes in Solidity?
-   - A) Use `console.log` statements.
-   - B) Define events and emit them when roles are granted or revoked.
-   - C) Store role changes in a mapping.
+**Q2 (multiple choice).** When implementing four-eyes patterns in Solidity, what is the primary purpose?
+a) To increase transaction speed — b) To ensure double-checking of critical operations — c) To reduce gas costs — d) To simplify role management
+**Answer: b.** The primary purpose is to ensure double-checking of critical operations.
 
-3. What is the significance of the DEFAULT_ADMIN_ROLE in this contract?
-   - A) It can perform any action without restrictions.
-   - B) It can manage all other roles.
-   - C) It cannot grant or revoke roles.
+**Q3 (multiple choice).** Which of the following Solidity data types would be most appropriate for mapping roles to user addresses in a bank's smart contract?
+a) uint256 — b) string — c) address — d) bool
+**Answer: c.** The `address` type is most appropriate for mapping roles to user addresses.
 
-4. How does the four-eyes pattern enhance security in a smart contract?
-   - A) By allowing anyone to approve actions.
-   - B) By requiring multiple approvals for critical actions.
-   - C) By making it easier to perform actions.
+**Q4 (short answer).** Explain what an audit event is in the context of role grants within a Solidity smart contract.
+**Answer:** An audit event is a mechanism used to log and record every role grant transaction, providing transparency and traceability for compliance and security purposes.
 
-5. What is the role of events in a smart contract?
-   - A) To store data permanently on the blockchain.
-   - B) To log important changes and actions for auditing purposes.
-   - C) To execute specific functions when certain conditions are met.
+**Q5 (short answer).** Describe how role hierarchies can be implemented in Solidity to enforce access control policies in a bank's core banking system.
+**Answer:** Role hierarchies can be implemented by defining roles with varying levels of permissions and ensuring that only users with higher-level roles can grant or revoke permissions to lower-level roles, thus enforcing a structured access control policy.

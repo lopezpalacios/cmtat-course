@@ -591,42 +591,20 @@ contract InstrumentTypes {
 
 ## Quiz
 
-1. What Solidity type is used to represent monetary values in this chapter?
-   - A) `int256`
-   - B) `uint256`
-   - C) `bytes32`
-   - D) `enum`
+**Q1 (multiple choice).** Which Solidity type is best suited for representing monetary values in a smart contract, ensuring precision without the need for floating-point arithmetic?
+a) `uint256` — b) `int256` — c) `fixed128x18` — d) `bytes32`
+**Answer: c.** The `fixed128x18` type provides fixed-point arithmetic, which is suitable for monetary values requiring precision without the pitfalls of floating-point calculations.
 
-   **Answer:** B) `uint256`
+**Q2 (multiple choice).** When integrating a smart contract with a banking system using web3j in Java, what is the equivalent Java type for Solidity's `bytes32`?
+a) `String` — b) `byte[]` — c) `BigInteger` — d) `Address`
+**Answer: b.** The equivalent Java type for Solidity's `bytes32` when using web3j is `byte[]`.
 
-2. How do you initialize a `bytes32` variable in Solidity?
-   - A) Using a string literal
-   - B) Using an integer literal
-   - C) Using a boolean literal
-   - D) Using a float literal
+**Q3 (multiple choice).** In a smart contract, which Solidity construct is used to define a set of named constants that represent different lifecycle states of an instrument?
+a) `uint256` — b) `enum` — c) `struct` — d) `mapping`
+**Answer: b.** The `enum` construct in Solidity is used to define a set of named constants representing different lifecycle states.
 
-   **Answer:** A) Using a string literal
+**Q4 (short answer).** Explain how you would use a `mapping` in a smart contract to keep track of positions for multiple users.
+**Answer:** A `mapping` can be used to associate user addresses with their positions. For example, `mapping(address => uint256) public positions;` allows you to store and retrieve the position amount for each user by their address.
 
-3. What is the purpose of an `enum` in Solidity?
-   - A) To represent fixed-size byte arrays
-   - B) To represent complex data structures
-   - C) To represent named constants
-   - D) To map keys to values
-
-   **Answer:** C) To represent named constants
-
-4. How do you declare a mapping in Solidity?
-   - A) Using the `struct` keyword
-   - B) Using the `enum` keyword
-   - C) Using the `mapping` keyword
-   - D) Using the `contract` keyword
-
-   **Answer:** C) Using the `mapping` keyword
-
-5. What is the initial value of the position for address `0x1234567890123456789012345678901234567890` in this chapter?
-   - A) 0
-   - B) 100
-   - C) 1000
-   - D) 10000
-
-   **Answer:** B) 100
+**Q5 (short answer).** Describe how fixed-point arithmetic in Solidity can help manage monetary values more accurately than floating-point arithmetic.
+**Answer:** Fixed-point arithmetic in Solidity uses integer types with a fixed number of decimal places, allowing precise representation and manipulation of monetary values without the rounding errors common in floating-point arithmetic.

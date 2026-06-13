@@ -1141,3 +1141,23 @@ contract EquityShareToken {
     function setRightsIssueParameters(uint256 newShares, uint256 pricePerShare) external {
         require(msg.sender == registrar, "Only the registrar can set rights issue parameters");
         rightsIssueNew
+
+## Quiz
+
+**Q1 (multiple choice).** In a tokenized equity system, which of the following methods is typically used for a stock split to increase the number of tokens without changing the total value?
+a) Rebase — b) Reissue — c) Mint — d) Burn
+**Answer: a.** Rebase adjusts the balance of each token holder proportionally without creating new tokens.
+
+**Q2 (multiple choice).** When implementing a capital increase through a rights issue in a tokenized equity system, which action is performed to mint new tokens?
+a) Rebase — b) Reissue — c) Mint — d) Burn
+**Answer: c.** Mint creates new tokens to be distributed to existing shareholders based on their holdings.
+
+**Q3 (multiple choice).** For a share buyback in a tokenized equity system, which action is taken to remove tokens from circulation?
+a) Rebase — b) Reissue — c) Mint — d) Burn
+**Answer: d.** Burn permanently removes tokens from the system, effectively reducing the total supply.
+
+**Q4 (short answer).** Describe how a stock split using the rebase method affects token balances and the total value of the equity.
+**Answer:** A stock split using the rebase method increases the number of tokens each shareholder holds proportionally. The total value of the equity remains unchanged, as the balance of each token is adjusted to reflect the new supply.
+
+**Q5 (short answer).** Explain the process of a squeeze-out in a tokenized equity system and its impact on shareholders.
+**Answer:** A squeeze-out involves transferring ownership of tokens from minority shareholders to the majority shareholder. This can be achieved through forced transfer mechanisms, effectively consolidating control over the company's equity.

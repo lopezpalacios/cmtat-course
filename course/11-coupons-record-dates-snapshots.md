@@ -1120,39 +1120,20 @@ public class CouponPaymentJob {
 
 ## Quiz
 
-1. **What is the purpose of the `Snapshot` struct in the `BondToken` contract?**
-   - A) To store transaction history
-   - B) To record bond metadata
-   - C) To record snapshot dates and balances
-   - D) To compute coupon amounts
+**Q1 (multiple choice).** Which of the following is NOT a key component in implementing a snapshot mechanism for coupon record dates?
+a) Fixed-point arithmetic — b) Snapshot storage — c) Event emission — d) Bank-side integration
+**Answer: a.** Fixed-point arithmetic is used for computation, not as a key component in snapshotting.
 
-2. **How is fixed-point arithmetic implemented in the `BondToken` contract?**
-   - A) Using floating-point numbers
-   - B) Using integers with a scale factor
-   - C) Using decimals
-   - D) Using fractions
+**Q2 (multiple choice).** When integrating with a bank-side coupon-payment batch job, which Solidity feature is essential for ensuring that the correct coupons are paid out?
+a) Snapshot storage — b) Event emission — c) Access control — d) Fixed-point arithmetic
+**Answer: c.** Access control ensures that only authorized parties can trigger the payment process.
 
-3. **What events are emitted when coupons are declared and paid in the `BondToken` contract?**
-   - A) `CouponDeclared`, `CouponPaid`
-   - B) `TransactionLogged`, `PaymentProcessed`
-   - C) `CouponIssued`, `CouponSettled`
-   - D) `CouponRecorded`, `CouponReleased`
+**Q3 (multiple choice).** What is the primary purpose of emitting CouponDeclared and CouponPaid events in a Solidity smart contract?
+a) To store coupon data — b) To notify external systems — c) To compute coupon values — d) To manage snapshot records
+**Answer: b.** These events are used to notify external systems about the declaration and payment of coupons.
 
-4. **What is the purpose of the `CouponPaymentJob` class in Java?**
-   - A) To compute coupon amounts
-   - B) To handle batch coupon payments
-   - C) To record snapshot dates and balances
-   - D) To update bond metadata
+**Q4 (short answer).** Describe how fixed-point arithmetic can be beneficial in computing coupon values within a Solidity smart contract.
+**Answer:** Fixed-point arithmetic allows for precise calculations with fractional numbers, ensuring accurate representation of monetary values without floating-point inaccuracies.
 
-5. **How are multiple coupon payments processed in a batch using the `CouponPaymentJob` class?**
-   - A) By calling the `payCoupon` method once for each payment
-   - B) By calling the `payCoupons` method with a list of holders and snapshot indices
-   - C) By calling the `updateBondMetadata` method
-   - D) By calling the `computeCoupon` method
-
-**Answers:**
-1. C) To record snapshot dates and balances
-2. B) Using integers with a scale factor
-3. A) `CouponDeclared`, `CouponPaid`
-4. B) To handle batch coupon payments
-5. B) By calling the `payCoupons` method with a list of holders and snapshot indices
+**Q5 (short answer).** Explain the role of snapshot storage in managing coupon record dates and why it is crucial for the integrity of the coupon system.
+**Answer:** Snapshot storage captures the state of the system at a specific point in time, allowing for the accurate computation of coupons based on historical data. It ensures that the system remains consistent and reliable over time.

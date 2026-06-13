@@ -741,27 +741,20 @@ contract ShareToken {
 
 ## Quiz
 
-1. What is the purpose of the `ShareMetadata` struct in this contract?
-   - [ ] To manage share transfers
-   - [ ] To store shareholder identity
-   - [x] To hold metadata for each share
+**Q1 (multiple choice).** Which of the following is NOT a component of the Share Metadata struct in CMTAT?
+a) ISIN — b) Nominal Value — c) Share Class — d) Bank Account Number
+**Answer: d.** The Share Metadata struct includes ISIN, Nominal Value, and Share Class, but not Bank Account Number.
 
-2. Which state variable represents the registrar role in this contract?
-   - [ ] `admin`
-   - [x] `registrar`
-   - [ ] `shareholder`
+**Q2 (multiple choice).** In the context of CMTAT, which role is responsible for managing the transfer of shares?
+a) Issuer — b) Registrar — c) Auditor — d) Shareholder
+**Answer: b.** The Registrar role in CMTAT is responsible for managing the transfer of shares.
 
-3. What is the purpose of the `isKYCVerified` mapping in this contract?
-   - [ ] To store document hashes
-   - [x] To bind shareholder identity to off-chain KYC records
-   - [ ] To manage share metadata
+**Q3 (multiple choice).** What is the purpose of binding shareholder identity in CMTAT?
+a) To ensure that only authorized users can access the system — b) To link on-chain addresses with off-chain KYC records — c) To facilitate faster transaction processing — d) To prevent double spending
+**Answer: b.** The purpose of binding shareholder identity is to link on-chain addresses with off-chain KYC records.
 
-4. Which struct is used to represent documents such as articles of association in this contract?
-   - [ ] `ShareMetadata`
-   - [ ] `DocumentModule`
-   - [x] `Document`
+**Q4 (short answer).** Explain the role of the DocumentModule in CMTAT.
+**Answer:** The DocumentModule in CMTAT is used to store and manage important documents such as articles of association and terms, ensuring that they are accessible and immutable within the blockchain system.
 
-5. What is the purpose of the `registrar` role in this contract?
-   - [ ] To manage shareholder identity
-   - [x] To act as a transfer agent for shares
-   - [ ] To store document hashes
+**Q5 (short answer).** Why is it important to add events for share registration in a Solidity smart contract?
+**Answer:** Adding events for share registration in a Solidity smart contract is important because it provides transparency and allows stakeholders to track changes and updates related to share registrations, enhancing accountability and traceability.

@@ -5,100 +5,460 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CMTAT Engineering Course</title>
 <style>
-  :root { --bg:#0d1117; --panel:#161b22; --bd:#30363d; --fg:#c9d1d9; --acc:#2f81f7; --ok:#3fb950; --err:#f85149; }
-  * { box-sizing:border-box; }
-  body { margin:0; font:14px/1.55 -apple-system,Segoe UI,Roboto,sans-serif; background:var(--bg); color:var(--fg); display:flex; height:100vh; }
-  #side { width:300px; border-right:1px solid var(--bd); overflow:auto; background:var(--panel); padding:8px; }
-  #side h2 { font-size:13px; text-transform:uppercase; color:#8b949e; margin:14px 6px 4px; }
-  #side a { display:block; padding:4px 8px; color:var(--fg); text-decoration:none; border-radius:5px; cursor:pointer; }
-  #side a:hover { background:#21262d; } #side a.active { background:var(--acc); color:#fff; }
-  #main { flex:1; overflow:auto; padding:24px 32px; max-width:900px; }
-  pre { background:#0b0f14; border:1px solid var(--bd); border-radius:6px; padding:10px; overflow:auto; }
-  code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
-  textarea { width:100%; height:200px; background:#0b0f14; color:var(--fg); border:1px solid var(--bd); border-radius:6px; padding:10px; font-family:ui-monospace,monospace; font-size:13px; }
-  .step { border:1px solid var(--bd); border-radius:8px; padding:14px 16px; margin:14px 0; background:var(--panel); }
-  .step h4 { margin:0 0 8px; } .muted { color:#8b949e; }
-  button { background:var(--acc); color:#fff; border:0; border-radius:6px; padding:7px 13px; cursor:pointer; font-size:13px; margin-right:8px; }
-  button.ghost { background:#21262d; color:var(--fg); border:1px solid var(--bd); }
-  .verdict { margin-top:8px; font-weight:600; } .verdict.ok { color:var(--ok); } .verdict.err { color:var(--err); }
-  .locked { opacity:.45; pointer-events:none; }
-  .tag { display:inline-block; font-size:11px; background:#21262d; border:1px solid var(--bd); border-radius:10px; padding:1px 8px; margin-left:6px; color:#8b949e; }
+:root{
+  --bg:#FFFFFF; --bg-side:#FAFAF9; --surface:#FFFFFF; --surface-sunk:#F6F6F5;
+  --ink:#0A0A0A; --ink-2:#52524E; --ink-3:#8A8A85;
+  --line:#E4E4E1; --line-strong:#CFCFCB;
+  --red:#C8102E; --red-hover:#A50D26; --red-active:#85091E; --red-wash:#FBEEF0;
+  --ok:#1E7A46; --ok-wash:#EBF4EF;
+  --font-ui:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,Roboto,Helvetica,Arial,sans-serif;
+  --font-mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,"Cascadia Mono",Consolas,monospace;
+  --maxw:760px; --side-w:300px; --radius:6px; --radius-sm:4px;
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{margin:0;font:16px/1.65 var(--font-ui);color:var(--ink);background:var(--bg);
+  -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;}
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);}
+.tnum{font-variant-numeric:tabular-nums;}
+
+/* masthead */
+.masthead{display:flex;align-items:center;justify-content:space-between;height:64px;
+  padding:0 28px;background:var(--bg);border-bottom:2px solid var(--red);
+  box-shadow:0 1px 0 var(--line);flex:0 0 auto;}
+.masthead .brand{display:flex;align-items:baseline;gap:10px;cursor:pointer;}
+.masthead .mark{font-weight:600;font-size:18px;letter-spacing:-.01em;}
+.progress{display:flex;align-items:center;gap:12px;}
+.progress .count{color:var(--ink-2);}
+.progress .track{width:160px;height:3px;background:var(--line);border-radius:2px;overflow:hidden;}
+.progress .fill{height:100%;width:0;background:var(--red);transition:width .3s ease;}
+
+/* shell */
+.shell{display:flex;flex:1;overflow:hidden;}
+#side{width:var(--side-w);background:var(--bg-side);border-right:1px solid var(--line);
+  overflow:auto;padding:16px 0;flex:0 0 auto;}
+#side .grp{margin:14px 16px 4px;display:flex;justify-content:space-between;align-items:center;}
+#side a{display:flex;justify-content:space-between;gap:8px;padding:9px 16px 9px 14px;
+  color:var(--ink-2);text-decoration:none;cursor:pointer;border-left:2px solid transparent;font-size:14.5px;}
+#side a:hover{color:var(--ink);border-left-color:var(--line-strong);}
+#side a.active{color:var(--ink);font-weight:600;background:var(--red-wash);border-left:2px solid var(--red);}
+#side a .badge{font-size:11px;color:var(--ink-3);}
+#side a.complete .badge{color:var(--ok);}
+#side a.dim{opacity:.5;}
+#main{flex:1;overflow:auto;padding:36px 40px 80px;}
+.col{max-width:var(--maxw);margin:0 auto;}
+
+h1{font-size:30px;font-weight:600;letter-spacing:-.01em;margin:0;}
+h1.kick::after{content:"";display:block;width:40px;height:2px;background:var(--red);margin:14px 0 0;}
+h2.lesson{font-size:21px;font-weight:600;margin:38px 0 8px;padding-top:22px;border-top:1px solid var(--line);}
+.muted{color:var(--ink-2);} .small{font-size:14px;}
+.chip{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-2);border:1px solid var(--line);border-radius:2px;padding:2px 8px;margin-right:6px;}
+
+/* cards */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px;margin:18px 0;}
+.headcard{background:var(--bg-side);}
+.headcard .meta{margin-top:10px;}
+.headcard .builds{margin-top:10px;font-size:14px;color:var(--ink-2);}
+
+/* step */
+.step{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px 22px;margin:16px 0;}
+.step.locked{opacity:.45;}
+.step.done{padding:12px 18px;background:var(--bg-side);}
+.step h4{margin:0;font-size:16px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.step .tag{font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);
+  border:1px solid var(--line);border-radius:2px;padding:2px 8px;white-space:nowrap;}
+.step.done .tag{color:var(--ok);border-color:var(--ok);background:var(--ok-wash);}
+.step.reveal .tag{color:#9A6B00;border-color:#E3C77A;background:#FBF3DF;}
+.step .instr{margin:12px 0;}
+details.why{margin:10px 0;}
+details.why summary{cursor:pointer;color:var(--ink-2);font-weight:600;font-size:14px;}
+details.why .body{color:var(--ink-2);margin-top:8px;}
+textarea{width:100%;min-height:230px;resize:vertical;margin-top:10px;background:var(--surface-sunk);
+  color:var(--ink);border:1px solid var(--line-strong);border-radius:var(--radius-sm);
+  padding:14px;font:400 13.5px/1.6 var(--font-mono);}
+textarea:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.18);}
+.codelabel{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:10px;}
+pre{background:var(--surface-sunk);border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:14px;overflow:auto;margin:10px 0 0;}
+code{font:400 13.5px/1.6 var(--font-mono);}
+
+.actions{margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;}
+button{font:600 14px/1 var(--font-ui);letter-spacing:.01em;padding:10px 18px;border-radius:var(--radius-sm);
+  cursor:pointer;border:1px solid var(--red);background:var(--red);color:#fff;transition:background .12s ease;}
+button:hover{background:var(--red-hover);border-color:var(--red-hover);}
+button:active{background:var(--red-active);transform:translateY(1px);}
+button.ghost{background:var(--surface);color:var(--ink);border-color:var(--line-strong);}
+button.ghost:hover{background:var(--surface-sunk);border-color:var(--ink);}
+button:focus-visible{outline:3px solid var(--red);outline-offset:2px;}
+button:disabled{opacity:.4;cursor:not-allowed;}
+
+.verdict{margin-top:12px;padding:10px 14px;font-weight:600;font-size:15px;border-left:3px solid var(--line);color:var(--ink-2);}
+.verdict.ok{color:var(--ok);background:var(--ok-wash);border-left-color:var(--ok);}
+.verdict.err{color:var(--red);background:var(--red-wash);border-left-color:var(--red);}
+.hintbox{margin-top:10px;padding:10px 14px;border-left:3px solid var(--line-strong);background:var(--bg-side);color:var(--ink-2);font-size:14.5px;}
+
+/* mastery bar */
+.mastery{display:flex;align-items:center;gap:12px;margin:14px 0 0;}
+.mastery .bar{flex:1;height:6px;background:var(--line);border-radius:3px;overflow:hidden;}
+.mastery .bar .f{height:100%;background:var(--ok);}
+.mastery .bar .r{height:100%;background:#E3C77A;}
+
+/* landing */
+.hero{padding:10px 0 4px;}
+.hero h1{font-size:34px;}
+.lead{font-size:18px;color:var(--ink-2);margin:14px 0 0;max-width:62ch;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px;}
+.tile{border:1px solid var(--line);border-radius:var(--radius);padding:16px;background:var(--surface);}
+.tile h4{margin:0 0 6px;}
+table.map{border-collapse:collapse;width:100%;margin-top:8px;font-size:14.5px;}
+table.map td{border-top:1px solid var(--line);padding:7px 10px;vertical-align:top;}
+table.map td:first-child{color:var(--ink-2);white-space:nowrap;}
+.cta{margin-top:22px;display:flex;gap:12px;align-items:center;}
+
+/* quiz */
+.q{margin:18px 0;padding-bottom:6px;}
+.opt{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:10px 14px;margin:8px 0;cursor:pointer;background:var(--surface);}
+.opt:hover{border-color:var(--line-strong);}
+.opt.sel{border-color:var(--red);background:var(--red-wash);}
+.opt.correct{border-color:var(--ok);background:var(--ok-wash);}
+.opt.wrong{border-color:var(--red);background:var(--red-wash);}
+.opt .k{font-weight:600;text-transform:uppercase;}
+.rationale{font-size:14.5px;color:var(--ink-2);margin-top:6px;border-left:3px solid var(--line);padding-left:12px;}
+
+/* celebration */
+.celebrate{text-align:center;padding:40px 0;}
+.celebrate .big{font-size:26px;font-weight:600;}
+.celebrate .red{color:var(--red);}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
+@media (max-width:820px){#side{display:none;}#main{padding:24px 18px 70px;}}
 </style>
 </head>
 <body>
-<nav id="side"></nav>
-<main id="main"><p class="muted">Loading…</p></main>
+<header class="masthead">
+  <div class="brand" onclick="goLanding()">
+    <span class="mark">CMTAT</span><span class="eyebrow">Engineering Course</span>
+  </div>
+  <div class="progress" id="mprog"></div>
+</header>
+<div class="shell">
+  <nav id="side"></nav>
+  <main id="main"><p class="muted">Loading…</p></main>
+</div>
 <script>
-let COURSE=null, cur=0;
+const LS="cmtat.v2";
+let C=null, P=loadP();
+function loadP(){ try{return JSON.parse(localStorage.getItem(LS))||{}}catch(e){return {}} }
+function saveP(){ localStorage.setItem(LS, JSON.stringify(P)); }
+P.step=P.step||{};       // stepId -> 'pass' | 'reveal'
+P.code=P.code||{};       // stepId -> editor text
+P.quiz=P.quiz||{};       // chapterNn -> {score,total}
+P.track=P.track||null;   // 'A'|'B'|'C'
 const $=(s,e=document)=>e.querySelector(s);
+const esc=s=>(s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 
-fetch('course.json').then(r=>r.json()).then(d=>{COURSE=d; renderSide(); show(0);})
-  .catch(e=>$('#main').innerHTML='<p class="verdict err">Could not load course.json. Run: python3 pm/build_player.py</p>');
+fetch('course.json').then(r=>r.json()).then(d=>{C=d; route();})
+  .catch(()=>$('#main').innerHTML='<p class="verdict err">Could not load course.json — run python3 pm/build_player.py</p>');
 
-function renderSide(){
-  const s=$('#side');
-  s.innerHTML='<h2>Chapters</h2>';
-  COURSE.chapters.forEach((c,i)=>{
-    const a=document.createElement('a');
-    a.textContent=c.title.replace(/^Chapter\s+/,''); a.dataset.i=i;
-    a.onclick=()=>show(i); s.appendChild(a);
-  });
+/* ---------- progress helpers ---------- */
+const allSteps=c=>c.lessons.flatMap(l=>l.steps);
+function chDone(c){ const s=allSteps(c); const passed=s.filter(st=>P.step[st.id]).length;
+  const quizOk = !c.quiz.length || (P.quiz[c.nn]&&P.quiz[c.nn].done);
+  return s.length>0 && passed===s.length && quizOk; }
+function chCounts(c){ const s=allSteps(c); let pass=0,rev=0;
+  s.forEach(st=>{if(P.step[st.id]==='pass')pass++; else if(P.step[st.id]==='reveal')rev++;});
+  return {pass,rev,total:s.length}; }
+function overall(){ let done=0,tot=0; C.chapters.forEach(c=>{tot+=allSteps(c).length;
+  done+=allSteps(c).filter(st=>P.step[st.id]).length;}); return {done,tot}; }
+
+/* ---------- routing ---------- */
+function route(){
+  renderSide(); renderMast();
+  const h=location.hash;
+  let m;
+  if((m=h.match(/^#\/ch\/(\d+)\/quiz/))) return renderQuiz(idxByNn(+m[1]));
+  if((m=h.match(/^#\/ch\/(\d+)\/done/))) return renderComplete(idxByNn(+m[1]));
+  if((m=h.match(/^#\/ch\/(\d+)/))) return renderChapter(idxByNn(+m[1]));
+  if(h==='#/track') return renderTrackChoice();
+  return renderLanding();
 }
-function show(i){
-  cur=i; const c=COURSE.chapters[i];
-  document.querySelectorAll('#side a').forEach(a=>a.classList.toggle('active',+a.dataset.i===i));
-  const m=$('#main'); m.scrollTop=0;
-  let h=`<h1>${esc(c.title)}</h1>`;
-  c.lessons.forEach(l=>{
-    h+=`<h2>Lesson ${esc(l.n)} — ${esc(l.title)}</h2>`;
-    l.steps.forEach((st,si)=>{
-      h+=stepHTML(c,l,st,si);
+window.addEventListener('hashchange',route);
+const idxByNn=nn=>C.chapters.findIndex(c=>c.nn===nn);
+function goLanding(){ location.hash=''; }
+function go(hash){ location.hash=hash; $('#main').scrollTop=0; window.scrollTo(0,0); }
+
+/* ---------- masthead ---------- */
+function renderMast(){
+  const o=overall(); const pct=o.tot?Math.round(o.done/o.tot*100):0;
+  $('#mprog').innerHTML=`<span class="count eyebrow tnum">${pct}% complete</span>
+    <span class="track"><span class="fill" style="width:${pct}%"></span></span>`;
+}
+
+/* ---------- sidebar ---------- */
+function renderSide(){
+  const s=$('#side'); let h='';
+  C.parts.forEach(part=>{
+    const isTrack = part.track!=='shared';
+    const dim = isTrack && P.track && P.track!==part.track;
+    h+=`<div class="grp"><span class="eyebrow">${esc(part.title)}</span></div>`;
+    part.chapters.forEach(ci=>{
+      const c=C.chapters[ci]; const cc=chCounts(c); const done=chDone(c);
+      const cur=location.hash.startsWith('#/ch/'+c.nn);
+      h+=`<a class="${cur?'active':''} ${done?'complete':''} ${dim?'dim':''}" onclick="go('#/ch/${c.nn}')">
+        <span>${esc(c.title.replace(/^Chapter\s+/,'Ch '))}</span>
+        <span class="badge tnum">${done?'✓':cc.pass+cc.rev+'/'+cc.total}</span></a>`;
     });
   });
-  m.innerHTML=h||'<p class="muted">No lessons parsed.</p>';
+  s.innerHTML=h;
 }
-function stepHTML(c,l,st,si){
-  const sid=`s_${c.file}_${st.id}`.replace(/[^\w]/g,'_');
-  return `<div class="step" id="${sid}" data-id="${esc(st.id)}">
-    <h4>Step ${esc(st.id)} — ${esc(st.title)} ${st.checker?'<span class="tag">check</span>':''}</h4>
-    <p>${esc(st.instruction)}</p>
-    <details class="muted"><summary>Why</summary><p>${esc(st.explanation)}</p></details>
-    <textarea spellcheck="false">${esc(st.starter||'')}</textarea>
-    <div style="margin-top:8px">
-      <button data-act="check">Check</button>
-      <button class="ghost" data-act="sol">Show solution</button>
+
+/* ---------- landing ---------- */
+const MAP=[["Bank account","Externally-owned account (EOA)"],["HSM-held signing key","Private key"],
+["ISO 20022 message","Transaction"],["End-of-day batch","Block"],["Rappen (CHF minor unit)","wei"],
+["Stored procedure / posting","Smart-contract function call"],["Audit journal","Event log"]];
+function renderLanding(){
+  const o=overall(); const started=o.done>0;
+  const tiles=C.parts.filter(p=>p.track!=='shared').map(p=>{
+    const c=C.chapters[p.chapters[0]];
+    return `<div class="tile"><div class="eyebrow">Track ${p.track}</div>
+      <h4>${esc(p.title.replace(/^Track .—\s*/,''))}</h4>
+      <div class="muted small">${esc(c.builds.split('·')[0]||'')}</div></div>`;}).join('');
+  $('#main').innerHTML=`<div class="col">
+    <div class="hero">
+      <h1 class="kick">Tokenized securities on the EVM — for core-banking engineers</h1>
+      <p class="lead">You already build ledgers, payment rails and HSM-signed messages. This course maps
+      every one of those to the EVM and the <strong>CMTAT</strong> tokenized-securities standard — and you
+      ship real Solidity contracts. Zero blockchain background assumed.</p>
     </div>
-    <div class="verdict" data-v></div>
+    <div class="card">
+      <div class="eyebrow">How this works</div>
+      <p class="small muted" style="margin:8px 0 0">Work each step in the editor, press <strong>Check</strong> to
+      validate against the lesson's rule, and the next step unlocks. Stuck? Ladder through a hint before the
+      solution. Every concept is mapped to your Java/.NET &amp; core-banking world. Progress saves in this browser.</p>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Your world → the EVM</div>
+      <table class="map"><tbody>${MAP.map(r=>`<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td></tr>`).join('')}</tbody></table>
+    </div>
+    <div class="eyebrow" style="margin-top:24px">You will build — pick your instrument track after the shared core</div>
+    <div class="grid3">${tiles}</div>
+    <div class="card" style="margin-top:18px"><div class="eyebrow">Prerequisites</div>
+      <p class="small muted" style="margin:8px 0 0">Comfortable in Java/.NET and core-banking concepts. Tooling:
+      <a href="https://getfoundry.sh" target="_blank" rel="noopener">Foundry</a> (forge/anvil) to compile and run the contracts locally — optional for the lessons, used in the capstones.</p></div>
+    <div class="cta">
+      <button onclick="go('#/ch/${C.chapters[0].nn}')">${started?'Resume':'Start Chapter 1'} →</button>
+      <span class="muted small tnum">${C.chapters.length} chapters · ${o.tot} steps${started?` · ${Math.round(o.done/o.tot*100)}% done`:''}</span>
+    </div></div>`;
+}
+
+/* ---------- chapter ---------- */
+let hintLevel={}; // stepId -> n (session only)
+let reviewing=new Set(); // stepIds re-opened for review (non-destructive)
+function renderChapter(ci){
+  const c=C.chapters[ci]; if(!c) return goLanding();
+  const steps=allSteps(c); const activeId=(steps.find(st=>!P.step[st.id])||{}).id;
+  const cc=chCounts(c);
+  let h=`<div class="col"><h1 class="kick">${esc(c.title)}</h1>
+    <div class="card headcard">
+      <div>${c.track?`<span class="chip">${esc(c.track)}</span>`:''}${(c.threads||'').split(/\s+/).filter(Boolean).map(t=>`<span class="chip">${esc(t)}</span>`).join('')}<span class="chip">≈${c.est_min} min</span></div>
+      <p class="meta">${esc(c.objective)}</p>
+      ${c.builds?`<div class="builds"><strong>You will build:</strong> ${esc(c.builds.split('·')[0])}</div>`:''}
+      ${c.prerequisites?`<div class="builds muted small">Prerequisites: ${esc(c.prerequisites)}</div>`:''}
+      ${masteryHTML(cc)}
+    </div>`;
+  c.lessons.forEach(l=>{
+    h+=`<h2 class="lesson">Lesson ${esc(l.n)} — ${esc(l.title)}</h2>`;
+    if(l.objective) h+=`<p class="muted small">${esc(l.objective)}</p>`;
+    l.steps.forEach(st=>{ h+=stepHTML(st, st.id===activeId || reviewing.has(st.id)); });
+  });
+  // chapter footer: quiz or complete
+  if(!activeId){
+    if(c.quiz.length && !(P.quiz[c.nn]&&P.quiz[c.nn].done)){
+      h+=`<div class="card"><div class="eyebrow">Final check</div>
+        <p class="small" style="margin:8px 0 12px">All steps done. Take the ${c.quiz.length}-question quiz to complete the chapter.</p>
+        <button onclick="go('#/ch/${c.nn}/quiz')">Start quiz →</button></div>`;
+    } else {
+      h+=`<div class="card"><div class="eyebrow">Chapter complete</div>
+        <p class="small" style="margin:8px 0 12px">You finished this chapter.</p>
+        <button onclick="go('#/ch/${c.nn}/done')">See summary →</button></div>`;
+    }
+  }
+  h+='</div>';
+  $('#main').innerHTML=h; window.scrollTo(0,0);
+  const a=document.querySelector('.step.active'); if(a) a.scrollIntoView({block:'center',behavior:'smooth'});
+}
+function masteryHTML(cc){
+  const p=cc.total?cc.pass/cc.total*100:0, r=cc.total?cc.rev/cc.total*100:0;
+  return `<div class="mastery"><div class="bar"><div class="f" style="width:${p}%"></div><div class="r" style="width:${r}%"></div></div>
+    <span class="eyebrow tnum">${cc.pass+cc.rev}/${cc.total}</span></div>`;
+}
+function stepHTML(st, active){
+  const state=P.step[st.id];
+  const cls=state?('done '+(state==='reveal'?'reveal':'')):(active?'active':'locked');
+  const tag=state?(state==='reveal'?'Revealed':'Done ✓'):(st.checker?'Check':'Read');
+  if(state && !active){ // collapsed done summary
+    return `<div class="step ${cls}" data-id="${esc(st.id)}"><h4><span>Step ${esc(st.id)} — ${esc(st.title)}</span><span class="tag">${tag}</span></h4></div>`;
+  }
+  if(!active && !state){ // locked
+    return `<div class="step locked" data-id="${esc(st.id)}"><h4><span>Step ${esc(st.id)} — ${esc(st.title)}</span><span class="tag">Locked</span></h4></div>`;
+  }
+  // active (or re-opened done): full UI
+  const code = (P.code[st.id]!=null?P.code[st.id]:st.starter)||'';
+  return `<div class="step active" data-id="${esc(st.id)}">
+    <h4><span>Step ${esc(st.id)} — ${esc(st.title)}</span><span class="tag">${st.checker?'Check':'Read'}</span></h4>
+    <div class="instr">${esc(st.instruction)}</div>
+    ${st.explanation?`<details class="why" open><summary>Why this matters</summary><div class="body">${esc(st.explanation)}</div></details>`:''}
+    <div class="codelabel">Your code — Solidity</div>
+    <textarea spellcheck="false" data-code>${esc(code)}</textarea>
+    <div class="actions">
+      ${st.checker?'<button data-act="check">Check</button>':'<button data-act="reviewed">Mark reviewed →</button>'}
+      ${st.solution?'<button class="ghost" data-act="hint">Hint</button><button class="ghost" data-act="sol">Show solution</button>':''}
+    </div>
+    <div class="verdict" data-v hidden></div>
+    <div class="hintbox" data-hint hidden></div>
     <pre data-sol hidden><code>${esc(st.solution||'')}</code></pre>
   </div>`;
 }
-// event delegation
+
+/* ---------- quiz ---------- */
+let quizSel={}; // qn -> key (mc) ; short answers self-graded
+function renderQuiz(ci){
+  const c=C.chapters[ci]; if(!c) return goLanding(); quizSel={};
+  let h=`<div class="col"><h1 class="kick">${esc(c.title)} — Quiz</h1>
+    <p class="muted">Answer all ${c.quiz.length} to complete the chapter. Multiple-choice is auto-graded; short-answer is self-assessed against a model answer.</p>`;
+  c.quiz.forEach((q,i)=>{
+    h+=`<div class="card q" data-q="${i}"><div class="eyebrow">Question ${q.n} · ${esc(q.type)}</div>
+      <p style="font-weight:600;margin:8px 0 4px">${esc(q.question)}</p>`;
+    if(q.options && q.options.length){
+      q.options.forEach(o=>{ h+=`<div class="opt" data-q="${i}" data-k="${o.key}" onclick="pickOpt(${i},'${o.key}')">
+        <span class="k">${o.key}</span><span>${esc(o.text)}</span></div>`; });
+    } else {
+      h+=`<textarea spellcheck="false" data-short="${i}" placeholder="Write your answer, then reveal the model answer to self-check."></textarea>
+        <div class="actions"><button class="ghost" onclick="revealModel(${i})">Show model answer</button></div>
+        <div class="rationale" data-model="${i}" hidden></div>
+        <div class="actions" data-sg="${i}" hidden>
+          <button onclick="selfGrade(${i},true)">I got it</button>
+          <button class="ghost" onclick="selfGrade(${i},false)">Review needed</button></div>`;
+    }
+    h+=`<div class="rationale" data-rat="${i}" hidden></div></div>`;
+  });
+  h+=`<div class="cta"><button onclick="submitQuiz(${ci})">Submit quiz</button>
+    <span class="muted small" data-qstat></span></div></div>`;
+  $('#main').innerHTML=h; window.scrollTo(0,0);
+}
+function pickOpt(i,k){ quizSel[i]=k;
+  document.querySelectorAll(`.opt[data-q="${i}"]`).forEach(o=>o.classList.toggle('sel',o.dataset.k===k)); }
+function revealModel(i){ const c=curChapter(); const q=c.quiz[i];
+  const m=document.querySelector(`[data-model="${i}"]`); m.textContent='Model answer: '+q.rationale; m.hidden=false;
+  document.querySelector(`[data-sg="${i}"]`).hidden=false; }
+function selfGrade(i,ok){ quizSel[i]=ok?'_got':'_miss';
+  document.querySelector(`[data-sg="${i}"]`).querySelectorAll('button').forEach(b=>b.disabled=true); }
+function curChapter(){ const m=location.hash.match(/#\/ch\/(\d+)/); return C.chapters[idxByNn(+m[1])]; }
+function submitQuiz(ci){
+  const c=C.chapters[ci]; let correct=0,total=c.quiz.length,unanswered=0;
+  c.quiz.forEach((q,i)=>{
+    const sel=quizSel[i]; const card=document.querySelector(`.card.q[data-q="${i}"]`);
+    if(sel==null){ unanswered++; return; }
+    const rat=card.querySelector(`[data-rat="${i}"]`);
+    if(q.options && q.options.length){
+      const right=q.answer; const ok=sel===right;
+      if(ok)correct++;
+      card.querySelectorAll('.opt').forEach(o=>{
+        if(o.dataset.k===right)o.classList.add('correct');
+        else if(o.dataset.k===sel)o.classList.add('wrong'); });
+      if(q.rationale){ rat.textContent=(ok?'✓ ':'✗ ')+q.rationale; rat.hidden=false; }
+    } else { if(sel==='_got')correct++; }
+  });
+  const stat=document.querySelector('[data-qstat]');
+  if(unanswered){ stat.textContent=`Answer all questions — ${unanswered} left.`; return; }
+  P.quiz[c.nn]={score:correct,total,done:true}; saveP();
+  stat.textContent=`Score ${correct}/${total}. Chapter complete.`;
+  setTimeout(()=>go('#/ch/'+c.nn+'/done'),600);
+}
+
+/* ---------- completion ---------- */
+function renderComplete(ci){
+  const c=C.chapters[ci]; if(!c) return goLanding();
+  const next=C.chapters[ci+1]; const q=P.quiz[c.nn];
+  const justFinishedCore = c.nn===9 && !P.track;
+  let h=`<div class="col"><div class="celebrate">
+    <div class="eyebrow red">Chapter complete</div>
+    <div class="big" style="margin-top:10px">${esc(c.title.replace(/^Chapter\s+\d+\s+—\s+/,''))} — done.</div>
+    ${q?`<p class="muted tnum">Quiz ${q.score}/${q.total}</p>`:''}
+    ${c.builds?`<p class="muted small">You built <code>${esc((c.builds.split('·')[0]||'').trim())}</code></p>`:''}
+  </div>`;
+  if(justFinishedCore){
+    h+=`<div class="card"><div class="eyebrow">Shared core complete — choose your track</div>
+      <p class="small" style="margin:8px 0 12px">The next chapters specialise into one instrument. Pick the one you work on (you can switch later).</p>
+      <button onclick="go('#/track')">Choose your track →</button></div>`;
+  } else if(next){
+    const allowed = next.track==='shared' || !P.track || next.track===P.track;
+    h+=`<div class="cta"><button onclick="go('#/ch/${next.nn}')">Next: ${esc(next.title.replace(/^Chapter\s+/,'Ch '))} (≈${next.est_min} min) →</button></div>`;
+    if(!allowed) h+=`<p class="muted small">Heads-up: that's a different track than you chose. <a onclick="go('#/track')">Switch track</a></p>`;
+  } else {
+    h+=`<div class="celebrate"><div class="big red">🎓 Course complete.</div>
+      <p class="muted">You've shipped a full CMTAT instrument end-to-end.</p></div>`;
+  }
+  h+='</div>'; $('#main').innerHTML=h; window.scrollTo(0,0); renderSide(); renderMast();
+}
+function renderTrackChoice(){
+  const tracks=C.parts.filter(p=>p.track!=='shared');
+  const tiles=tracks.map(p=>{ const c=C.chapters[p.chapters[0]];
+    return `<div class="tile"><div class="eyebrow">Track ${p.track}</div>
+      <h4>${esc(p.title.replace(/^Track .—\s*/,''))}</h4>
+      <p class="muted small">${esc(c.objective.slice(0,140))}…</p>
+      <button style="margin-top:10px" onclick="chooseTrack('${p.track}',${p.chapters[0]})">Choose ${p.track} →</button></div>`;}).join('');
+  $('#main').innerHTML=`<div class="col"><h1 class="kick">Choose your instrument track</h1>
+    <p class="muted">Each track builds one tokenized instrument to completion. The others stay available if you want them later.</p>
+    <div class="grid3">${tiles}</div></div>`;
+}
+function chooseTrack(t,ci){ P.track=t; saveP(); go('#/ch/'+C.chapters[ci].nn); }
+
+/* ---------- interactions ---------- */
+function runChecker(chk,buf){ if(!chk||chk.type!=='regex')return true;
+  try{return new RegExp(chk.pattern,(chk.flags||'m').includes('m')?'m':'').test(buf);}catch(e){return false;} }
+function markDone(stepId,kind){ P.step[stepId]=kind; saveP(); }
+
+document.addEventListener('input',e=>{
+  const ta=e.target.closest('textarea[data-code]'); if(!ta)return;
+  const step=ta.closest('.step'); P.code[step.dataset.id]=ta.value; saveP();
+});
 document.addEventListener('click',e=>{
-  const b=e.target.closest('button'); if(!b) return;
-  const step=b.closest('.step'); if(!step) return;
-  const act=b.dataset.act;
-  const ta=$('textarea',step), v=$('[data-v]',step), sol=$('[data-sol]',step);
-  const data=findStep(step.dataset.id);
-  if(act==='sol'){ sol.hidden=!sol.hidden; b.textContent=sol.hidden?'Show solution':'Hide solution'; }
+  const b=e.target.closest('button[data-act]'); if(!b)return;
+  const step=b.closest('.step'); const id=step.dataset.id; const act=b.dataset.act;
+  const ci=C.chapters.findIndex(c=>allSteps(c).some(s=>s.id===id));
+  const st=allSteps(C.chapters[ci]).find(s=>s.id===id);
+  const ta=$('textarea[data-code]',step), v=$('[data-v]',step), sol=$('[data-sol]',step), hb=$('[data-hint]',step);
+  if(act==='sol'){ sol.hidden=false; markDone(id,'reveal'); renderChapter(ci); return; }
+  if(act==='reviewed'){ markDone(id,'pass'); renderChapter(ci); return; }
+  if(act==='hint'){
+    hintLevel[id]=(hintLevel[id]||0)+1;
+    const lvl=hintLevel[id]; let msg;
+    if(lvl===1) msg='Nudge: '+(st.explanation? st.explanation.split('. ')[0]+'.' : 'Re-read the instruction and the “Why”.');
+    else msg='Closer: '+(st.checker&&st.checker.error_hint && st.checker.error_hint!=='Your code should match the solution for this step.'
+        ? st.checker.error_hint : 'Compare your structure against “Show solution”, then type it yourself.');
+    hb.textContent=msg; hb.hidden=false; return;
+  }
   if(act==='check'){
-    if(!data||!data.checker){ v.textContent='No checker for this step — self-check against the solution.'; v.className='verdict muted'; return; }
-    const ok=runChecker(data.checker, ta.value);
-    v.textContent= ok? '✓ Passed' : ('✗ '+(data.checker.error_hint||'Not matching yet.'));
-    v.className='verdict '+(ok?'ok':'err');
+    const ok=runChecker(st.checker, ta.value);
+    v.hidden=false;
+    if(ok){ v.textContent='✓ Passed — next step unlocked.'; v.className='verdict ok';
+      markDone(id,'pass'); setTimeout(()=>renderChapter(ci),450); }
+    else{ const hint=(st.checker&&st.checker.error_hint && st.checker.error_hint!=='Your code should match the solution for this step.')
+        ? st.checker.error_hint : 'Not matching yet — try a Hint, or compare with the solution.';
+      v.textContent='✗ '+hint; v.className='verdict err'; }
   }
 });
-function findStep(id){
-  const c=COURSE.chapters[cur];
-  for(const l of c.lessons) for(const s of l.steps) if(s.id===id) return s;
-  return null;
-}
-function runChecker(chk,buf){
-  if(chk.type!=='regex') return true;
-  try{ return new RegExp(chk.pattern, (chk.flags||'m').includes('m')?'m':'').test(buf); }
-  catch(e){ return false; }
-}
-function esc(s){ return (s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
-function cssesc(s){ return String(s).replace(/[^\w-]/g,'_'); }
+// re-open a completed step for review (non-destructive — keeps its done state)
+document.addEventListener('click',e=>{
+  const h=e.target.closest('.step.done h4'); if(!h)return;
+  const id=h.closest('.step').dataset.id;
+  const ci=C.chapters.findIndex(c=>allSteps(c).some(s=>s.id===id));
+  if(reviewing.has(id)) reviewing.delete(id); else reviewing.add(id);
+  renderChapter(ci);
+});
 </script>
 </body>
 </html>

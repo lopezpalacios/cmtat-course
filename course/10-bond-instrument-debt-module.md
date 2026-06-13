@@ -804,27 +804,20 @@ contract BondToken {
 
 ## Quiz
 
-1. **What is the purpose of the `admin` address in the BondToken contract?**
-   - A) To store the bond's par value.
-   - B) To allow authorized updates to the bond metadata.
-   - C) To track the bond's maturity date.
+**Q1 (multiple choice).** Which of the following Solidity data types is most appropriate for representing a bond's maturity date in the DebtModule?
+a) uint256 — b) string — c) address — d) bytes32
+**Answer: a.** The maturity date can be represented as a Unix timestamp, which is an unsigned integer.
 
-2. **How many getter functions are implemented for the `DebtInfo` struct in this chapter?**
-   - A) 3
-   - B) 5
-   - C) 6
+**Q2 (multiple choice).** When integrating a Solidity-based bond model with a Swiss core-banking system, what is the primary concern regarding data type compatibility?
+a) Ensuring that all fields are of the same data type — b) Converting between Solidity and Java/.NET compatible types — c) Using only string data types for simplicity — d) Avoiding the use of arrays
+**Answer: b.** The main challenge is ensuring that data types used in Solidity (like uint256, bytes32) are correctly interpreted by Java/.NET applications.
 
-3. **What is the role of the `updateBondMetadata` function in the BondToken contract?**
-   - A) To initialize the bond metadata.
-   - B) To allow authorized updates to the bond metadata.
-   - C) To retrieve the bond's interest rate.
+**Q3 (multiple choice).** Which security measure should be implemented to prevent unauthorized updates to bond metadata?
+a) Using a public setter function — b) Implementing access control with modifiers — c) Storing data off-chain — d) Encrypting the contract code
+**Answer: b.** Access control using Solidity modifiers ensures that only authorized addresses can update bond metadata.
 
-4. **Which of the following statements is true regarding the `DebtInfo` struct?**
-   - A) It contains only financial data fields.
-   - B) It includes both financial and non-financial data fields.
-   - C) It is used to store transaction history.
+**Q4 (short answer).** Describe how you would initialize a bond's ISIN and rating fields in the DebtModule.
+**Answer:** You would define these fields as state variables within the contract, then create an initialization function that sets their values during deployment or through a secure setter function with access control.
 
-5. **What does the `require` statement in the `updateBondMetadata` function ensure?**
-   - A) The bond metadata can be updated by anyone.
-   - B) Only the admin address can update the bond metadata.
-   - C) The bond metadata cannot be changed after initialization.
+**Q5 (short answer).** Explain why it is important to use specific data types for bond metadata such as interest rate and par value.
+**Answer:** Using specific data types ensures precision in financial calculations and compatibility with external systems, preventing errors that could arise from using less precise or incompatible types.

@@ -622,27 +622,20 @@ public class CmtatBankAdapter {
 
 ## Quiz
 
-1. What is the purpose of ABI encoding and decoding in blockchain interactions?
-   - [ ] To encrypt data for security
-   - [ ] To format data correctly for smart contracts
-   - [ ] To manage gas costs efficiently
+**Q1 (multiple choice).** What is the primary purpose of ABI encoding in Solidity contracts when interacting with them through web3j?
+a) To encrypt data for security purposes — b) To convert function calls and parameters into a format that can be understood by the Ethereum Virtual Machine (EVM) — c) To create a hash of the contract's bytecode — d) To manage gas costs during transaction execution
+**Answer: b.** ABI encoding is used to convert function calls and their parameters into a binary format that the EVM can execute.
 
-2. How does web3j handle nonce management in transaction submission?
-   - [ ] It generates a random nonce for each transaction
-   - [ ] It retrieves the current nonce and increments it for each transaction
-   - [ ] It uses a fixed nonce value for all transactions
+**Q2 (multiple choice).** In the context of the Bank-Side Adapter, why is it important to implement an off-chain settlement reconciliation loop?
+a) To ensure that all transactions are executed on the blockchain — b) To verify the integrity and consistency of transactions between the bank's core system and the blockchain — c) To manage nonce values for transaction submission — d) To handle gas price fluctuations
+**Answer: b.** The off-chain settlement reconciliation loop is crucial for verifying that transactions are correctly reflected in both the bank's systems and the blockchain, ensuring data integrity and consistency.
 
-3. What is the role of an off-chain settlement reconciliation loop in blockchain applications?
-   - [ ] To process on-chain transactions off-chain
-   - [ ] To verify the correctness of smart contracts
-   - [ ] To manage gas costs efficiently
+**Q3 (multiple choice).** Which of the following is NOT a component of a good gas strategy when submitting transactions through web3j?
+a) Setting an appropriate gas limit — b) Implementing a dynamic gas price adjustment mechanism — c) Using fixed gas prices for all transactions — d) Managing transaction retries with idempotency keys
+**Answer: c.** A good gas strategy should not use fixed gas prices for all transactions, as this can lead to inefficient or failed transactions due to fluctuating network conditions.
 
-4. Why is maintaining an append-only audit trail important in blockchain applications?
-   - [ ] To ensure data integrity and accountability
-   - [ ] To optimize transaction processing speed
-   - [ ] To reduce storage requirements
+**Q4 (short answer).** Explain the role of an append-only audit trail in the Bank-Side Adapter.
+**Answer:** An append-only audit trail records all actions and transactions performed by the adapter, ensuring transparency and providing a historical record for auditing purposes. This helps in maintaining compliance and facilitating forensic analysis if needed.
 
-5. How does web3j handle event log subscription and replay from a specific block?
-   - [ ] It uses a push-based mechanism to receive events in real-time
-   - [ ] It pulls events from the blockchain starting from a specified block
-   - [ ] It caches events locally for faster access
+**Q5 (short answer).** Describe how nonce management contributes to transaction security in the context of web3j.
+**Answer:** Nonce management ensures that each transaction from an account is unique by incrementing a counter with each transaction. This prevents replay attacks, where an attacker resubmits a previously signed transaction, and helps maintain the order and integrity of transactions.

@@ -1138,3 +1138,23 @@ contract FundShareToken {
 pragma solidity ^0.8.20;
 
 contract FundShare
+
+## Quiz
+
+**Q1 (multiple choice).** In the context of a blockchain-based core-banking system, which of the following is NOT a critical component for ensuring idempotent order processing?
+a) Unique transaction identifiers — b) Timestamps for each order — c) Order state tracking — d) Double spending prevention mechanisms
+**Answer: b.** Timestamps alone do not ensure idempotency; they are necessary but insufficient.
+
+**Q2 (multiple choice).** When implementing a daily settlement cycle in Solidity, which datatype would be most appropriate for representing the Net Asset Value (NAV) of a fund?
+a) uint256 — b) int256 — c) string — d) address
+**Answer: a.** uint256 is suitable for representing monetary values with high precision.
+
+**Q3 (multiple choice).** In the event of a partial fill in an order queue, which action should be taken to maintain the integrity of the settlement process?
+a) Cancel the remaining portion of the order — b) Hold the remaining funds until full execution — c) Execute the filled portion immediately and update the order status — d) Ignore the partial fill
+**Answer: c.** Executing the filled portion and updating the order status ensures that only settled amounts are processed.
+
+**Q4 (short answer).** Explain how you would implement a mechanism to prevent double spending in a blockchain-based settlement system.
+**Answer:** Implementing a unique transaction identifier for each order and maintaining a record of executed transactions can help prevent double spending. Additionally, using smart contracts with checks to ensure that an order has not already been processed can enforce this rule.
+
+**Q5 (short answer).** Describe the role of end-of-day reconciliation in a blockchain-based core-banking system.
+**Answer:** End-of-day reconciliation ensures consistency between on-chain transactions and off-chain fund accounting by comparing the final balances and transaction records at the end of each day. This process helps identify any discrepancies or errors that need to be addressed.

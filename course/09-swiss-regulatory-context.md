@@ -721,57 +721,32 @@ This chapter deliberately builds **no contract**: its artifact is the consolidat
 
 ## Quiz
 
-**Q1 (multiple choice).** Under OR Art. 973d, what makes a token a ledger-based security (Registerwertrecht)?
-a) The issuer publishes a whitepaper naming it a security.
-b) Registration in a securities ledger that meets the statutory requirements, such that the right can only be transferred and asserted via the ledger.
-c) FINMA grants a per-token approval.
-d) The token implements the full CMTAT module set.
+**Q1 (multiple choice).** According to the DLT Act's ledger-based securities (OR Art. 973d ff.), which of the following is a key requirement for tokens representing securities?
+a) The token must be issued on a private blockchain only.
+b) The token issuer must comply with Swiss financial market supervision laws.
+c) The token must have a fixed supply and cannot be minted or burned.
+d) The token must be tradable on a centralized exchange.
+**Answer: b.** The DLT Act requires that tokens representing securities must comply with Swiss financial market supervision laws.
 
-**Answer:** b). It is the qualifying *ledger* plus registration that creates the security; neither FINMA approval per token nor any specific code standard is required (CMTAT is market practice, not a statutory condition).
+**Q2 (multiple choice).** FINMA's "Same Risks, Same Rules" principle implies that what should be the approach for regulating different types of tokens?
+a) All tokens should be treated equally without regard to their use case.
+b) Tokens with similar risks should be regulated similarly to traditional financial instruments.
+c) Only tokens used in initial coin offerings (ICOs) need regulatory oversight.
+d) Token regulation should focus solely on the technology used, not the underlying asset.
+**Answer: b.** FINMA's "Same Risks, Same Rules" principle implies that tokens with similar risks should be regulated similarly to traditional financial instruments.
 
-**Q2 (short answer).** Name the four requirements OR 973d para. 2 places on the securities ledger, and identify the one that is a property of the *network* rather than the contract.
+**Q3 (multiple choice).** Which of the following is a primary concern when implementing custody segregation and bankruptcy remoteness as per DEBA Art. 242a/b?
+a) Ensuring that token holders can access their funds at any time without restriction.
+b) Protecting the assets held by the custodian from the issuer's creditors in case of insolvency.
+c) Allowing the custodian to use the tokens for their own trading activities.
+d) Providing a mechanism for token issuers to unilaterally freeze or seize tokens.
+**Answer: b.** The primary concern is protecting the assets held by the custodian from the issuer's creditors in case of insolvency.
 
-**Answer:** (1) holder power of disposal by technical means; (2) integrity protected against unauthorised modification (joint management by several independent participants); (3) content of the rights and functioning of the ledger recorded in the ledger or linked accompanying data; (4) holders can view their entries and verify integrity without a third party. Requirement (2) — integrity via joint management — is a property of the chain/network you deploy to, not of the token contract.
+**Q4 (short answer).** How does KYC/AML regulation impact the design of a CMTAT deployment?
+**Answer:** KYC/AML regulation requires that the system includes mechanisms for verifying the identities of token holders and reporting suspicious transactions to authorities, ensuring compliance with AMLA and the Travel Rule.
 
-**Q3 (multiple choice).** A token gives holders a claim to a share of rental income from a Geneva property. Under FINMA's taxonomy it is:
-a) A payment token, because rent is paid in money.
-b) A utility token, because it grants access to the property's cash flows.
-c) An asset token, and therefore treated as a security.
-d) Unclassified until listed on a trading venue.
-
-**Answer:** c). A claim on an issuer/asset (income participation) is the defining feature of an asset token, which FINMA treats as a security; classification is functional and independent of listing.
-
-**Q4 (multiple choice).** What is distinctive about the DLT trading facility licence (FMIA Art. 73a ff.)?
-a) It exempts the operator from AMLA.
-b) It permits trading only between banks.
-c) It allows one entity to combine trading with central custody/settlement of DLT securities and to admit retail participants directly.
-d) It replaces the banking licence for crypto custodians.
-
-**Answer:** c). The DLT trading facility may integrate functions a traditional exchange must separate (trading vs CSD-style settlement/custody) and may onboard retail directly; AMLA still applies, and it does not substitute for a banking licence where deposits are taken.
-
-**Q5 (short answer).** Your bank custodies a tokenized bond for clients in one omnibus address. State the condition Art. 242a DEBA sets for those assets to be segregated from the bank's bankruptcy estate, and the software invariant plus evidence practice that satisfies it.
-
-**Answer:** The assets must be kept available for the clients at all times and, in the omnibus alternative, be allocated to a community with each client's share **clearly determined**. Engineering: continuously enforce and check `Σ(sub-ledger client balances) == balanceOf(omnibusAddress)` via a scheduled + event-triggered reconciliation job, persisting every result to an append-only, tamper-evident audit store so the determination of shares can be evidenced historically.
-
-**Q6 (multiple choice).** Why does a CMTAT token's forced-transfer capability *support* Swiss custody and securities law rather than violate it?
-a) Because the issuer may always reclaim tokens it sold.
-b) Because it implements statutory remedies (e.g. OR 973h cancellation/reissue after lost keys, court-ordered attachment, sanctions action), is restricted to an authorised role, is disclosed in the registration agreement, and is fully evented for audit.
-c) Because forced transfers are only possible while the contract is paused.
-d) Because FINMA executes the forced transfers itself.
-
-**Answer:** b). The power exists to execute legal processes; its legitimacy rests on legal basis + role gating + disclosure + audit trail. (a) is false — there is no general reclaim right; (c) is not a CMTAT constraint; (d) is false — the registrar/enforcer role executes, not FINMA.
-
-**Q7 (short answer).** A payment-ops colleague says: "Travel Rule is like MT103 originator fields, so we'll put the originator's name in the transaction calldata." Give the two corrections.
-
-**Answer:** First, Travel-Rule data is exchanged **off-chain** between the VASPs (bilateral messaging), never written on-chain — names/account data on a public ledger would be an unnecessary and irreversible personal-data disclosure; the adapter correlates the on-chain transfer with the off-chain message via a reference ID. Second, in Switzerland there is **no de-minimis threshold** — the information duty applies to VASP transfers of any amount, so no amount-based bypass may exist in the transfer-handling logic. (Bonus correctness: transfers involving unhosted wallets additionally require proven customer ownership of the wallet.)
-
-**Q8 (multiple choice).** Which statement about CMTAT's status is accurate?
-a) Swiss law requires all asset tokens to use CMTAT.
-b) CMTAT is FINMA's official implementation, maintained by the regulator.
-c) CMTAT is an open-source reference implementation published by CMTA, a Geneva industry association; it is the market-standard blueprint for OR 973d-compliant tokenized securities but is not legally mandated.
-d) CMTAT is only usable on permissioned bank-consortium chains.
-
-**Answer:** c). CMTA is a private industry association (banks, law firms, tech firms); CMTAT is its open-source standard. Nothing in statute mandates it, and it is chain-agnostic across EVM environments — its value is that the pattern is already understood by Swiss counsel, auditors, and supervisors.
+**Q5 (short answer).** What is the role of the whitelist in enforcing KYC/AML duties within a CMTAT deployment?
+**Answer:** The whitelist serves as an enforcement point by allowing only pre-approved users or entities to interact with the token system, thereby ensuring that all participants have undergone necessary KYC checks.
 
 ---
 

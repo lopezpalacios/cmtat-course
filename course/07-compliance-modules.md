@@ -556,27 +556,20 @@ contract ComplianceToken is PauseModule, EnforcementModule, WhitelistRuleEngine 
 
 ## Quiz
 
-1. What is the purpose of the PauseModule contract?
-   - [ ] To manage token balances
-   - [ ] To pause and unpause all token transfers globally
-   - [ ] To freeze specific addresses for regulatory actions
+**Q1 (multiple choice).** Which of the following best describes the purpose of the PauseModule in a CMTAT token contract?
+a) To enforce transfer rules — b) To pause all token transfers temporarily — c) To validate transaction data — d) To monitor compliance with regulatory standards
+**Answer: b.** The PauseModule is designed to temporarily halt all token transfers, allowing for maintenance or emergency situations.
 
-2. What is the purpose of the EnforcementModule contract?
-   - [ ] To manage token balances
-   - [ ] To pause and unpause all token transfers globally
-   - [ ] To freeze specific addresses for regulatory actions
+**Q2 (multiple choice).** When integrating the ValidationModule into a ComplianceToken contract, what is its primary function?
+a) To pause all token transfers — b) To enforce transfer rules — c) To validate transaction data against predefined criteria — d) To monitor compliance with regulatory standards
+**Answer: c.** The ValidationModule checks that each transaction complies with specific criteria before allowing the transfer to proceed.
 
-3. What is the purpose of the WhitelistRuleEngine contract?
-   - [ ] To manage token balances
-   - [ ] To pause and unpause all token transfers globally
-   - [ ] To validate transfers based on a whitelist rule engine
+**Q3 (multiple choice).** In the context of a Swiss core-banking system, why is it important to implement a Java Adapter for Compliance Monitoring?
+a) To integrate blockchain compliance checks into existing banking systems — b) To pause all token transfers temporarily — c) To validate transaction data against predefined criteria — d) To monitor compliance with regulatory standards
+**Answer: a.** The Java Adapter allows Swiss core-banking systems, which are typically built on Java or .NET frameworks, to interact seamlessly with blockchain-based compliance checks.
 
-4. What is the purpose of the ComplianceToken contract?
-   - [ ] To manage token balances
-   - [ ] To pause and unpause all token transfers globally
-   - [ ] To integrate different compliance modules into a single token contract
+**Q4 (short answer).** Explain how the EnforcementModule contributes to the overall security of a token contract.
+**Answer:** The EnforcementModule enforces strict rules and conditions for token transfers, ensuring that all transactions adhere to regulatory requirements. This helps prevent unauthorized or non-compliant activities, thereby enhancing the security and integrity of the token contract.
 
-5. What is the purpose of the ComplianceMonitor class?
-   - [ ] To manage token balances
-   - [ ] To monitor compliance actions in Java
-   - [ ] To validate transfers based on a whitelist rule engine
+**Q5 (short answer).** Describe how you would test the PauseModule in a ComplianceToken contract.
+**Answer:** To test the PauseModule, you would first deploy the token contract with the module integrated. Then, trigger the pause function to halt all transfers and verify that no transactions can be processed during this period. After confirming the pause functionality, lift the pause and ensure that transfers resume as expected.

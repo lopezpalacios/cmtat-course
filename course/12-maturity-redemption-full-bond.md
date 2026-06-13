@@ -1211,3 +1211,32 @@ contract BondToken {
     }
 
     function getISIN
+
+## Quiz
+
+**Q1 (multiple choice).** In the context of a tokenized bond, what is the primary purpose of maturity enforcement?
+a) To ensure that bonds can be traded on secondary markets.
+b) To guarantee that bondholders receive their principal back at the end of the bond's term.
+c) To facilitate the coupon payment process to bondholders.
+d) To allow for early redemption of bonds by bondholders.
+**Answer: b.** Maturity enforcement ensures that bondholders receive their principal back at the end of the bond's term.
+
+**Q2 (multiple choice).** When implementing a tokenized bond with CMTAT, which module is responsible for handling the burn process during redemption?
+a) `BondIssuance`
+b) `CouponPayment`
+c) `RedemptionBurn`
+d) `CreditEvent`
+**Answer: c.** The `RedemptionBurn` module is responsible for handling the burn process during redemption.
+
+**Q3 (multiple choice).** In a tokenized bond scenario, what security measure should be implemented to prevent unauthorized early redemption of bonds?
+a) Setting up a time lock on the `RedemptionBurn` module.
+b) Implementing role-based access control (RBAC) for the `CouponPayment` module.
+c) Enabling multi-signature transactions for the `BondIssuance` module.
+d) Utilizing a whitelist in the `CreditEvent` module.
+**Answer: a.** Setting up a time lock on the `RedemptionBurn` module prevents unauthorized early redemption of bonds.
+
+**Q4 (short answer).** Explain how maturity enforcement can be integrated into the `TokenizedBond` contract to ensure that bondholders receive their principal back at the end of the bond's term.
+**Answer:** Maturity enforcement can be integrated by setting a specific timestamp for the bond's maturity date. The contract should include logic that checks if the current time has reached or exceeded this maturity timestamp, and upon confirmation, triggers the redemption process to return the principal to the bondholders.
+
+**Q5 (short answer).** Describe the role of the `RedemptionBurn` module in the lifecycle of a tokenized bond.
+**Answer:** The `RedemptionBurn` module plays a crucial role by handling the burn process during the redemption phase. It ensures that when a bond reaches maturity or is redeemed, the corresponding tokens are burned to prevent further trading and ensure that the principal is returned to the bondholders.

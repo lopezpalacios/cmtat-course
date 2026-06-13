@@ -1098,48 +1098,25 @@ The complete bank-side adapter is in `java-adapters/EventLogParser.java`.
 
 ---
 
-## Chapter 03 Quiz
+## Quiz
 
-**Q1 (multiple choice).** Your reconciliation job calls `ledgerStatus()` every 30 seconds. What does this cost the bank in gas?
-a) 21,000 gas per call b) Gas proportional to state read c) Nothing — `view` functions execute via `eth_call`, off-transaction d) Nothing, but only on archive nodes
+**Q1 (multiple choice).** In Solidity, which of the following visibility modifiers is used for a function that should only be callable by other functions within the same contract?
+a) public — b) private — c) internal — d) external
+**Answer: c.** The `internal` modifier allows a function to be called from inside this contract or contracts deriving from it, but not from outside.
 
-**Answer: c.** `view`/`pure` functions invoked via `eth_call` run locally on a node without creating a transaction: no gas, no signature, no block inclusion. Gas costs apply only when a `view` function is called *inside* a state-changing transaction.
+**Q2 (multiple choice).** What is the primary purpose of using modifiers in Solidity?
+a) To define the data types of variables — b) To enforce certain conditions before executing a function — c) To manage event emissions — d) To handle transaction fees
+**Answer: b.** Modifiers are used to enforce certain conditions or policies that must be met before a function can execute.
 
-**Q2 (multiple choice).** Why can `recordBooking` NOT check for duplicates by reading its own past `BookingRecorded` events?
-a) Events are pruned after 128 blocks b) Reading events costs too much gas c) The EVM has no opcode for contracts to read logs — events are write-only from inside d) Only indexed parameters are readable by contracts
+**Q3 (multiple choice).** In the context of `EventDrivenLedger`, why is it important to use events?
+a) To store data persistently on the blockchain — b) To provide a mechanism for off-chain systems to react to changes in state — c) To limit gas consumption — d) To encrypt sensitive information
+**Answer: b.** Events are used to provide a feed of actions that can be monitored and reacted to by off-chain systems, such as core banking systems.
 
-**Answer: c.** Logs live in transaction receipts, outside the state a contract can access; no opcode exposes them to EVM execution. Anything a contract must check later (the dedup flag) must live in storage; events serve external consumers only.
+**Q4 (short answer).** Explain what a modifier does in Solidity with an example.
+**Answer:** A modifier in Solidity is a function-like code snippet that can be attached to other functions to enforce certain conditions. For example, a `onlyOwner` modifier ensures that only the contract owner can execute a particular function.
 
-**Q3 (short answer).** The Java adapter's filter uses topic0 computed from `"BookingRecorded(bytes32, address, uint256, uint8)"` and sees zero events, although bookings are confirmed on-chain. What is wrong, and what failure mode does it produce?
-
-**Answer:** The canonical signature must contain no spaces: `"BookingRecorded(bytes32,address,uint256,uint8)"`. The keccak256 of the wrong string yields a different topic0, so the node-side filter matches nothing — *silently*: no error, no exception, just an empty feed. Always derive topic0 with `EventEncoder.encode(event)` from the typed declaration instead of hand-typing the string.
-
-**Q4 (multiple choice).** Which parameter set is the better design for a dividend event consumed by the bank?
-a) `DividendPaid(uint256 indexed amount, address account, string isin)`
-b) `DividendPaid(bytes32 indexed paymentRef, address indexed account, uint256 amount)`
-c) `DividendPaid(string indexed isin, uint256 amount)`
-d) `DividendPaid(address account, uint256 amount)`
-
-**Answer: b.** It carries an idempotency/external reference, indexes the two identity fields the bank queries by (ref, account), and keeps the amount in data as smallest-unit uint256. (a) wastes a topic indexing an amount; (c) indexing a `string` stores only its keccak hash — the ISIN value would be unrecoverable from the topic — and there is no idempotency key; (d) has no reference at all, so the event cannot be reconciled or deduplicated.
-
-**Q5 (short answer).** The adapter retries a timed-out `recordBooking` transaction that had actually succeeded. What happens on-chain, and how must the adapter classify the result?
-
-**Answer:** The retry reverts with `LedgerDuplicateRef(externalRef)` because `processed[externalRef]` is already `true` — no state changes, no second event, the first booking stands. The adapter must decode the typed error and classify it as *success-by-idempotency*: the booking exists, stop retrying, no alert. (Contrast `LedgerNotOperator`, which signals a key/role misconfiguration and should page operations.)
-
-**Q6 (multiple choice).** In the modifier `onlyOperator() { if (!isOperator[msg.sender]) revert LedgerNotOperator(msg.sender); _; }`, what is the Java-world equivalent of `_;`?
-a) `super.invoke()` in an overridden method b) `joinPoint.proceed()` in an `@Around` AOP advice c) `finally` block execution d) `this.run()` in a `Runnable`
-
-**Answer: b.** A modifier is an interceptor wrapped around the function; `_;` is the splice point where the guarded body executes — exactly `proceed()` in Spring AOP. Code placed after `_;` would run post-execution, like an `@AfterReturning` advice.
-
-**Q7 (short answer).** Name the two different dedup keys used in this chapter's design — one on-chain, one off-chain — and state why the off-chain side cannot simply rely on the on-chain one.
-
-**Answer:** On-chain: `externalRef` (the contract reverts on a duplicate, guaranteeing at most one `BookingRecorded` per ref). Off-chain: `txHash:logIndex`, the globally unique identity of each log record, used as the upsert key in the bank's store. The adapter needs its own key because *it* can observe the same (perfectly valid, emitted-once) log multiple times — during replay/backfill, after restarts, or across overlapping filter windows — and must upsert idempotently regardless of how often it reads the feed.
-
-**Q8 (multiple choice).** Why does `replayFrom` stop at `head − 12` instead of the latest block?
-a) `eth_getLogs` cannot query the latest block b) The newest blocks may be replaced in a chain reorg, taking their logs with them — entries there are provisional, like pre-settlement payment messages c) Nodes only index logs after 12 blocks d) web3j caches block numbers for 12 blocks
-
-**Answer: b.** Logs in very recent blocks can disappear if the network reorganizes; booking them risks phantom entries the bank would have to reverse. Treating `head − CONFIRMATION_DEPTH` as the bookable frontier mirrors waiting for settlement finality before posting. Depth is a per-chain risk parameter (Chapter 08; legal finality in Chapter 09).
-
+**Q5 (short answer).** How would you design an event in Solidity to log a transaction for reconciliation purposes?
+**Answer:** You would define an event with relevant fields such as transaction ID, amount, and timestamp. For example: `event TransactionLogged(uint256 indexed txId, uint256 amount, uint256 timestamp);`
 
 ```checker
 {"id": "ch03-l4-s7", "type": "regex", "pattern": "public\\s+static\\s+final\\s+BigInteger\\s+CONFIRMATION_DEPTH\\s+=\\s+BigInteger\\.valueOf\\(12\\);", "flags": "m", "target": "java", "error_hint": "Your code should match the solution for this step."}

@@ -966,35 +966,20 @@ contract ShareToken {
 
 ## Quiz
 
-1. What is the purpose of taking snapshots in a tokenized security contract?
-   - A) To record the state of token holdings at a specific point in time.
-   - B) To allow token holders to transfer their tokens.
-   - C) To mint new tokens.
+**Q1 (multiple choice).** Which of the following is a key advantage of using snapshots in dividend distribution for a blockchain-based financial system?
+a) Reduces transaction fees — b) Increases transaction speed — c) Ensures accurate record dates — d) Simplifies smart contract deployment
+**Answer: c.** Snapshots ensure that dividends are distributed based on the correct number of tokens held by each shareholder at the record date.
 
-2. How is the withholding tax for dividends calculated in this contract?
-   - A) 35% of the dividend amount.
-   - B) 20% of the dividend amount.
-   - C) No withholding tax is applied.
+**Q2 (multiple choice).** In the context of Solidity and CMTAT, how is the withholding tax for dividends typically handled?
+a) By adjusting the dividend amount before distribution — b) Through a separate transaction after distribution — c) Automatically deducted by the blockchain network — d) Exempted from tax in all cases
+**Answer: a.** The withholding tax for dividends is typically handled by adjusting the dividend amount before it is distributed to shareholders.
 
-3. What function is used to export voting power to off-chain systems?
-   - A) `takeSnapshot`
-   - B) `payDividend`
-   - C) `getVotingPowerAtSnapshot`
+**Q3 (multiple choice).** When exporting voting power to off-chain GA systems, what is the primary purpose of doing so?
+a) To increase on-chain transaction speed — b) To allow for more complex voting mechanisms — c) To comply with regulatory requirements — d) To reduce smart contract complexity
+**Answer: c.** The primary purpose of exporting voting power to off-chain GA systems is to comply with regulatory requirements.
 
-4. Which event is emitted when a snapshot is taken?
-   - A) `DividendPaid`
-   - B) `SnapshotTaken`
-   - C) `Transfer`
+**Q4 (short answer).** Explain how scheduled snapshots can be beneficial in the context of dividend distribution.
+**Answer:** Scheduled snapshots ensure that dividends are distributed based on a consistent and accurate count of tokens held by shareholders at the record date, which helps prevent disputes and ensures fair distribution.
 
-5. What is the role of the `registrar` address in this contract?
-   - A) It can take snapshots and distribute dividends.
-   - B) It can only mint new tokens.
-   - C) It can transfer tokens between holders.
-
-**Answers:**
-
-1. A) To record the state of token holdings at a specific point in time.
-2. A) 35% of the dividend amount.
-3. C) `getVotingPowerAtSnapshot`
-4. B) `SnapshotTaken`
-5. A) It can take snapshots and distribute dividends.
+**Q5 (short answer).** Describe one potential challenge when implementing integer math for dividend computation with withholding tax in Solidity.
+**Answer:** One potential challenge is ensuring precision and accuracy in calculations to avoid rounding errors that could lead to incorrect dividend amounts or tax deductions.

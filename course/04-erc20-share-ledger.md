@@ -1123,34 +1123,32 @@ The full bank-side adapter is in `java-adapters/Erc20Operations.java`: contract 
 
 ## Quiz
 
-**Q1 (multiple choice).** In the securities-register reading of ERC-20, the `_balances` mapping corresponds to:
-a) the general ledger's P&L accounts — b) the position-keeping table keyed by holder — c) the payment-message archive — d) the standing-order table
-**Answer: b.** Positions per holder. The event log is the journal/archive (c-ish), and `_allowances` is the standing-order/PoA table (d).
+**Q1 (multiple choice).** In the context of building an ERC-20 token for a securities register, which of the following best describes the purpose of the `approve`/`transferFrom` functions?
+a) To manage the total supply of tokens.
+b) To delegate authority to transfer tokens on behalf of another account.
+c) To record the transaction history of each token.
+d) To mint new tokens into existence.
+**Answer: b.** The `approve`/`transferFrom` functions allow one account to grant another account permission to transfer a specified amount of tokens, which is analogous to granting power of attorney in traditional banking systems.
 
-**Q2 (multiple choice).** A `Transfer` event where `from == address(0)` signals:
-a) a failed transfer — b) a burn — c) a mint/issuance — d) a transfer initiated by the registrar
-**Answer: c.** Zero-address `from` marks issuance; zero-address `to` marks burn/cancellation. The standard mandates these signals so explorers and custodians track supply changes from the same event stream.
+**Q2 (multiple choice).** When implementing an ERC-20 token for a securities register, why is it important to emit the `Transfer` event during a token transfer?
+a) To update the balances mapping.
+b) To record the transaction history and maintain audit trails.
+c) To increase the total supply of tokens.
+d) To decrease the total supply of tokens.
+**Answer: b.** Emitting the `Transfer` event is crucial for recording each transaction, which helps in maintaining an immutable ledger that can be audited for compliance and transparency.
 
-**Q3 (short answer).** State the core register invariant BankERC20 maintains, and name the one place in the code where supply can grow.
-**Answer:** `_totalSupply == sum of all _balances entries` at all times. Supply grows only in `_update` when `from == address(0)` — the single checked `_totalSupply += value`, which also serves as the global overflow gate.
+**Q3 (multiple choice).** In the context of a securities register using ERC-20 tokens, what does the `decimals` function represent?
+a) The number of tokens minted initially.
+b) The smallest unit of the token that can be transferred.
+c) The total supply of tokens in circulation.
+d) The maximum amount of tokens an account can hold.
+**Answer: b.** The `decimals` function specifies the smallest unit of the token, which is essential for monetary representation and ensuring precision in financial transactions.
 
-**Q4 (multiple choice).** Why are the `unchecked` blocks in `_update` safe?
-a) Solidity 0.8 makes all arithmetic safe anyway — b) each is preceded by a check or bounded by the totalSupply invariant — c) gas costs make overflow economically impossible — d) they are not safe; it is a known bug
-**Answer: b.** The debit follows an explicit `fromBalance >= value` check; the credit and the burn-side decrement are bounded because no balance can exceed `_totalSupply`, whose only increase is checked. (a) is wrong precisely because `unchecked` opts *out* of 0.8's checks.
+**Q4 (short answer).** Explain how the `mint` and `burn` functions contribute to the lifecycle of a security in an ERC-20 token implementation.
+**Answer:** The `mint` function allows for the creation of new tokens, representing the issuance of securities. Conversely, the `burn` function destroys tokens, symbolizing the cancellation or redemption of securities. Together, these functions manage the supply of securities, ensuring that they can be issued and retired as needed.
 
-**Q5 (short answer).** Describe the approve front-running caveat and the operational mitigation a bank adapter should use.
-**Answer:** Changing an allowance from non-zero X to non-zero Y is racy: the spender can observe the pending transaction and spend the old X before it lands, then spend Y after — up to X+Y total. Mitigation: two-step confirmed workflow — `approve(spender, 0)`, wait for on-chain confirmation, then `approve(spender, Y)` (or use increase/decrease or permit-style flows in later chapters).
-
-**Q6 (multiple choice).** For a tokenized registered share (Namenaktie), the recommended `decimals` value is:
-a) 18, the EVM convention — b) 2, like CHF Rappen — c) 0, so fractional shares are unrepresentable — d) 6, like major stablecoins
-**Answer: c.** One base unit = one indivisible share; the type system then enforces the legal indivisibility. High decimals (18/6) belong to cash legs where sub-unit precision is needed before final rounding.
-
-**Q7 (short answer).** A `Transfer` log has `topics = [t0, t1, t2]` and a `data` field. Which Java/web3j steps extract `from`, `to`, and `value`?
-**Answer:** `t0` is the event-signature hash (filter key, no data). `from` and `to` are indexed: take `t1`/`t2` and strip to the last 40 hex chars (addresses are right-aligned in 32-byte topics). `value` is non-indexed: ABI-decode the `data` field with `FunctionReturnDecoder.decode(data, nonIndexedParams)` yielding a `Uint256` → `BigInteger` (never `long`).
-
-**Q8 (multiple choice).** The `operationId` parameter on `mint`/`burn` exists primarily to:
-a) order operations within a block — b) let the bank match on-chain events 1:1 to its instructions and retry idempotently — c) prove the registrar's identity — d) compute the gas price
-**Answer: b.** It is the end-to-end reference: before retrying a mint, the adapter topic-filters `Issued` for that `operationId`; if present, the operation already executed — the chain doubles as the dedupe store. Registrar identity comes from the transaction signature (`msg.sender`), not the ID.
+**Q5 (short answer).** How does the `balances` mapping in an ERC-20 token correspond to traditional banking practices?
+**Answer:** The `balances` mapping acts as a position-keeping table, similar to how bank accounts track balances. It records the number of tokens held by each account, allowing for accurate accounting and transaction processing.
 
 ---
 
