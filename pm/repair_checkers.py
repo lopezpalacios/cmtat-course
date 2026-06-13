@@ -56,16 +56,37 @@ Corrected JSON:"""
 _TRIVIAL = re.compile(r"^\s*(//|/\*|\*|\}|\{|pragma|//\s*SPDX|$)")
 
 
+def _strip_comment(line):
+    """Remove inline // and /* */ comments so checkers target code, not prose."""
+    line = re.sub(r"/\*.*?\*/", "", line)
+    line = re.sub(r"//.*$", "", line)
+    return line.strip()
+
+
 def derive_pattern(sol):
-    """Deterministic fallback: pick the longest distinctive single line that
-    occurs exactly once, turn it into a whitespace-tolerant regex."""
-    lines = [l.strip() for l in sol.splitlines()]
-    cand = [l for l in lines if len(l) > 12 and not _TRIVIAL.match(l)
-            and lines.count(l) == 1]
+    """Deterministic fallback: pick the longest distinctive CODE line (comments
+    stripped) that occurs exactly once, as a whitespace-tolerant regex."""
+    code = [_strip_comment(l) for l in sol.splitlines()]
+    cand = [c for c in code if len(c) > 12 and not _TRIVIAL.match(c)
+            and code.count(c) == 1]
     if not cand:
         return None
     line = max(cand, key=len)
     # escape each whitespace-delimited token, rejoin tolerant of whitespace
+    return r"\s+".join(re.escape(tok) for tok in line.split())
+
+
+def derive_pattern_diff(sol, starter):
+    """Pick the longest distinctive CODE line present in the solution but NOT in
+    the starter — guarantees the checker fails on the starter and passes on the
+    solution (no freebie)."""
+    sset = {_strip_comment(l) for l in (starter or "").splitlines()}
+    code = [_strip_comment(l) for l in sol.splitlines()]
+    cand = [c for c in code if len(c) > 12 and not _TRIVIAL.match(c)
+            and code.count(c) == 1 and c not in sset]
+    if not cand:
+        return None
+    line = max(cand, key=len)
     return r"\s+".join(re.escape(tok) for tok in line.split())
 
 

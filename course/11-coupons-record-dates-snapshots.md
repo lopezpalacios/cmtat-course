@@ -919,7 +919,7 @@ contract BondToken {
 **Validation rule:** Modify the `computeCoupon` function to emit `CouponDeclared` and `CouponPaid` events.
 
 ```checker
-{"id": "ch11-l3-s2", "type": "regex", "pattern": "function\\s+payCoupon\\(", "flags": "", "target": "solidity", "error_hint": "Modify the `computeCoupon` function to emit `CouponDeclared` and `CouponPaid` events."}
+{"id": "ch11-l3-s2", "type": "regex", "pattern": "emit\\s+CouponDeclared\\(holder,\\s+snapshotIndex,\\s+couponAmount\\);", "flags": "", "target": "solidity", "error_hint": "Modify the `computeCoupon` function to emit `CouponDeclared` and `CouponPaid` events."}
 ```
 
 ## Lesson 4 — Bank-Side Coupon Payment Batch Job
@@ -1014,7 +1014,7 @@ public class CouponPaymentJob {
 **Validation rule:** Define a `CouponPaymentJob` class with methods to handle batch coupon payments.
 
 ```checker
-{"id": "ch11-l4-s1", "type": "regex", "pattern": "public\\s+class\\s+CouponPaymentJob\\s*{", "flags": "", "target": "java", "error_hint": "Define a `CouponPaymentJob` class with methods to handle batch coupon payments."}
+{"id": "ch11-l4-s1", "type": "regex", "pattern": "public\\s+TransactionReceipt\\s+payCoupons\\(List<Address>\\s+holders,\\s+List<Uint256>\\s+snapshotIndices\\)\\s+throws\\s+Exception\\s+\\{", "flags": "", "target": "java", "error_hint": "Define a `CouponPaymentJob` class with methods to handle batch coupon payments."}
 ```
 
 ### Step 4.2 — Implement Batch Coupon Payment Logic
@@ -1115,7 +1115,7 @@ public class CouponPaymentJob {
 **Validation rule:** Implement logic to process multiple coupon payments in a batch.
 
 ```checker
-{"id": "ch11-l4-s2", "type": "regex", "pattern": "public\\s+TransactionReceipt\\s+payCoupons\\(List<Address>\\s+holders,\\s+List<Uint256>\\s+snapshotIndices\\)\\s+throws\\s+Exception\\s*{", "flags": "m", "target": "java", "error_hint": "Implement logic to process multiple coupon payments in a batch."}
+{"id": "ch11-l4-s2", "type": "regex", "pattern": "web3j\\.ethSendRawTransaction\\(transaction\\.getRawTransaction\\(\\)\\)\\.send\\(\\)\\.getTransactionReceipt\\(\\)\\.get\\(\\);", "flags": "m", "target": "java", "error_hint": "Implement logic to process multiple coupon payments in a batch."}
 ```
 
 ## Quiz

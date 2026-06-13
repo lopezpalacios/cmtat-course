@@ -49,7 +49,7 @@ contract BondToken {
 **Validation rule:** The `DebtInfo` struct should have the correct fields with the specified types.
 
 ```checker
-{"id": "ch10-l1-s1", "type": "regex", "pattern": "uint256\\s+interestRate;\\s+//\\s+in\\s+basis\\s+points", "flags": "m", "target": "solidity", "error_hint": "Ensure the DebtInfo struct has all required fields with correct types."}
+{"id": "ch10-l1-s1", "type": "regex", "pattern": "uint256\\s+couponFrequency;", "flags": "m", "target": "solidity", "error_hint": "Ensure the DebtInfo struct has all required fields with correct types."}
 ```
 
 ### Step 1.2 — Define Day-Count Conventions

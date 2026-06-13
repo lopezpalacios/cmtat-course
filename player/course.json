@@ -53,7 +53,7 @@
        "checker": {
         "id": "ch01-l1-s3",
         "type": "regex",
-        "pattern": "function\\s+isContractAccount\\(address\\s+account\\)\\s+external\\s+view\\s+returns\\s+\\(bool\\)\\s+\\{",
+        "pattern": "return\\s+account\\.code\\.length\\s+>\\s+0;",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -69,7 +69,7 @@
        "checker": {
         "id": "ch01-l1-s4",
         "type": "regex",
-        "pattern": "function\\s+nativeBalanceOf\\(address\\s+account\\)\\s+external\\s+view\\s+returns\\s+\\(uint256\\)\\s+\\{",
+        "pattern": "return\\s+account\\.balance;",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -148,7 +148,7 @@
        "checker": {
         "id": "ch01-l2-s4",
         "type": "regex",
-        "pattern": "lastPostedAt\\s+=\\s+block\\.timestamp;\\s+//\\s+proposer\\-set;\\s+second\\-level\\s+precision\\s+only",
+        "pattern": "uint256\\s+public\\s+lastPostedBlock;",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -179,7 +179,7 @@
        "checker": {
         "id": "ch01-l3-s1",
         "type": "regex",
-        "pattern": "string\\s+private\\s+note;\\s+//\\s+storage:\\s+the\\s+\"database\\s+table\"\\s+\u2014\\s+persists\\s+across\\s+txs",
+        "pattern": "function\\s+stash\\(string\\s+calldata\\s+input\\)\\s+external\\s+\\{",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -258,7 +258,7 @@
        "checker": {
         "id": "ch01-l4-s2",
         "type": "regex",
-        "pattern": "string\\s+private\\s+greeting;\\s+//\\s+hidden\\s+from\\s+contracts,\\s+NOT\\s+from\\s+observers",
+        "pattern": "address\\s+public\\s+immutable\\s+deployer;",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -290,7 +290,7 @@
        "checker": {
         "id": "ch01-l4-s4",
         "type": "regex",
-        "pattern": "greeting\\s+=\\s+initialGreeting;\\s+//\\s+constructor\\s+args\\s+ride\\s+along\\s+with\\s+the\\s+initcode",
+        "pattern": "constructor\\(string\\s+memory\\s+initialGreeting\\)\\s+\\{",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -306,7 +306,7 @@
        "checker": {
         "id": "ch01-l4-s5",
         "type": "regex",
-        "pattern": "function\\s+recordEntry\\(string\\s+calldata\\s+note\\)\\s+external\\s+returns\\s+\\(uint256\\s+entryId\\)\\s+\\{",
+        "pattern": "emit\\s+EntryRecorded\\(entryId,\\s+msg\\.sender,\\s+note,\\s+block\\.timestamp\\);",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -322,7 +322,7 @@
        "checker": {
         "id": "ch01-l4-s6",
         "type": "regex",
-        "pattern": "emit\\s+GreetingChanged\\(old,\\s+newGreeting,\\s+msg\\.sender\\);\\s+//\\s+audit:\\s+before/after/who",
+        "pattern": "function\\s+isContractAccount\\(address\\s+account\\)\\s+external\\s+view\\s+returns\\s+\\(bool\\)\\s+\\{",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -600,7 +600,7 @@
        "checker": {
         "id": "ch03-l1-s1",
         "type": "regex",
-        "pattern": "address\\s+public\\s+admin;\\s+//\\s+public\\s+=>\\s+compiler\\s+generates\\s+admin\\(\\)\\s+view\\s+getter",
+        "pattern": "uint256\\s+public\\s+bookingCount;",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -679,7 +679,7 @@
        "checker": {
         "id": "ch03-l2-s1",
         "type": "regex",
-        "pattern": "admin\\s+=\\s+msg\\.sender;\\s+//\\s+deployer\\s+=\\s+bootstrap\\s+principal\\s+\\(key\\s+ceremony\\s+artifact\\)",
+        "pattern": "isOperator\\[msg\\.sender\\]\\s+=\\s+true;",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -727,7 +727,7 @@
        "checker": {
         "id": "ch03-l2-s4",
         "type": "regex",
-        "pattern": "if\\s+\\(account\\s+==\\s+address\\(0\\)\\)\\s+revert\\s+LedgerZeroAccount\\(\\);\\s+//\\s+null\\-principal\\s+guard",
+        "pattern": "function\\s+revokeOperator\\(address\\s+account\\)\\s+external\\s+onlyAdmin\\s+\\{",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -758,7 +758,7 @@
        "checker": {
         "id": "ch03-l3-s1",
         "type": "regex",
-        "pattern": "bytes32\\s+indexed\\s+externalRef,\\s+//\\s+idempotency\\s+key\\s+\u2014\\s+reconciliation\\s+lookups\\s+by\\s+topic",
+        "pattern": "bytes32\\s+indexed\\s+externalRef,",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -774,7 +774,7 @@
        "checker": {
         "id": "ch03-l3-s2",
         "type": "regex",
-        "pattern": "function\\s+_isValidEntryType\\(uint8\\s+entryType\\)\\s+internal\\s+pure\\s+returns\\s+\\(bool\\)\\s+\\{",
+        "pattern": "return\\s+entryType\\s+==\\s+ENTRY_DEBIT\\s+\\|\\|\\s+entryType\\s+==\\s+ENTRY_CREDIT;",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -790,7 +790,7 @@
        "checker": {
         "id": "ch03-l3-s3",
         "type": "regex",
-        "pattern": "emit\\s+OperatorGranted\\(account,\\s+msg\\.sender\\);\\s+//\\s+acting\\s+principal\\s+in\\s+the\\s+record",
+        "pattern": "event\\s+OperatorGranted\\(address\\s+indexed\\s+account,\\s+address\\s+indexed\\s+grantedBy\\);",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -806,7 +806,7 @@
        "checker": {
         "id": "ch03-l3-s4",
         "type": "regex",
-        "pattern": "emit\\s+OperatorGranted\\(msg\\.sender,\\s+msg\\.sender\\);\\s+//\\s+genesis\\s+audit\\s+record:\\s+replay\\-from\\-0\\s+completeness",
+        "pattern": "emit\\s+OperatorGranted\\(msg\\.sender,\\s+msg\\.sender\\);",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -869,7 +869,7 @@
        "checker": {
         "id": "ch03-l4-s2",
         "type": "regex",
-        "pattern": "if\\s+\\(processed\\[externalRef\\]\\)\\s+revert\\s+LedgerDuplicateRef\\(externalRef\\);\\s+//\\s+idempotency\\s+gate",
+        "pattern": "if\\s+\\(!_isValidEntryType\\(entryType\\)\\)\\s+revert\\s+LedgerInvalidEntryType\\(entryType\\);",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -885,7 +885,7 @@
        "checker": {
         "id": "ch03-l4-s3",
         "type": "regex",
-        "pattern": "bookingCount\\s+\\+=\\s+1;\\s+//\\s+counter\\s+can't\\s+overflow\\s+uint256\\s+in\\s+any\\s+realistic\\s+timeline",
+        "pattern": "emit\\s+BookingRecorded\\(externalRef,\\s+account,\\s+amount,\\s+entryType\\);",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -917,7 +917,7 @@
        "checker": {
         "id": "ch03-l4-s5",
         "type": "regex",
-        "pattern": "private\\s+List<BookingEntry>\\s+fetchRange\\(BigInteger\\s+fromBlock,\\s+BigInteger\\s+toBlock\\)\\s+throws\\s+IOException\\s+\\{",
+        "pattern": "filter\\.addSingleTopic\\(BOOKING_RECORDED_TOPIC\\);",
         "flags": "m",
         "target": "java",
         "error_hint": "Your code should match the solution for this step."
@@ -933,7 +933,7 @@
        "checker": {
         "id": "ch03-l4-s6",
         "type": "regex",
-        "pattern": "int\\s+entryType\\s+=\\s+\\(\\(Uint8\\)\\s+data\\.get\\(1\\)\\)\\.getValue\\(\\)\\.intValueExact\\(\\);\\s+//\\s+throws\\s+if\\s+out\\s+of\\s+range",
+        "pattern": "int\\s+entryType\\s+=\\s+\\(\\(Uint8\\)\\s+data\\.get\\(1\\)\\)\\.getValue\\(\\)\\.intValueExact\\(\\);",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Your code should match the solution for this step."
@@ -949,7 +949,7 @@
        "checker": {
         "id": "ch03-l4-s7",
         "type": "regex",
-        "pattern": "public\\s+List<BookingEntry>\\s+replayFrom\\(BigInteger\\s+fromBlock\\)\\s+throws\\s+IOException\\s+\\{",
+        "pattern": "public\\s+static\\s+final\\s+BigInteger\\s+CONFIRMATION_DEPTH\\s+=\\s+BigInteger\\.valueOf\\(12\\);",
         "flags": "m",
         "target": "java",
         "error_hint": "Your code should match the solution for this step."
@@ -1642,7 +1642,7 @@
        "checker": {
         "id": "ch08-l5-s1",
         "type": "regex",
-        "pattern": "public\\s+void\\s+reconcileTransactions\\(Web3j\\s+web3j,\\s+List<String>\\s+transactionHashes\\)\\s+throws\\s+Exception\\s+\\{",
+        "pattern": "EthGetTransactionReceipt\\s+receipt\\s+=\\s+web3j\\.ethGetTransactionReceipt\\(hash\\)\\.send\\(\\);",
         "flags": "m",
         "target": "java",
         "error_hint": "Ensure transaction receipts are correctly retrieved and processed."
@@ -1943,7 +1943,7 @@
        "checker": {
         "id": "ch10-l1-s1",
         "type": "regex",
-        "pattern": "uint256\\s+interestRate;\\s+//\\s+in\\s+basis\\s+points",
+        "pattern": "uint256\\s+couponFrequency;",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Ensure the DebtInfo struct has all required fields with correct types."
@@ -2193,7 +2193,7 @@
        "checker": {
         "id": "ch11-l3-s2",
         "type": "regex",
-        "pattern": "function\\s+payCoupon\\(",
+        "pattern": "emit\\s+CouponDeclared\\(holder,\\s+snapshotIndex,\\s+couponAmount\\);",
         "flags": "",
         "target": "solidity",
         "error_hint": "Modify the `computeCoupon` function to emit `CouponDeclared` and `CouponPaid` events."
@@ -2215,7 +2215,7 @@
        "checker": {
         "id": "ch11-l4-s1",
         "type": "regex",
-        "pattern": "public\\s+class\\s+CouponPaymentJob\\s*{",
+        "pattern": "public\\s+TransactionReceipt\\s+payCoupons\\(List<Address>\\s+holders,\\s+List<Uint256>\\s+snapshotIndices\\)\\s+throws\\s+Exception\\s+\\{",
         "flags": "",
         "target": "java",
         "error_hint": "Define a `CouponPaymentJob` class with methods to handle batch coupon payments."
@@ -2231,7 +2231,7 @@
        "checker": {
         "id": "ch11-l4-s2",
         "type": "regex",
-        "pattern": "public\\s+TransactionReceipt\\s+payCoupons\\(List<Address>\\s+holders,\\s+List<Uint256>\\s+snapshotIndices\\)\\s+throws\\s+Exception\\s*{",
+        "pattern": "web3j\\.ethSendRawTransaction\\(transaction\\.getRawTransaction\\(\\)\\)\\.send\\(\\)\\.getTransactionReceipt\\(\\)\\.get\\(\\);",
         "flags": "m",
         "target": "java",
         "error_hint": "Implement logic to process multiple coupon payments in a batch."
@@ -2275,7 +2275,7 @@
        "checker": {
         "id": "ch12-l1-s2",
         "type": "regex",
-        "pattern": "function\\s+payCoupon\\(address\\s+holder,\\s+uint256\\s+snapshotIndex\\)\\s*public\\s*{",
+        "pattern": "require\\(state\\s+==\\s+BondState\\.Active\\s+\\&\\&\\s+block\\.timestamp\\s+>=\\s+bondMetadata\\.maturityDate,\\s+\"Bond\\s+must\\s+be\\s+active\\s+and\\s+past\\s+maturity\\s+date\\s+to\\s+mature\"\\);",
         "flags": "",
         "target": "solidity",
         "error_hint": "Define the state transition functions `activateBond`, `matureBond`, `redeemBond`, and `defaultBond`."
@@ -2710,7 +2710,7 @@
        "checker": {
         "id": "ch15-l1-s1",
         "type": "regex",
-        "pattern": "function\\s+takeSnapshot\\(\\)\\sexternal\\s*{",
+        "pattern": "require\\(msg\\.sender\\s+==\\s+registrar,\\s+\"Only\\s+the\\s+registrar\\s+can\\s+perform\\s+a\\s+stock\\s+split\"\\);",
         "flags": "",
         "target": "solidity",
         "error_hint": "Implement the `rebaseStockSplit` function correctly."
@@ -2732,7 +2732,7 @@
        "checker": {
         "id": "ch15-l2-s1",
         "type": "regex",
-        "pattern": "struct\\s+Snapshot\\s*{[^}]*}",
+        "pattern": "require\\(msg\\.sender\\s+==\\s+registrar,\\s+\"Only\\s+the\\s+registrar\\s+can\\s+set\\s+rights\\s+issue\\s+parameters\"\\);",
         "flags": "",
         "target": "solidity",
         "error_hint": "Declare `rightsIssueNewShares` and `rightsIssuePricePerShare` variables."
@@ -2754,7 +2754,7 @@
        "checker": {
         "id": "ch15-l3-s1",
         "type": "regex",
-        "pattern": "function\\s+takeSnapshot\\(",
+        "pattern": "require\\(msg\\.sender\\s+==\\s+registrar,\\s+\"Only\\s+the\\s+registrar\\s+can\\s+burn\\s+shares\"\\);",
         "flags": "",
         "target": "solidity",
         "error_hint": "Implement the `burn` function correctly."
@@ -2776,7 +2776,7 @@
        "checker": {
         "id": "ch15-l4-s1",
         "type": "regex",
-        "pattern": "function\\s+takeSnapshot\\(\\)\\s+external\\s*{",
+        "pattern": "require\\(msg\\.sender\\s+==\\s+registrar,\\s+\"Only\\s+the\\s+registrar\\s+can\\s+perform\\s+a\\s+forced\\s+transfer\"\\);",
         "flags": "",
         "target": "solidity",
         "error_hint": "Implement the `forceTransfer` function correctly."
@@ -3031,7 +3031,7 @@
        "checker": {
         "id": "ch17-l1-s2",
         "type": "regex",
-        "pattern": "require\\(block\\.timestamp\\s+\\-\\s+lastNAVUpdateTimestamp\\s+<\\s+3600,\\s+\"NAV\\s+is\\s+too\\s+old\"\\);\\s+//\\s+Staleness\\s+guard",
+        "pattern": "enum\\s+OrderState\\s+\\{",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Define the `OrderState` enum with all required states."
@@ -3145,7 +3145,7 @@
        "checker": {
         "id": "ch17-l4-s2",
         "type": "regex",
-        "pattern": "//\\s+Reconciliation\\s+logic\\s+here",
+        "pattern": "function\\s+getNAV\\(\\)\\s+external\\s+view\\s+returns\\s+\\(uint256\\);",
         "flags": "m",
         "target": "solidity",
         "error_hint": "Implement reconciliation logic in the `dailyCutOff` function."

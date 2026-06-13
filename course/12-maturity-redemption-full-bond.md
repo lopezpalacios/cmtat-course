@@ -416,7 +416,7 @@ contract BondToken {
 **Validation rule:** The functions `activateBond`, `matureBond`, `redeemBond`, and `defaultBond` should be defined.
 
 ```checker
-{"id": "ch12-l1-s2", "type": "regex", "pattern": "function\\s+payCoupon\\(address\\s+holder,\\s+uint256\\s+snapshotIndex\\)\\s*public\\s*{", "flags": "", "target": "solidity", "error_hint": "Define the state transition functions `activateBond`, `matureBond`, `redeemBond`, and `defaultBond`."}
+{"id": "ch12-l1-s2", "type": "regex", "pattern": "require\\(state\\s+==\\s+BondState\\.Active\\s+\\&\\&\\s+block\\.timestamp\\s+>=\\s+bondMetadata\\.maturityDate,\\s+\"Bond\\s+must\\s+be\\s+active\\s+and\\s+past\\s+maturity\\s+date\\s+to\\s+mature\"\\);", "flags": "", "target": "solidity", "error_hint": "Define the state transition functions `activateBond`, `matureBond`, `redeemBond`, and `defaultBond`."}
 ```
 
 ## Lesson 2 — Maturity Enforcement

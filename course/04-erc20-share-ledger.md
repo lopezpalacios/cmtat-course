@@ -85,7 +85,7 @@ interface IBankERC20 {
 
 
 ```checker
-{"id": "ch04-l1-s3", "type": "regex", "pattern": "function\\s+decimals\\(\\)\\s+external\\s+view\\s+returns\\s+\\(uint8\\);\\s+//\\s+precision\\s+indicator,\\s+fits\\s+in\\s+1\\s+byte", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l1-s3", "type": "regex", "pattern": "function\\s+allowance\\(address\\s+owner,\\s+address\\s+spender\\)\\s+external\\s+view\\s+returns\\s+\\(uint256\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 1.4 — Declare the state-changing booking instructions
 **Instruction:** Add the three mutating functions to the interface: `transfer(address to, uint256 value)`, `approve(address spender, uint256 value)`, `transferFrom(address from, address to, uint256 value)` — each returning `bool`.
@@ -179,7 +179,7 @@ A transfer is a two-legged booking: debit the sender, credit the receiver, same 
 
 
 ```checker
-{"id": "ch04-l1-s5", "type": "regex", "pattern": "function\\s+balanceOf\\(address\\s+account\\)\\s+public\\s+view\\s+returns\\s+\\(uint256\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l1-s5", "type": "regex", "pattern": "mapping\\(address\\s+=>\\s+uint256\\)\\s+private\\s+_balances;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 2.1 — Declare the transfer errors
 **Instruction:** Inside the contract, declare three custom errors: `BankERC20InvalidSender(address sender)`, `BankERC20InvalidReceiver(address receiver)`, and `BankERC20InsufficientBalance(address sender, uint256 balance, uint256 needed)`.
@@ -270,7 +270,7 @@ A transfer is a two-legged booking: debit the sender, credit the receiver, same 
 
 
 ```checker
-{"id": "ch04-l2-s2", "type": "regex", "pattern": "function\\s+_update\\(address\\s+from,\\s+address\\s+to,\\s+uint256\\s+value\\)\\s+internal\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l2-s2", "type": "regex", "pattern": "revert\\s+BankERC20InsufficientBalance\\(from,\\s+fromBalance,\\s+value\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 2.3 — Zero-address guards: `_transfer`
 **Instruction:** Write `function _transfer(address from, address to, uint256 value) internal` that reverts with `BankERC20InvalidSender(address(0))` if `from` is zero, reverts with `BankERC20InvalidReceiver(address(0))` if `to` is zero, then calls `_update(from, to, value)`.
@@ -297,7 +297,7 @@ A transfer is a two-legged booking: debit the sender, credit the receiver, same 
 
 
 ```checker
-{"id": "ch04-l2-s3", "type": "regex", "pattern": "if\\s+\\(to\\s+==\\s+address\\(0\\)\\)\\s+revert\\s+BankERC20InvalidReceiver\\(address\\(0\\)\\);\\s+//\\s+would\\s+destroy\\s+shares", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l2-s3", "type": "regex", "pattern": "if\\s+\\(from\\s+==\\s+address\\(0\\)\\)\\s+revert\\s+BankERC20InvalidSender\\(address\\(0\\)\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 2.4 — The public `transfer`
 **Instruction:** Implement `function transfer(address to, uint256 value) public returns (bool)`: call `_transfer(msg.sender, to, value)` and `return true`.
@@ -321,7 +321,7 @@ A transfer is a two-legged booking: debit the sender, credit the receiver, same 
 
 
 ```checker
-{"id": "ch04-l2-s4", "type": "regex", "pattern": "_transfer\\(msg\\.sender,\\s+to,\\s+value\\);\\s+//\\s+sender\\s+=\\s+authenticated\\s+signer,\\s+never\\s+a\\s+parameter", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l2-s4", "type": "regex", "pattern": "_transfer\\(msg\\.sender,\\s+to,\\s+value\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 2.5 — Read the booking entries from Java
 **Instruction:** No new Solidity. Study the event-consumption pattern below — your `Erc20Operations.java` adapter implements it in full — and answer for yourself: why does the consumer persist the last processed block number?
@@ -395,7 +395,7 @@ Why does ERC-20 need a second transfer path? Because contracts cannot be "pushed
 
 
 ```checker
-{"id": "ch04-l3-s1", "type": "regex", "pattern": "return\\s+_allowances\\[owner\\]\\[spender\\];\\s+//\\s+no\\s+entry\\s+=>\\s+0\\s+=>\\s+no\\s+mandate\\s+\\(deny\\s+by\\s+default\\)", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l3-s1", "type": "regex", "pattern": "mapping\\(address\\s+=>\\s+mapping\\(address\\s+=>\\s+uint256\\)\\)\\s+private\\s+_allowances;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 3.2 — Recording the mandate: `_approve`
 **Instruction:** Add errors `BankERC20InvalidApprover(address approver)` and `BankERC20InvalidSpender(address spender)`. Write `function _approve(address owner, address spender, uint256 value) internal`: revert with the respective error if `owner` or `spender` is the zero address, then set `_allowances[owner][spender] = value` and emit `Approval(owner, spender, value)`.
@@ -429,7 +429,7 @@ Why does ERC-20 need a second transfer path? Because contracts cannot be "pushed
 
 
 ```checker
-{"id": "ch04-l3-s2", "type": "regex", "pattern": "function\\s+_approve\\(address\\s+owner,\\s+address\\s+spender,\\s+uint256\\s+value\\)\\s+internal\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l3-s2", "type": "regex", "pattern": "if\\s+\\(spender\\s+==\\s+address\\(0\\)\\)\\s+revert\\s+BankERC20InvalidSpender\\(address\\(0\\)\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 3.3 — The public `approve` and the race caveat
 **Instruction:** Implement `function approve(address spender, uint256 value) public returns (bool)`: call `_approve(msg.sender, spender, value)` and return `true`.
@@ -456,7 +456,7 @@ Why does ERC-20 need a second transfer path? Because contracts cannot be "pushed
 
 
 ```checker
-{"id": "ch04-l3-s3", "type": "regex", "pattern": "_approve\\(msg\\.sender,\\s+spender,\\s+value\\);\\s+//\\s+only\\s+the\\s+owner\\s+can\\s+set\\s+their\\s+own\\s+mandates", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l3-s3", "type": "regex", "pattern": "_approve\\(msg\\.sender,\\s+spender,\\s+value\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 3.4 — Consuming the mandate: `_spendAllowance`
 **Instruction:** Add error `BankERC20InsufficientAllowance(address spender, uint256 currentAllowance, uint256 needed)`. Write `function _spendAllowance(address owner, address spender, uint256 value) internal`: read the current allowance; if it is *not* `type(uint256).max`, revert with the error when it is below `value`, otherwise decrement it inside `unchecked`.
@@ -498,7 +498,7 @@ Why does ERC-20 need a second transfer path? Because contracts cannot be "pushed
 
 
 ```checker
-{"id": "ch04-l3-s4", "type": "regex", "pattern": "error\\s+BankERC20InsufficientAllowance\\(address\\s+spender,\\s+uint256\\s+currentAllowance,\\s+uint256\\s+needed\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l3-s4", "type": "regex", "pattern": "revert\\s+BankERC20InsufficientAllowance\\(spender,\\s+currentAllowance,\\s+value\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 3.5 — The attorney executes: `transferFrom`
 **Instruction:** Implement `function transferFrom(address from, address to, uint256 value) public returns (bool)`: call `_spendAllowance(from, msg.sender, value)`, then `_transfer(from, to, value)`, then return `true`.
@@ -546,7 +546,7 @@ The EVM has no floating point and no decimal type — only integers. Every "amou
 
 
 ```checker
-{"id": "ch04-l3-s5", "type": "regex", "pattern": "function\\s+transferFrom\\(address\\s+from,\\s+address\\s+to,\\s+uint256\\s+value\\)\\s+public\\s+returns\\s+\\(bool\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l3-s5", "type": "regex", "pattern": "_spendAllowance\\(from,\\s+msg\\.sender,\\s+value\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.1 — Store decimals as an immutable
 **Instruction:** Declare `uint8 private immutable _decimals;` plus `string private _name;` and `string private _symbol;` as contract state.
@@ -568,7 +568,7 @@ The EVM has no floating point and no decimal type — only integers. Every "amou
 
 
 ```checker
-{"id": "ch04-l4-s1", "type": "regex", "pattern": "uint8\\s+private\\s+immutable\\s+_decimals;\\s+//\\s+fixed\\s+at\\s+issuance,\\s+read\\s+from\\s+bytecode\\s+not\\s+storage", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l4-s1", "type": "regex", "pattern": "uint8\\s+private\\s+immutable\\s+_decimals;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.2 — Wire the constructor
 **Instruction:** Write the constructor taking `(string memory name_, string memory symbol_, uint8 decimals_)` and assigning all three fields.
@@ -594,7 +594,7 @@ The EVM has no floating point and no decimal type — only integers. Every "amou
 
 
 ```checker
-{"id": "ch04-l4-s2", "type": "regex", "pattern": "constructor\\(string\\s+memory\\s+name_,\\s+string\\s+memory\\s+symbol_,\\s+uint8\\s+decimals_\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l4-s2", "type": "regex", "pattern": "_decimals\\s+=\\s+decimals_;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.3 — Metadata accessors
 **Instruction:** Implement `name()`, `symbol()`, and `decimals()` as `public view` functions returning the stored fields.
@@ -616,7 +616,7 @@ The EVM has no floating point and no decimal type — only integers. Every "amou
 
 
 ```checker
-{"id": "ch04-l4-s3", "type": "regex", "pattern": "function\\s+decimals\\(\\)\\s+public\\s+view\\s+returns\\s+\\(uint8\\)\\s+\\{\\s+return\\s+_decimals;\\s+\\}\\s+//\\s+display\\s+metadata\\s+only", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l4-s3", "type": "regex", "pattern": "function\\s+symbol\\(\\)\\s+public\\s+view\\s+returns\\s+\\(string\\s+memory\\)\\s+\\{\\s+return\\s+_symbol;\\s+\\}", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.4 — Choose the precision: 0 vs 18
 **Instruction:** No new code — decide the deployment parameter. For a registered-share token, deploy with `decimals_ = 0`. Write the one-line deployment comment in your contract header recording the decision and why.
@@ -703,7 +703,7 @@ Transfers move existing shares between holders — secondary market. Mint and bu
 
 
 ```checker
-{"id": "ch04-l5-s1", "type": "regex", "pattern": "address\\s+public\\s+immutable\\s+registrar;\\s+//\\s+single\\s+transfer\\-agent\\s+key;\\s+full\\s+RBAC\\s+in\\s+Ch\\.\\s+05", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l5-s1", "type": "regex", "pattern": "revert\\s+BankERC20UnauthorizedRegistrar\\(msg\\.sender\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 5.2 — Issuance/cancellation events with idempotency keys
 **Instruction:** Declare two events: `Issued(address indexed to, uint256 value, bytes32 indexed operationId)` and `Cancelled(address indexed from, uint256 value, bytes32 indexed operationId)`.
@@ -749,7 +749,7 @@ Transfers move existing shares between holders — secondary market. Mint and bu
 
 
 ```checker
-{"id": "ch04-l5-s3", "type": "regex", "pattern": "_update\\(address\\(0\\),\\s+to,\\s+value\\);\\s+//\\s+from\\s+=\\s+zero\\s+=>\\s+supply\\s+grows\\s+in\\s+_update", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l5-s3", "type": "regex", "pattern": "if\\s+\\(to\\s+==\\s+address\\(0\\)\\)\\s+revert\\s+BankERC20InvalidReceiver\\(address\\(0\\)\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 5.4 — The `_burn` primitive
 **Instruction:** Write `function _burn(address from, uint256 value) internal`: revert with `BankERC20InvalidSender(address(0))` if `from` is zero, then call `_update(from, address(0), value)`.
@@ -774,7 +774,7 @@ Transfers move existing shares between holders — secondary market. Mint and bu
 
 
 ```checker
-{"id": "ch04-l5-s4", "type": "regex", "pattern": "_update\\(from,\\s+address\\(0\\),\\s+value\\);\\s+//\\s+to\\s+=\\s+zero\\s+=>\\s+supply\\s+shrinks\\s+in\\s+_update", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l5-s4", "type": "regex", "pattern": "if\\s+\\(from\\s+==\\s+address\\(0\\)\\)\\s+revert\\s+BankERC20InvalidSender\\(address\\(0\\)\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 5.5 — Registrar-gated `mint` and `burn` with operation IDs
 **Instruction:** Implement `function mint(address to, uint256 value, bytes32 operationId) external onlyRegistrar` calling `_mint(to, value)` then emitting `Issued(to, value, operationId)`; and the symmetric `burn(address from, uint256 value, bytes32 operationId) external onlyRegistrar` calling `_burn` then emitting `Cancelled`.
@@ -1158,5 +1158,5 @@ a) order operations within a block — b) let the bank match on-chain events 1:1
 
 
 ```checker
-{"id": "ch04-l5-s5", "type": "regex", "pattern": "function\\s+burn\\(address\\s+from,\\s+uint256\\s+value,\\s+bytes32\\s+operationId\\)\\s+external\\s+onlyRegistrar\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch04-l5-s5", "type": "regex", "pattern": "function\\s+mint\\(address\\s+to,\\s+uint256\\s+value,\\s+bytes32\\s+operationId\\)\\s+external\\s+onlyRegistrar\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```

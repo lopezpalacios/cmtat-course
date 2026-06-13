@@ -205,7 +205,7 @@ contract EquityShareToken {
 **Validation rule:** The `rebaseStockSplit` function should be present and correctly implemented.
 
 ```checker
-{"id": "ch15-l1-s1", "type": "regex", "pattern": "function\\s+takeSnapshot\\(\\)\\sexternal\\s*{", "flags": "", "target": "solidity", "error_hint": "Implement the `rebaseStockSplit` function correctly."}
+{"id": "ch15-l1-s1", "type": "regex", "pattern": "require\\(msg\\.sender\\s+==\\s+registrar,\\s+\"Only\\s+the\\s+registrar\\s+can\\s+perform\\s+a\\s+stock\\s+split\"\\);", "flags": "", "target": "solidity", "error_hint": "Implement the `rebaseStockSplit` function correctly."}
 ```
 
 > **Banking integration note:** In banking, a rebase stock split is similar to adjusting the scale of an account balance. The number of units changes, but the total value remains the same.
@@ -429,7 +429,7 @@ contract EquityShareToken {
 **Validation rule:** The `rightsIssueNewShares` and `rightsIssuePricePerShare` variables should be present and correctly implemented.
 
 ```checker
-{"id": "ch15-l2-s1", "type": "regex", "pattern": "struct\\s+Snapshot\\s*{[^}]*}", "flags": "", "target": "solidity", "error_hint": "Declare `rightsIssueNewShares` and `rightsIssuePricePerShare` variables."}
+{"id": "ch15-l2-s1", "type": "regex", "pattern": "require\\(msg\\.sender\\s+==\\s+registrar,\\s+\"Only\\s+the\\s+registrar\\s+can\\s+set\\s+rights\\s+issue\\s+parameters\"\\);", "flags": "", "target": "solidity", "error_hint": "Declare `rightsIssueNewShares` and `rightsIssuePricePerShare` variables."}
 ```
 
 > **Banking integration note:** In banking, a rights issue is similar to offering a loan with a lower interest rate to existing customers. The new shares are issued at a discount to existing shareholders.
@@ -672,7 +672,7 @@ contract EquityShareToken {
 **Validation rule:** The `burn` function should be present and correctly implemented.
 
 ```checker
-{"id": "ch15-l3-s1", "type": "regex", "pattern": "function\\s+takeSnapshot\\(", "flags": "", "target": "solidity", "error_hint": "Implement the `burn` function correctly."}
+{"id": "ch15-l3-s1", "type": "regex", "pattern": "require\\(msg\\.sender\\s+==\\s+registrar,\\s+\"Only\\s+the\\s+registrar\\s+can\\s+burn\\s+shares\"\\);", "flags": "", "target": "solidity", "error_hint": "Implement the `burn` function correctly."}
 ```
 
 > **Banking integration note:** In banking, a share buyback is similar to redeeming a bond. The shares are canceled after payment.
@@ -936,7 +936,7 @@ contract EquityShareToken {
 **Validation rule:** The `forceTransfer` function should be present and correctly implemented.
 
 ```checker
-{"id": "ch15-l4-s1", "type": "regex", "pattern": "function\\s+takeSnapshot\\(\\)\\s+external\\s*{", "flags": "", "target": "solidity", "error_hint": "Implement the `forceTransfer` function correctly."}
+{"id": "ch15-l4-s1", "type": "regex", "pattern": "require\\(msg\\.sender\\s+==\\s+registrar,\\s+\"Only\\s+the\\s+registrar\\s+can\\s+perform\\s+a\\s+forced\\s+transfer\"\\);", "flags": "", "target": "solidity", "error_hint": "Implement the `forceTransfer` function correctly."}
 ```
 
 > **Banking integration note:** In banking, a squeeze-out is similar to a forced account transfer. The shares are transferred from one shareholder to another without their consent.

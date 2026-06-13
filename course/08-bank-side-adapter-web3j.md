@@ -483,7 +483,7 @@ public class ReconciliationJob {
 **Validation rule:** The method `reconcileTransactions` correctly implements the reconciliation loop.
 
 ```checker
-{"id": "ch08-l5-s1", "type": "regex", "pattern": "public\\s+void\\s+reconcileTransactions\\(Web3j\\s+web3j,\\s+List<String>\\s+transactionHashes\\)\\s+throws\\s+Exception\\s+\\{", "flags": "m", "target": "java", "error_hint": "Ensure transaction receipts are correctly retrieved and processed."}
+{"id": "ch08-l5-s1", "type": "regex", "pattern": "EthGetTransactionReceipt\\s+receipt\\s+=\\s+web3j\\.ethGetTransactionReceipt\\(hash\\)\\.send\\(\\);", "flags": "m", "target": "java", "error_hint": "Ensure transaction receipts are correctly retrieved and processed."}
 ```
 
 ### Step 5.2 — Handle reorgs in the reconciliation loop

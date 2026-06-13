@@ -136,7 +136,7 @@ contract HelloLedgerWarmup {
 
 
 ```checker
-{"id": "ch01-l1-s3", "type": "regex", "pattern": "function\\s+isContractAccount\\(address\\s+account\\)\\s+external\\s+view\\s+returns\\s+\\(bool\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch01-l1-s3", "type": "regex", "pattern": "return\\s+account\\.code\\.length\\s+>\\s+0;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 1.4 — Read a native balance
 
@@ -168,7 +168,7 @@ contract HelloLedgerWarmup {
 
 
 ```checker
-{"id": "ch01-l1-s4", "type": "regex", "pattern": "function\\s+nativeBalanceOf\\(address\\s+account\\)\\s+external\\s+view\\s+returns\\s+\\(uint256\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch01-l1-s4", "type": "regex", "pattern": "return\\s+account\\.balance;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 1.5 — Validate against the zero address
 
@@ -370,7 +370,7 @@ contract HelloLedgerTxLab {
 
 
 ```checker
-{"id": "ch01-l2-s4", "type": "regex", "pattern": "lastPostedAt\\s+=\\s+block\\.timestamp;\\s+//\\s+proposer\\-set;\\s+second\\-level\\s+precision\\s+only", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch01-l2-s4", "type": "regex", "pattern": "uint256\\s+public\\s+lastPostedBlock;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 2.5 — Respect the gas limit: bound your loops
 
@@ -463,7 +463,7 @@ The **world state** is one global key-value structure: every account's balance, 
 
 
 ```checker
-{"id": "ch01-l2-s5", "type": "regex", "pattern": "function\\s+postBatch\\(uint256\\[\\]\\s+calldata\\s+amounts\\)\\s+external\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch01-l2-s5", "type": "regex", "pattern": "if\\s+\\(amounts\\[i\\]\\s+==\\s+0\\)\\s+revert\\s+HelloLedgerLabZeroAmount\\(\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 3.1 — Storage vs memory vs calldata
 
@@ -504,7 +504,7 @@ contract HelloLedgerStateLab {
 
 
 ```checker
-{"id": "ch01-l3-s1", "type": "regex", "pattern": "string\\s+private\\s+note;\\s+//\\s+storage:\\s+the\\s+\"database\\s+table\"\\s+\u2014\\s+persists\\s+across\\s+txs", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch01-l3-s1", "type": "regex", "pattern": "function\\s+stash\\(string\\s+calldata\\s+input\\)\\s+external\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 3.2 — view and pure: free reads
 
@@ -719,7 +719,7 @@ contract HelloLedger {
 
 
 ```checker
-{"id": "ch01-l4-s2", "type": "regex", "pattern": "string\\s+private\\s+greeting;\\s+//\\s+hidden\\s+from\\s+contracts,\\s+NOT\\s+from\\s+observers", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch01-l4-s2", "type": "regex", "pattern": "address\\s+public\\s+immutable\\s+deployer;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.3 — Events and errors: declare the integration surface
 
@@ -791,7 +791,7 @@ contract HelloLedger {
 
 
 ```checker
-{"id": "ch01-l4-s4", "type": "regex", "pattern": "greeting\\s+=\\s+initialGreeting;\\s+//\\s+constructor\\s+args\\s+ride\\s+along\\s+with\\s+the\\s+initcode", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch01-l4-s4", "type": "regex", "pattern": "constructor\\(string\\s+memory\\s+initialGreeting\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.5 — recordEntry: the business transaction
 
@@ -841,7 +841,7 @@ contract HelloLedger {
 
 
 ```checker
-{"id": "ch01-l4-s5", "type": "regex", "pattern": "function\\s+recordEntry\\(string\\s+calldata\\s+note\\)\\s+external\\s+returns\\s+\\(uint256\\s+entryId\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch01-l4-s5", "type": "regex", "pattern": "emit\\s+EntryRecorded\\(entryId,\\s+msg\\.sender,\\s+note,\\s+block\\.timestamp\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.6 — Guarded mutation and the explicit getter
 
@@ -892,7 +892,7 @@ contract HelloLedger {
 
 
 ```checker
-{"id": "ch01-l4-s6", "type": "regex", "pattern": "emit\\s+GreetingChanged\\(old,\\s+newGreeting,\\s+msg\\.sender\\);\\s+//\\s+audit:\\s+before/after/who", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch01-l4-s6", "type": "regex", "pattern": "function\\s+isContractAccount\\(address\\s+account\\)\\s+external\\s+view\\s+returns\\s+\\(bool\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.7 — Compile and deploy
 

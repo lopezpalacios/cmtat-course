@@ -51,7 +51,7 @@ contract EventDrivenLedger {
 
 
 ```checker
-{"id": "ch03-l1-s1", "type": "regex", "pattern": "address\\s+public\\s+admin;\\s+//\\s+public\\s+=>\\s+compiler\\s+generates\\s+admin\\(\\)\\s+view\\s+getter", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l1-s1", "type": "regex", "pattern": "uint256\\s+public\\s+bookingCount;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 1.2 — A `view` function with multiple returns: the free query API
 
@@ -205,7 +205,7 @@ One profound difference: there is no session, no JWT, no `SecurityContextHolder`
 
 
 ```checker
-{"id": "ch03-l1-s5", "type": "regex", "pattern": "return\\s+entryType\\s+==\\s+1\\s+\\|\\|\\s+entryType\\s+==\\s+2;\\s+//\\s+named\\s+constants\\s+replace\\s+these\\s+in\\s+Lesson\\s+3", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l1-s5", "type": "regex", "pattern": "function\\s+_isValidEntryType\\(uint8\\s+entryType\\)\\s+internal\\s+pure\\s+returns\\s+\\(bool\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 2.1 — The constructor: who is the bootstrap principal?
 
@@ -239,7 +239,7 @@ One profound difference: there is no session, no JWT, no `SecurityContextHolder`
 
 
 ```checker
-{"id": "ch03-l2-s1", "type": "regex", "pattern": "admin\\s+=\\s+msg\\.sender;\\s+//\\s+deployer\\s+=\\s+bootstrap\\s+principal\\s+\\(key\\s+ceremony\\s+artifact\\)", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l2-s1", "type": "regex", "pattern": "isOperator\\[msg\\.sender\\]\\s+=\\s+true;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 2.2 — Write `onlyAdmin` by hand
 
@@ -335,7 +335,7 @@ One profound difference: there is no session, no JWT, no `SecurityContextHolder`
 
 
 ```checker
-{"id": "ch03-l2-s4", "type": "regex", "pattern": "if\\s+\\(account\\s+==\\s+address\\(0\\)\\)\\s+revert\\s+LedgerZeroAccount\\(\\);\\s+//\\s+null\\-principal\\s+guard", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l2-s4", "type": "regex", "pattern": "function\\s+revokeOperator\\(address\\s+account\\)\\s+external\\s+onlyAdmin\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 2.5 — Map the gates to the bank's org chart
 
@@ -424,7 +424,7 @@ Three facts to internalize:
 
 
 ```checker
-{"id": "ch03-l3-s1", "type": "regex", "pattern": "bytes32\\s+indexed\\s+externalRef,\\s+//\\s+idempotency\\s+key\\s+\u2014\\s+reconciliation\\s+lookups\\s+by\\s+topic", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l3-s1", "type": "regex", "pattern": "bytes32\\s+indexed\\s+externalRef,", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 3.2 — Named entry-type codes
 
@@ -459,7 +459,7 @@ Three facts to internalize:
 
 
 ```checker
-{"id": "ch03-l3-s2", "type": "regex", "pattern": "function\\s+_isValidEntryType\\(uint8\\s+entryType\\)\\s+internal\\s+pure\\s+returns\\s+\\(bool\\)\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l3-s2", "type": "regex", "pattern": "return\\s+entryType\\s+==\\s+ENTRY_DEBIT\\s+\\|\\|\\s+entryType\\s+==\\s+ENTRY_CREDIT;", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 3.3 — Audit events for role changes
 
@@ -507,7 +507,7 @@ Three facts to internalize:
 
 
 ```checker
-{"id": "ch03-l3-s3", "type": "regex", "pattern": "emit\\s+OperatorGranted\\(account,\\s+msg\\.sender\\);\\s+//\\s+acting\\s+principal\\s+in\\s+the\\s+record", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l3-s3", "type": "regex", "pattern": "event\\s+OperatorGranted\\(address\\s+indexed\\s+account,\\s+address\\s+indexed\\s+grantedBy\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 3.4 — Emit the genesis grant from the constructor
 
@@ -539,7 +539,7 @@ Three facts to internalize:
 
 
 ```checker
-{"id": "ch03-l3-s4", "type": "regex", "pattern": "emit\\s+OperatorGranted\\(msg\\.sender,\\s+msg\\.sender\\);\\s+//\\s+genesis\\s+audit\\s+record:\\s+replay\\-from\\-0\\s+completeness", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l3-s4", "type": "regex", "pattern": "emit\\s+OperatorGranted\\(msg\\.sender,\\s+msg\\.sender\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 3.5 — Write the event-design rules into the contract header
 
@@ -680,7 +680,7 @@ Everything converges. On-chain: one write function that validates at the boundar
 
 
 ```checker
-{"id": "ch03-l4-s2", "type": "regex", "pattern": "if\\s+\\(processed\\[externalRef\\]\\)\\s+revert\\s+LedgerDuplicateRef\\(externalRef\\);\\s+//\\s+idempotency\\s+gate", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l4-s2", "type": "regex", "pattern": "if\\s+\\(!_isValidEntryType\\(entryType\\)\\)\\s+revert\\s+LedgerInvalidEntryType\\(entryType\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.3 — Effects, then emit
 
@@ -720,7 +720,7 @@ The contract is complete — the full assembled source is at the end of this cha
 
 
 ```checker
-{"id": "ch03-l4-s3", "type": "regex", "pattern": "bookingCount\\s+\\+=\\s+1;\\s+//\\s+counter\\s+can't\\s+overflow\\s+uint256\\s+in\\s+any\\s+realistic\\s+timeline", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l4-s3", "type": "regex", "pattern": "emit\\s+BookingRecorded\\(externalRef,\\s+account,\\s+amount,\\s+entryType\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.4 — Java: mirror the event and derive topic0
 
@@ -827,7 +827,7 @@ The contract is complete — the full assembled source is at the end of this cha
 
 
 ```checker
-{"id": "ch03-l4-s5", "type": "regex", "pattern": "private\\s+List<BookingEntry>\\s+fetchRange\\(BigInteger\\s+fromBlock,\\s+BigInteger\\s+toBlock\\)\\s+throws\\s+IOException\\s+\\{", "flags": "m", "target": "java", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l4-s5", "type": "regex", "pattern": "filter\\.addSingleTopic\\(BOOKING_RECORDED_TOPIC\\);", "flags": "m", "target": "java", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.6 — Java: decode indexed vs non-indexed fields
 
@@ -888,7 +888,7 @@ The contract is complete — the full assembled source is at the end of this cha
 
 
 ```checker
-{"id": "ch03-l4-s6", "type": "regex", "pattern": "int\\s+entryType\\s+=\\s+\\(\\(Uint8\\)\\s+data\\.get\\(1\\)\\)\\.getValue\\(\\)\\.intValueExact\\(\\);\\s+//\\s+throws\\s+if\\s+out\\s+of\\s+range", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l4-s6", "type": "regex", "pattern": "int\\s+entryType\\s+=\\s+\\(\\(Uint8\\)\\s+data\\.get\\(1\\)\\)\\.getValue\\(\\)\\.intValueExact\\(\\);", "flags": "m", "target": "solidity", "error_hint": "Your code should match the solution for this step."}
 ```
 ### Step 4.7 — Java: replay for backfill with a reorg-safe head
 
@@ -1142,5 +1142,5 @@ a) `eth_getLogs` cannot query the latest block b) The newest blocks may be repla
 
 
 ```checker
-{"id": "ch03-l4-s7", "type": "regex", "pattern": "public\\s+List<BookingEntry>\\s+replayFrom\\(BigInteger\\s+fromBlock\\)\\s+throws\\s+IOException\\s+\\{", "flags": "m", "target": "java", "error_hint": "Your code should match the solution for this step."}
+{"id": "ch03-l4-s7", "type": "regex", "pattern": "public\\s+static\\s+final\\s+BigInteger\\s+CONFIRMATION_DEPTH\\s+=\\s+BigInteger\\.valueOf\\(12\\);", "flags": "m", "target": "java", "error_hint": "Your code should match the solution for this step."}
 ```

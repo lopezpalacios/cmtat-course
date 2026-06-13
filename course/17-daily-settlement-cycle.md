@@ -199,7 +199,7 @@ contract FundShareToken {
 **Validation rule:** Define the `OrderState` enum with the specified states.
 
 ```checker
-{"id": "ch17-l1-s2", "type": "regex", "pattern": "require\\(block\\.timestamp\\s+\\-\\s+lastNAVUpdateTimestamp\\s+<\\s+3600,\\s+\"NAV\\s+is\\s+too\\s+old\"\\);\\s+//\\s+Staleness\\s+guard", "flags": "m", "target": "solidity", "error_hint": "Define the `OrderState` enum with all required states."}
+{"id": "ch17-l1-s2", "type": "regex", "pattern": "enum\\s+OrderState\\s+\\{", "flags": "m", "target": "solidity", "error_hint": "Define the `OrderState` enum with all required states."}
 ```
 
 ## Lesson 2 — Managing Order Queues
@@ -1128,7 +1128,7 @@ contract FundShareToken {
 **Validation rule:** Implement reconciliation logic in the `dailyCutOff` function.
 
 ```checker
-{"id": "ch17-l4-s2", "type": "regex", "pattern": "//\\s+Reconciliation\\s+logic\\s+here", "flags": "m", "target": "solidity", "error_hint": "Implement reconciliation logic in the `dailyCutOff` function."}
+{"id": "ch17-l4-s2", "type": "regex", "pattern": "function\\s+getNAV\\(\\)\\s+external\\s+view\\s+returns\\s+\\(uint256\\);", "flags": "m", "target": "solidity", "error_hint": "Implement reconciliation logic in the `dailyCutOff` function."}
 ```
 
 ## Assembled Contract
