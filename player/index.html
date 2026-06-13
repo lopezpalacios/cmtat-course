@@ -247,6 +247,9 @@ function route(){
   if((m=h.match(/^#\/ch\/(\d+)\/done/))) return renderComplete(idxByNn(+m[1]));
   if((m=h.match(/^#\/ch\/(\d+)/))) return renderChapter(idxByNn(+m[1]));
   if(h==='#/track') return renderTrackChoice();
+  if(h==='#/guide') return renderGuide();
+  if(h==='#/glossary') return renderGlossary();
+  if(h==='#/teacher') return renderTeacher();
   return renderLanding();
 }
 window.addEventListener('hashchange',route);
@@ -276,7 +279,123 @@ function renderSide(){
         <span class="badge tnum">${done?'✓':cc.pass+cc.rev+'/'+cc.total}</span></a>`;
     });
   });
+  h+=`<div class="grp"><span class="eyebrow">Reference</span></div>
+    <a class="${location.hash==='#/guide'?'active':''}" onclick="go('#/guide')"><span>For Java delivery engineers</span></a>
+    <a class="${location.hash==='#/glossary'?'active':''}" onclick="go('#/glossary')"><span>Glossary</span></a>
+    <a onclick="go('#/teacher')"><span>Teacher notes 🔒</span></a>`;
   s.innerHTML=h;
+}
+
+/* ---------- delivery-engineer guide + glossary (demographic adaptation) ---------- */
+const SPRINGMAP=[
+ ["Authentication","Gateway sets the <code>Principal</code> on the request","<code>msg.sender</code> — verified by the protocol itself (no JWT/mTLS)"],
+ ["Authorization","<code>@PreAuthorize</code> / Spring Security roles","AccessControl roles · CMTAT AuthorizationModule"],
+ ["Persistence","JPA entity ↔ table row","Contract storage <code>mapping</code> (the positions table)"],
+ ["Transaction / rollback","<code>@Transactional</code> rollback","<code>revert</code> — state reverts, but gas is still paid"],
+ ["Eventing","<code>@KafkaListener</code> + committed offsets","Contract <code>event</code> + log subscription with a block cursor"],
+ ["Idempotency","<code>Idempotency-Key</code> header / dedupe table","<code>operationId</code> + on-chain topic-filter dedupe"],
+ ["Serialization","Jackson DTO ↔ JSON","ABI encode/decode (web3j <code>Function</code>/<code>FunctionReturnDecoder</code>)"],
+ ["Money type","<code>BigDecimal</code> + scale","<code>uint256</code> base units + <code>decimals</code> (never <code>double</code>)"],
+ ["Build / codegen","Maven + WSDL→stubs","Foundry <code>forge</code> for Solidity · <code>web3j</code> plugin for typed wrappers from the ABI"],
+];
+const EXAMPLES=[
+ ["Currency minor unit","CHF Rappen","INR paise · EUR cent"],
+ ["Clearing / rails","SIC (Swiss)","NPCI · UPI · IMPS (India) · TARGET2 / SEPA (EU/CEE)"],
+ ["End-to-end reference","ISO 20022 UETR","UPI transaction ref · your <code>operationId</code>"],
+ ["Securities depository","SIX SIS","CDSL / NSDL (India) · local CSDs (CEE)"],
+];
+function renderGuide(){
+  $('#main').innerHTML=`<div class="col">
+    <h1 class="kick">For Java delivery engineers</h1>
+    <p class="lead">This course is written as if you run a Swiss bank's core. Most of you don't — you
+    <strong>build to spec</strong> for bank/fintech clients from delivery centres in India and Central/Eastern Europe.
+    Read every “you operate X” as “you integrate with the client's X”. Your usual deliverable is the
+    off-chain <strong>Java/web3j adapter</strong> (Chapter 8) plus a contract module to a given standard (CMTAT).</p>
+    <div class="card"><div class="eyebrow">Map it to the stack you already use</div>
+      <table class="map"><thead><tr><td><b>Concern</b></td><td><b>Your Spring/Java world</b></td><td><b>EVM / CMTAT</b></td></tr></thead>
+      <tbody>${SPRINGMAP.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody></table></div>
+    <div class="card"><div class="eyebrow">Localise the examples</div>
+      <table class="map"><thead><tr><td><b>Concept</b></td><td><b>Course (Swiss)</b></td><td><b>Your region</b></td></tr></thead>
+      <tbody>${EXAMPLES.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody></table></div>
+    <div class="card"><div class="eyebrow">What to deliver for a client</div>
+      <p class="small muted" style="margin:8px 0 0">The signer is the compliance question that always comes up: never ship
+      <code>Credentials.create("0x…")</code> to production. Back your <code>TransactionManager</code> with the client's HSM/KMS/MPC
+      signer. Generate typed contract wrappers from the audited CMTAT ABI with the web3j Maven plugin rather than hand-encoding calls,
+      and prove the adapter with a <code>mvn test</code> against a local anvil node before you demo “done”.</p></div>
+    <div class="cta"><button onclick="go('#/glossary')">Open the glossary →</button>
+      <button class="ghost" onclick="goLanding()">Back to course</button></div></div>`;
+}
+const GLOSSARY=[
+ ["Registrar / transfer agent","Keeps the official register of who owns which shares and processes transfers. On-chain: the role allowed to mint/burn/force-transfer."],
+ ["Custody","Safekeeping of assets/keys on a client's behalf. The HSM/MPC question: who holds the signing key."],
+ ["Coupon","Periodic interest payment on a bond, computed on a record-date snapshot."],
+ ["Par value","The face/nominal value of a bond or share."],
+ ["NAV","Net Asset Value — the per-share price of a fund, published daily by the fund accountant (oracle on-chain)."],
+ ["Corporate action","An event changing the security: dividend, split, rights issue, buyback, redemption."],
+ ["Omnibus account","One account holding many clients' positions commingled (vs segregated)."],
+ ["EOD batch","End-of-day batch processing — the bank's nightly settlement/clearing run; analogous to a block."],
+ ["HSM","Hardware Security Module — tamper-resistant device that holds keys and signs without exposing them."],
+ ["ISO 20022","The global financial-messaging standard (e.g. pain.001 payment initiation); the contract's ABI/events play a similar role."],
+ ["Record date / snapshot","A point-in-time freeze of balances used to compute dividends, coupons, or voting power."],
+ ["Idempotency key","A unique id (here <code>operationId</code>) that lets a retried instruction execute at most once."],
+ ["Finality","When a settlement can no longer be reversed; on-chain, sufficient confirmation depth / the FINALIZED tag."],
+ ["Reorg","A chain reorganisation where recent blocks are replaced — a previously-seen tx may no longer be canonical."],
+ ["msg.sender","The protocol-verified address that called the current function — your authenticated caller, for free."],
+ ["wei","The smallest ETH unit (1e-18); analogous to a currency's minor unit. Use <code>BigInteger</code>, never <code>double</code>."],
+ ["DvP","Delivery versus Payment — atomic swap of the security against cash so neither leg settles without the other."],
+];
+function renderGlossary(){
+  $('#main').innerHTML=`<div class="col"><h1 class="kick">Glossary</h1>
+    <p class="muted">Finance and EVM terms the course uses. Skim before Chapter 1 if the domain is new to you.</p>
+    <div class="card"><table class="map"><tbody>${GLOSSARY.map(g=>`<tr><td style="white-space:normal"><b>${g[0]}</b></td><td>${g[1]}</td></tr>`).join('')}</tbody></table></div>
+    <div class="cta"><button onclick="goLanding()">Back to course →</button></div></div>`;
+}
+
+/* ---------- teacher notes (password → client-side AES-GCM decrypt) ---------- */
+function renderTeacher(){
+  $('#main').innerHTML=`<div class="col"><h1 class="kick">Teacher notes 🔒</h1>
+    <p class="muted">Private lecture notes for the instructor. The repository stores only ciphertext —
+    decryption happens in your browser with the password (PBKDF2 + AES-GCM).</p>
+    <div class="card">
+      <input id="tpw" type="password" autocomplete="off" placeholder="password"
+        style="width:100%;max-width:320px;padding:10px 12px;border:1px solid var(--line-strong);border-radius:var(--radius-sm);font:inherit"
+        onkeydown="if(event.key==='Enter')unlockTeacher()"/>
+      <div class="actions"><button onclick="unlockTeacher()">Unlock</button></div>
+      <div class="verdict" id="tmsg" hidden></div>
+    </div>
+    <div id="tnotes"></div></div>`;
+  setTimeout(()=>{const e=document.getElementById('tpw'); if(e)e.focus();},50);
+}
+async function unlockTeacher(){
+  const pw=(document.getElementById('tpw')||{}).value||''; const msg=document.getElementById('tmsg');
+  try{
+    const res=await fetch('teacher/notes.enc',{cache:'no-store'}); if(!res.ok) throw 0;
+    const b=await res.json(); const dec=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+    const km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+    const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:dec(b.salt),iterations:b.iter||200000,hash:'SHA-256'},
+      km,{name:'AES-GCM',length:256},false,['decrypt']);
+    const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv:dec(b.iv)},key,dec(b.ct));
+    document.getElementById('tnotes').innerHTML=mdToHtml(new TextDecoder().decode(pt));
+    if(msg){msg.hidden=true;} window.scrollTo(0,0);
+  }catch(e){ if(msg){msg.hidden=false;msg.className='verdict err';
+    msg.textContent='Wrong password, or notes not published yet.';} }
+}
+function mdToHtml(md){
+  const esc2=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const lines=md.split('\n'); let out=[],inUl=false,inCode=false,buf=[];
+  const flush=()=>{ if(buf.length){out.push('<p>'+buf.join(' ')+'</p>');buf=[];} };
+  for(let ln of lines){
+    if(ln.trim().startsWith('```')){ if(inCode){out.push('</code></pre>');inCode=false;} else {flush();out.push('<pre><code>');inCode=true;} continue; }
+    if(inCode){ out.push(esc2(ln)); continue; }
+    let l=esc2(ln);
+    l=l.replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`(.+?)`/g,'<code>$1</code>');
+    if(/^#{1,4}\s/.test(ln)){ flush(); if(inUl){out.push('</ul>');inUl=false;} const n=ln.match(/^#+/)[0].length; out.push(`<h${n} style="margin:18px 0 6px">${l.replace(/^#+\s/,'')}</h${n}>`); continue; }
+    if(/^\s*[-*]\s/.test(ln)){ flush(); if(!inUl){out.push('<ul>');inUl=true;} out.push('<li>'+l.replace(/^\s*[-*]\s/,'')+'</li>'); continue; }
+    if(ln.trim()===''){ flush(); if(inUl){out.push('</ul>');inUl=false;} continue; }
+    buf.push(l);
+  }
+  flush(); if(inUl)out.push('</ul>'); if(inCode)out.push('</code></pre>');
+  return '<div class="card">'+out.join('\n')+'</div>';
 }
 
 /* ---------- landing ---------- */
@@ -293,16 +412,19 @@ function renderLanding(){
       <div class="muted small">${esc(c.builds.split('·')[0]||'')}</div></div>`;}).join('');
   $('#main').innerHTML=`<div class="col">
     <div class="hero">
-      <h1 class="kick">Tokenized securities on the EVM — for core-banking engineers</h1>
-      <p class="lead">You already build ledgers, payment rails and HSM-signed messages. This course maps
-      every one of those to the EVM and the <strong>CMTAT</strong> tokenized-securities standard — and you
-      ship real Solidity contracts. Zero blockchain background assumed.</p>
+      <h1 class="kick">Tokenized securities on the EVM — for Java engineers</h1>
+      <p class="lead">Built for <strong>delivery & services Java developers</strong> — Spring shops in India and
+      Central/Eastern Europe building for bank and fintech clients. You already build ledgers, payment rails and
+      HSM-signed messages; this course maps every one to the EVM and the <strong>CMTAT</strong> tokenized-securities
+      standard, and you ship real Solidity + the Java/web3j adapter. Zero blockchain background assumed.</p>
     </div>
     <div class="card">
       <div class="eyebrow">How this works</div>
-      <p class="small muted" style="margin:8px 0 0">Work each step in the editor, press <strong>Check</strong> to
-      validate against the lesson's rule, and the next step unlocks. Stuck? Ladder through a hint before the
-      solution. Every concept is mapped to your Java/.NET &amp; core-banking world. Progress saves in this browser.</p>
+      <p class="small muted" style="margin:8px 0 0">Work each step in the editor like slides, press <strong>Check</strong> to
+      validate, then <strong>Next →</strong> (or arrow keys). Stuck? Ladder through a hint before the solution. Every
+      concept maps to your Spring/Java world. Progress saves in this browser. New to the finance domain or building
+      <em>to spec</em> for a client? Start with the <a onclick="go('#/guide')">delivery-engineer guide</a> and
+      <a onclick="go('#/glossary')">glossary</a>.</p>
     </div>
     <div class="card">
       <div class="eyebrow">Your world → the EVM</div>

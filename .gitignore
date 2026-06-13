@@ -13,5 +13,8 @@ pm/prompts/
 # logs
 pm/*.log
 
+# teacher notes plaintext — only the encrypted player/teacher/notes.enc is public
+teacher/notes.src.md
+
 # os
 .DS_Store
