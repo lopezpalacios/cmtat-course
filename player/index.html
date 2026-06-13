@@ -132,6 +132,40 @@ table.map td:first-child{color:var(--ink-2);white-space:nowrap;}
 .celebrate .big{font-size:26px;font-weight:600;}
 .celebrate .red{color:var(--red);}
 
+/* highlighted-textarea editor overlay */
+.editor{position:relative;margin-top:10px;}
+.editor pre.hl,.editor textarea{margin:0;padding:14px;border-radius:var(--radius-sm);
+  font:400 13.5px/1.6 var(--font-mono);width:100%;min-height:230px;white-space:pre;
+  overflow:auto;tab-size:2;letter-spacing:0;box-sizing:border-box;}
+.editor pre.hl{position:absolute;inset:0;background:var(--surface-sunk);z-index:0;
+  pointer-events:none;border:1px solid var(--line-strong);color:var(--ink);}
+.editor pre.hl code{font:inherit;white-space:inherit;background:none;padding:0;}
+.editor textarea{position:relative;z-index:1;background:transparent;color:transparent;
+  caret-color:var(--red);border:1px solid transparent;resize:vertical;}
+.editor textarea:focus{outline:none;}
+.editor:focus-within pre.hl{border-color:var(--red);box-shadow:0 0 0 3px rgba(200,16,46,.18);}
+
+/* Prism — Swiss palette (light) */
+code[class*="language-"],pre[class*="language-"]{color:var(--ink);text-shadow:none;}
+.token.comment,.token.prolog,.token.doctype,.token.cdata{color:var(--ink-3);font-style:italic;}
+.token.punctuation,.token.operator,.token.entity,.token.url{color:var(--ink-2);}
+.token.keyword,.token.boolean,.token.atrule,.token.important{color:var(--red);font-weight:600;}
+.token.string,.token.char,.token.attr-value,.token.inserted{color:#1E7A46;}
+.token.number,.token.constant,.token.symbol{color:#9A6B00;}
+.token.function,.token.class-name{color:#85091E;font-weight:600;}
+.token.builtin,.token.property,.token.attr-name,.token.tag{color:#0A4A6E;}
+
+/* motion */
+@keyframes cardIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.step.active{animation:cardIn .28s ease both;}
+.hero,.celebrate,.hintbox{animation:cardIn .3s ease both;}
+@keyframes pop{0%{transform:scale(.97);}55%{transform:scale(1.02);}100%{transform:scale(1);}}
+.verdict.ok{animation:pop .32s ease;}
+@keyframes shake{10%,90%{transform:translateX(-1px);}20%,80%{transform:translateX(2px);}
+  30%,50%,70%{transform:translateX(-3px);}40%,60%{transform:translateX(3px);}}
+.verdict.err{animation:shake .4s ease;}
+.opt{transition:border-color .12s ease,background .12s ease;}
+
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
 @media (max-width:820px){#side{display:none;}#main{padding:24px 18px 70px;}}
 </style>
@@ -147,6 +181,9 @@ table.map td:first-child{color:var(--ink-2);white-space:nowrap;}
   <nav id="side"></nav>
   <main id="main"><p class="muted">Loading…</p></main>
 </div>
+<script>window.Prism={manual:true};</script>
+<script src="vendor/prism.js"></script>
+<script src="vendor/confetti.browser.min.js"></script>
 <script>
 const LS="cmtat.v2";
 let C=null, P=loadP();
@@ -288,7 +325,27 @@ function renderChapter(ci){
   }
   h+='</div>';
   $('#main').innerHTML=h; window.scrollTo(0,0);
+  highlightAll();
+  document.querySelectorAll('.step.active').forEach(hydrateEditor);
   const a=document.querySelector('.step.active'); if(a) a.scrollIntoView({block:'center',behavior:'smooth'});
+}
+function highlightAll(){ if(window.Prism) try{Prism.highlightAllUnder($('#main'));}catch(e){} }
+function hydrateEditor(step){
+  const ta=step.querySelector('textarea[data-code]'), code=step.querySelector('[data-hl]');
+  if(!ta||!code) return;
+  const lang=ta.dataset.lang||'solidity', pre=code.parentElement;
+  const paint=()=>{ code.textContent=ta.value+"\n"; if(window.Prism) Prism.highlightElement(code); };
+  const sync=()=>{ pre.scrollTop=ta.scrollTop; pre.scrollLeft=ta.scrollLeft; };
+  ta.addEventListener('input',()=>{paint();sync();});
+  ta.addEventListener('scroll',sync);
+  paint(); sync();
+}
+function fxConfetti(big){
+  if(!window.confetti || matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+  const colors=['#C8102E','#0A0A0A','#85091E','#1E7A46'];
+  confetti({particleCount:big?150:80,spread:big?100:65,startVelocity:big?45:35,origin:{y:.65},colors});
+  if(big){ setTimeout(()=>confetti({particleCount:80,angle:60,spread:70,origin:{x:0,y:.7},colors}),160);
+           setTimeout(()=>confetti({particleCount:80,angle:120,spread:70,origin:{x:1,y:.7},colors}),160); }
 }
 function masteryHTML(cc){
   const p=cc.total?cc.pass/cc.total*100:0, r=cc.total?cc.rev/cc.total*100:0;
@@ -307,19 +364,23 @@ function stepHTML(st, active){
   }
   // active (or re-opened done): full UI
   const code = (P.code[st.id]!=null?P.code[st.id]:st.starter)||'';
+  const lang = (st.checker && st.checker.target==='java') ? 'java' : 'solidity';
   return `<div class="step active" data-id="${esc(st.id)}">
     <h4><span>Step ${esc(st.id)} — ${esc(st.title)}</span><span class="tag">${st.checker?'Check':'Read'}</span></h4>
     <div class="instr">${esc(st.instruction)}</div>
     ${st.explanation?`<details class="why" open><summary>Why this matters</summary><div class="body">${esc(st.explanation)}</div></details>`:''}
-    <div class="codelabel">Your code — Solidity</div>
-    <textarea spellcheck="false" data-code>${esc(code)}</textarea>
+    <div class="codelabel">Your code — ${lang==='java'?'Java':'Solidity'}</div>
+    <div class="editor">
+      <pre class="hl" aria-hidden="true"><code class="language-${lang}" data-hl></code></pre>
+      <textarea spellcheck="false" data-code data-lang="${lang}">${esc(code)}</textarea>
+    </div>
     <div class="actions">
       ${st.checker?'<button data-act="check">Check</button>':'<button data-act="reviewed">Mark reviewed →</button>'}
       ${st.solution?'<button class="ghost" data-act="hint">Hint</button><button class="ghost" data-act="sol">Show solution</button>':''}
     </div>
     <div class="verdict" data-v hidden></div>
     <div class="hintbox" data-hint hidden></div>
-    <pre data-sol hidden><code>${esc(st.solution||'')}</code></pre>
+    <pre data-sol hidden><code class="language-${lang}">${esc(st.solution||'')}</code></pre>
   </div>`;
 }
 
@@ -403,6 +464,7 @@ function renderComplete(ci){
       <p class="muted">You've shipped a full CMTAT instrument end-to-end.</p></div>`;
   }
   h+='</div>'; $('#main').innerHTML=h; window.scrollTo(0,0); renderSide(); renderMast();
+  fxConfetti(!next);
 }
 function renderTrackChoice(){
   const tracks=C.parts.filter(p=>p.track!=='shared');
