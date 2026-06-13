@@ -94,3 +94,16 @@ framework, no backend — stays GitHub-Pages-deployable.
 **Success criteria:** every step's starter fails & solution passes; one-step flow with
 resume; quizzes playable; landing + track selection present; Swiss-bank look; all checkers
 still valid under the player's JS RegExp (`pm/verify_player.js`).
+
+---
+
+## Status: SHIPPED (all phases P0-P5)
+
+- P0 grader: 0 comment-locked, 0 solution-fails, 3 benign assembly freebies; `check_grader.py` gate.
+- P1 flow: one-step gating + localStorage persistence + mastery bars + non-destructive review.
+- P2 assessment: richer `course.json`; 18 quizzes normalized (90 Qs, MC auto-graded + short-answer self-grade with deferred rationale); objectives/tracks/estimates surfaced.
+- P3 onboarding: landing (value prop + your-world→EVM map + you'll-build), Part/Track sidebar, post-core track selection, % progress, Next→, completion screens.
+- P4 hints: 3-rung ladder + warmer microcopy.
+- P5 design: Swiss-bank white/red/black system, dependency-free, WCAG-AA.
+
+Live: https://lopezpalacios.github.io/cmtat-course/
