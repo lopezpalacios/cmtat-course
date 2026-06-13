@@ -220,10 +220,11 @@ const MAP=[["Bank account","Externally-owned account (EOA)"],["HSM-held signing 
 ["Stored procedure / posting","Smart-contract function call"],["Audit journal","Event log"]];
 function renderLanding(){
   const o=overall(); const started=o.done>0;
+  const resumeNn=(started?(C.chapters.find(c=>!chDone(c))||C.chapters[0]):C.chapters[0]).nn;
   const tiles=C.parts.filter(p=>p.track!=='shared').map(p=>{
     const c=C.chapters[p.chapters[0]];
     return `<div class="tile"><div class="eyebrow">Track ${p.track}</div>
-      <h4>${esc(p.title.replace(/^Track .—\s*/,''))}</h4>
+      <h4>${esc(p.title.replace(/^Track\s+\w+\s*[—-]\s*/,''))}</h4>
       <div class="muted small">${esc(c.builds.split('·')[0]||'')}</div></div>`;}).join('');
   $('#main').innerHTML=`<div class="col">
     <div class="hero">
@@ -248,7 +249,7 @@ function renderLanding(){
       <p class="small muted" style="margin:8px 0 0">Comfortable in Java/.NET and core-banking concepts. Tooling:
       <a href="https://getfoundry.sh" target="_blank" rel="noopener">Foundry</a> (forge/anvil) to compile and run the contracts locally — optional for the lessons, used in the capstones.</p></div>
     <div class="cta">
-      <button onclick="go('#/ch/${C.chapters[0].nn}')">${started?'Resume':'Start Chapter 1'} →</button>
+      <button onclick="go('#/ch/${resumeNn}')">${started?'Resume Chapter '+resumeNn:'Start Chapter 1'} →</button>
       <span class="muted small tnum">${C.chapters.length} chapters · ${o.tot} steps${started?` · ${Math.round(o.done/o.tot*100)}% done`:''}</span>
     </div></div>`;
 }
@@ -407,7 +408,7 @@ function renderTrackChoice(){
   const tracks=C.parts.filter(p=>p.track!=='shared');
   const tiles=tracks.map(p=>{ const c=C.chapters[p.chapters[0]];
     return `<div class="tile"><div class="eyebrow">Track ${p.track}</div>
-      <h4>${esc(p.title.replace(/^Track .—\s*/,''))}</h4>
+      <h4>${esc(p.title.replace(/^Track\s+\w+\s*[—-]\s*/,''))}</h4>
       <p class="muted small">${esc(c.objective.slice(0,140))}…</p>
       <button style="margin-top:10px" onclick="chooseTrack('${p.track}',${p.chapters[0]})">Choose ${p.track} →</button></div>`;}).join('');
   $('#main').innerHTML=`<div class="col"><h1 class="kick">Choose your instrument track</h1>
